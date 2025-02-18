@@ -1,9 +1,11 @@
-#include "ShooterPro/Public/AI/ShooterAIBase.h"
+#include "ShooterPro/Public/AI/EnemyAIBase.h"
 
+#include "AI/EnemyAIController.h"
 #include "AI/Components/AIBehaviorsComponent.h"
 #include "AI/Components/AICollisionComponent.h"
-#include "AI/Utility/ShooterAIBluePrintFunctionLibrary.h"
-#include "AI/ShooterAILog.h"
+#include "AI/Utility/EnemyAIBluePrintFunctionLibrary.h"
+#include "AI/EnemyAILog.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -11,7 +13,7 @@
 #include "NavAreas/NavArea_Obstacle.h"
 
 
-AShooterAIBase::AShooterAIBase()
+AEnemyAIBase::AEnemyAIBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -52,7 +54,7 @@ AShooterAIBase::AShooterAIBase()
 
 		// Pawn, Vehicle 채널 무시, Camera 채널은 Overlap
 		GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+		GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Block);
 		GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Overlap);
 
 		// 상대 위치 및 회전 설정
@@ -84,99 +86,18 @@ AShooterAIBase::AShooterAIBase()
 		GetCharacterMovement()->NavAgentProps.AgentHeight = 192.0f;
 	}
 
-
-	//AI Base Component 설정
 	AIBehaviorsComponent = CreateDefaultSubobject<UAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
-	MeleeCollisionComponent = CreateDefaultSubobject<UAICollisionComponent>(TEXT("MeleeCollisionComponent"));
-
-	//Dummy Curve를 설정해야합니다.
-	// 예: CurveFloat 에셋 불러오기 (경로는 콘텐츠 브라우저에서 확인한 에셋 경로)
-	// static ConstructorHelpers::FObjectFinder<UCurveFloat> CurveAsset(TEXT("/Game/Curves/MySpeedCurve.MySpeedCurve"));
-	// if (CurveAsset.Succeeded())
-	// {
-	// 	RotateCurve = CurveAsset.Object;
-	// }
 }
 
 
-void AShooterAIBase::BeginPlay()
+void AEnemyAIBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!BehaviorTree)
-	{
-		SHOOTERAI_LOG_ERROR("BehaviorTree 가 nullptr 입니다.");
-	}
-
-	if (RotateCurve)
-	{
-		FOnTimelineFloat OnRotate;
-		OnRotate.BindUFunction(this, FName("OnRotateUpdateAlpha"));
-		RotateTimeline.AddInterpFloat(RotateCurve, OnRotate);
-
-		RotateTimeline.SetTimelineLength(RotateTimelineLength);
-		RotateTimeline.SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
-	}
-	else
-	{
-		SHOOTERAI_LOG_ERROR("RotateCurve 가 nullptr 입니다.");
-	}
+	AEnemyAIController* EnemyAIController = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(this));
 }
 
-float AShooterAIBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-{
-	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	CurrentHealth -= ActualDamage;
-
-	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
-	{
-		if (const FPointDamageEvent* PointEvent = static_cast<const FPointDamageEvent*>(&DamageEvent))
-		{
-			EHitDirection HitDirection = UShooterAIBluePrintFunctionLibrary::GetHitDirection(PointEvent->ShotDirection, this);
-
-			if (CurrentHealth <= 0)
-			{
-				AIBehaviorsComponent->DeadRagdoll(PointEvent->ShotDirection, PointEvent->HitInfo.BoneName, 1000.0f, HitDirection);
-			}
-			else
-			{
-				AIBehaviorsComponent->Hitted(HitDirection);
-			}
-		}
-	}
-
-	return ActualDamage;
-}
-
-void AShooterAIBase::Tick(float DeltaSeconds)
+void AEnemyAIBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	RotateTimeline.TickTimeline(DeltaSeconds);
-}
-
-void AShooterAIBase::StartRotateToPlayer(float NewInterpSpeed)
-{
-	RotateInterpSpeed = NewInterpSpeed;
-	RotateTimeline.PlayFromStart();
-}
-
-void AShooterAIBase::StopRotateToPlayer()
-{
-	RotateTimeline.Stop();
-}
-
-void AShooterAIBase::OnRotateUpdateAlpha(float Alpha)
-{
-	AActor* AITarget = AIBehaviorsComponent->GetTargetActor();
-	if (IsValid(AITarget))
-	{
-		FVector SelfLocation = GetActorLocation();
-		FVector TargetLocation = AITarget->GetActorLocation();
-
-		float TargetYaw = UKismetMathLibrary::FindLookAtRotation(SelfLocation, TargetLocation).Yaw;
-		FRotator TargetRotator = FRotator(0, TargetYaw, 0);
-
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRotator, GetWorld()->GetDeltaSeconds(), RotateInterpSpeed));
-	}
 }
