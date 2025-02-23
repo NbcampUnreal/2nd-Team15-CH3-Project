@@ -33,7 +33,20 @@ void APatrolPath::OnConstruction(const FTransform& Transform)
 
 void APatrolPath::IncrementPatrolRoute()
 {
-	
+	int32 StepDirection = (bPatrolReverseDirection) ? -1 : 1;
+	int32 SplinePointNum = SplineComponent->GetNumberOfSplinePoints() - 1;
+
+	PatrolIndex += StepDirection;
+
+	if (PatrolIndex >= SplinePointNum)
+		bPatrolReverseDirection = true;
+	else if (PatrolIndex == 0)
+		bPatrolReverseDirection = false;
+}
+
+FVector APatrolPath::GetSplinePointAsWorldPosition()
+{
+	return SplineComponent->GetLocationAtSplinePoint(PatrolIndex, ESplineCoordinateSpace::World);
 }
 
 

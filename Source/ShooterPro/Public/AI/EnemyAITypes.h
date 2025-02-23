@@ -2,210 +2,120 @@
 
 #include "CoreMinimal.h"
 #include "FunctionalTest.h"
+
 #include "EnemyAITypes.generated.h"
 
 
-UENUM(BlueprintType)
-enum class EAIState : uint8
+UENUM(BlueprintType, meta=(Bitmask, UseEnumValuesAsMaskValuesInEditor="true"))
+enum class ECombatTriggerFlags : uint8
 {
-	Passive,
-	Attacking,
-	Frozen,
-	Investigating,
-	Dead,
-	Seeking
+	None = 0,
+	Sight = 1 << 0,
+	Hearing = 1 << 1,
+	Damage = 1 << 2,
+	OnSpawn = 1 << 3,
 };
 
+/** 
+ * 여러 감각 종류를 열거하는 Enum 
+ * EAISense는 AI가 감지할 수 있는 감각을 나타냅니다.
+ * - Sight: 시각
+ * - Hearing: 청각
+ * - Damage: 피해 감지
+ */
 UENUM(BlueprintType)
 enum class EAISense : uint8
 {
-	None,
-	Sight,
-	Hearing,
-	Damage,
+	None, // 감각 없음
+	Sight, // 시각
+	Hearing, // 청각
+	Damage, // 피해
 };
 
 
+UENUM(BlueprintType)
+enum class EAIMovementSpeed : uint8
+{
+	Idle,
+	Walking,
+	Jogging,
+	Sprinting,
+};
 
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// UENUM(BlueprintType)
-// enum class ECollisionPart : uint8
-// {
-// 	None,
-// 	Weapon,
-// 	RightHand,
-// 	LeftHand,
-// 	RightFoot,
-// 	LeftFoot
-// };
-//
-//
-//
-//
-//
-// UENUM(BlueprintType)
-// enum class EAIBehavior : uint8
-// {
-// 	Idle,
-// 	Patrol,
-// 	Approach,
-// 	Roaming,
-// 	MeleeAttack,
-// 	RangeAttack,
-// 	Strafe,
-// 	Hit,
-// 	Companion
-// };
-//
-// UENUM(BlueprintType)
-// enum class EHitDirection : uint8
-// {
-// 	Front,
-// 	Back,
-// 	Left,
-// 	Right
-// };
-//
-//
-// UENUM(BlueprintType)
-// enum class EAIMovementState : uint8
-// {
-// 	Idle,
-// 	Walk,
-// 	Jog,
-// 	RandomWalkOrJog
-// };
-//
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FBehaviorBase
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior Base")
-// 	EAIBehavior BehaviorType =EAIBehavior::Idle;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior Base")
-// 	EAIMovementState MovementSpeedType = EAIMovementState::Idle;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior Base")
-// 	EAIBehavior OnSenseFoundTarget=EAIBehavior::Idle;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior Base")
-// 	EAIBehavior OnSenseLoseTarget=EAIBehavior::Idle;
-// };
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FAITransition
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Transition")
-// 	EComparisonMethod Comparison = EComparisonMethod::Less_Than_Or_Equal_To;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Transition")
-// 	float DistanceToTarget = 0.0f;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Transition")
-// 	float RateChance = 100.0f;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Transition")
-// 	EAIBehavior NewBehavior = EAIBehavior::Idle;
-// };
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FBehaviorTransitionSettings
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTransitionSettings")
-// 	float DelayTrigger = 3.0f;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTransitionSettings")
-// 	float RandomDeviation=0.0f;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTransitionSettings")
-// 	TArray<FAITransition> Transitions;
-// };
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FDirectionMontage
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direction Montage")
-// 	UAnimMontage* Front=nullptr;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direction Montage")
-// 	UAnimMontage* Back=nullptr;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direction Montage")
-// 	UAnimMontage* Left=nullptr;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direction Montage")
-// 	UAnimMontage* Right=nullptr;
-// };
-//
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FMeleeAttackMontage
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeleeAttack Montage")
-// 	bool bPlayRandomMontage=false;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeleeAttack Montage")
-// 	TArray<UAnimMontage*> Montages;
-// };
-//
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FHitCollisionComponent
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit CollisionComponent")
-// 	UPrimitiveComponent* Component=nullptr;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit CollisionComponent")
-// 	TArray<FName> Sockets;
-// };
-//
-//
-// USTRUCT(BlueprintType)
-// struct SHOOTERPRO_API FHitActorCollisionComponent
-// {
-// 	GENERATED_BODY()
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Actor CollisionComponent")
-// 	UPrimitiveComponent* Component;
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Actor CollisionComponent")
-// 	TArray<AActor*> HitActors;
-//
-// 	FHitActorCollisionComponent() : Component(nullptr)
-// 	{
-// 	}
-//
-// 	FHitActorCollisionComponent(UPrimitiveComponent* InComponent, const TArray<AActor*>& InHitActors) : Component(InComponent), HitActors(InHitActors)
-// 	{
-// 	}
-// };
+USTRUCT(BlueprintType)
+struct SHOOTERPRO_API FSenseHandle
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sense Handle")
+	EAISense MostRecentSense;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sense Handle")
+	bool bLostStimulus;
+};
+
+
+UENUM(BlueprintType)
+enum class EDamageResponse : uint8
+{
+	None,
+	HitReaction,
+	Stagger,
+	Stun,
+	KnockBack
+};
+
+UENUM(BlueprintType)
+enum class EDamageType : uint8
+{
+	None,
+	Melee,
+	Projectile,
+	Explosion,
+	Environment
+};
+
+
+USTRUCT(BlueprintType)
+struct SHOOTERPRO_API FDamageInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	float Amount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	EDamageType DamageType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	EDamageResponse DamageResponse;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	bool bShouldDamageInvincible;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	bool bCanBeBlocked;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	bool bCanBeParried;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Info")
+	bool bShouldForceInterrupt;
+};
+
+
+USTRUCT(BlueprintType)
+struct SHOOTERPRO_API FAttackInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Info")
+	AActor* AttackTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Info")
+	UAnimMontage* Montage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Info")
+	FDamageInfo DamageInfo;
+};

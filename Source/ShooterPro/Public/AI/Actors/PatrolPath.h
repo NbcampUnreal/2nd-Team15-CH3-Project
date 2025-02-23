@@ -20,7 +20,11 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:
+	UFUNCTION(BlueprintCallable, Category="Patrol|Path")
 	void IncrementPatrolRoute();
+
+	UFUNCTION(BlueprintCallable, Category="Patrol|Path")
+	FVector GetSplinePointAsWorldPosition();
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -35,6 +39,9 @@ public:
 	TObjectPtr<UBillboardComponent> BillboardComponent;
 
 public:
-	UPROPERTY(BlueprintReadWrite,Category="Patrol|Path")
+	UPROPERTY(BlueprintReadWrite, Category="Patrol|Path")
+	int32 PatrolIndex;
+
+	UPROPERTY(BlueprintReadWrite, Category="Patrol|Path")
 	bool bPatrolReverseDirection;
 };

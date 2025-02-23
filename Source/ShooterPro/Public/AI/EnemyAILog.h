@@ -24,29 +24,29 @@ DECLARE_LOG_CATEGORY_EXTERN(Log_EnemyAI, Log, All);
 // ------------------------------
 // 스크린에 메시지를 출력하는 매크로
 // ------------------------------
-#define AI_ENEMY_SCREEN_LOG_ERROR(Format, ...)  \
+#define AI_ENEMY_SCREEN_LOG_ERROR(Time, Format, ...)  \
 {   \
 FString Message = FString::Printf(TEXT("[%s:%d] %s"), TEXT(__FUNCTION__), __LINE__, *FString::Printf(TEXT(Format), ##__VA_ARGS__)); \
 UE_LOG(Log_EnemyAI, Error, TEXT("%s"), *Message); \
 if (GEngine) { \
-GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message); \
+GEngine->AddOnScreenDebugMessage(-1, Time, FColor::Red, Message); \
 } \
 }
 
-#define AI_ENEMY_SCREEN_LOG_WARNING(Format, ...)  \
+#define AI_ENEMY_SCREEN_LOG_WARNING(Time, Format, ...)  \
 {   \
 FString Message = FString::Printf(TEXT("[%s:%d] %s"), TEXT(__FUNCTION__), __LINE__, *FString::Printf(TEXT(Format), ##__VA_ARGS__)); \
 UE_LOG(Log_EnemyAI, Warning, TEXT("%s"), *Message); \
 if (GEngine) { \
-GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, Message); \
+GEngine->AddOnScreenDebugMessage(-1, Time, FColor::Yellow, Message); \
 } \
 }
 
-#define AI_ENEMY_SCREEN_LOG_LOG(Format, ...)  \
+#define AI_ENEMY_SCREEN_LOG_LOG(Time, Format, ...)  \
 {   \
 FString Message = FString::Printf(TEXT("[%s:%d] %s"), TEXT(__FUNCTION__), __LINE__, *FString::Printf(TEXT(Format), ##__VA_ARGS__)); \
 UE_LOG(Log_EnemyAI, Log, TEXT("%s"), *Message); \
 if (GEngine) { \
-GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, Message); \
+GEngine->AddOnScreenDebugMessage(-1, Time, FColor::White, Message); \
 } \
 }

@@ -11,13 +11,16 @@ public class ShooterPro : ModuleRules
 		
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			
+			"AnimGraphRuntime"
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
-			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"AIModule","NavigationSystem",
-			"FunctionalTesting"
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"UMG",
+			"GameplayTags","GameplayTasks","GameplayAbilities", 
+			"AIModule","GameplayBehaviorsModule","NavigationSystem",
+			"FunctionalTesting",
+			"GASCompanion",
 		});
 	}
 }
