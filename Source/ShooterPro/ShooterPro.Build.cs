@@ -13,12 +13,18 @@ public class ShooterPro : ModuleRules
 		{
 			"Slate",
 			"SlateCore",
+			"AnimGraphRuntime"
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"AIModule","NavigationSystem",
-			"FunctionalTesting", "GameplayTags", "ModularGameplay"
+			"FunctionalTesting", "GameplayTags", "ModularGameplay", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"UMG",
+			"GameplayTags","GameplayTasks","GameplayAbilities", 
+			"AIModule","GameplayBehaviorsModule","NavigationSystem",
+			"MotionWarping",
+			"FunctionalTesting",
+			"GASCompanion",
 		});
 	}
 }
