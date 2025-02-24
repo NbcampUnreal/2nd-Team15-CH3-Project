@@ -11,13 +11,14 @@ public class ShooterPro : ModuleRules
 		
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			
+			"Slate",
+			"SlateCore",
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"AIModule","NavigationSystem",
-			"FunctionalTesting"
+			"FunctionalTesting", "GameplayTags", "ModularGameplay"
 		});
 	}
 }
