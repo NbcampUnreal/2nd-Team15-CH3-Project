@@ -107,6 +107,11 @@ void UAIBehaviorsComponent::UpdateState(FGameplayTag UpdateState)
 	}
 }
 
+bool UAIBehaviorsComponent::IsInCombat()
+{
+	return CurrentState == AIGameplayTags::AIState_Combat;
+}
+
 void UAIBehaviorsComponent::HandleForgotActor(const FPerceivedActorInfo& PerceivedActorInfo)
 {
 	// KnownSeenActors.Remove(Actor);
@@ -194,6 +199,11 @@ void UAIBehaviorsComponent::SetStateAsSeeking()
 	AIControllerRef->UpdateBlackboard_State(AIGameplayTags::AIState_Seeking);
 	UKismetSystemLibrary::DrawDebugSphere(this, LastSenseHandle.LastKnownLocation, 150.0f, 12, FLinearColor::Red, 15.0f, 10.0f);
 	// UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this, SeekTimerHandle);
+}
+
+float UAIBehaviorsComponent::GetRealRotationRate()
+{
+	return CurrentState == AIGameplayTags::AIState_Combat ? CombatRotationRate : InitialRotationRate;
 }
 
 void UAIBehaviorsComponent::SetStateAsAttacking_Implementation(AActor* NewAttackTarget, bool bUseLastKnownAttackTarget)

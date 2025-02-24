@@ -14,7 +14,6 @@
 #include "ShooterPro/Public/AI/EnemyAILog.h"
 
 #include "AI/Components/AIBehaviorsComponent.h"
-#include "AI/Interfaces/Interface_Damageable.h"
 #include "AI/Utility/EnemyAIBluePrintFunctionLibrary.h"
 
 
@@ -276,13 +275,13 @@ bool AEnemyAIController::CanPerceiveActor(AActor* Actor, EAISense SenseType, FAI
 bool AEnemyAIController::OnSameTeam(AActor* Actor)
 {
 	// 두 액터가 UInterface_Damagable 인터페이스를 구현하지 않았다면 오류 로그 출력 후 true 반환 (보수적 판단)
-	if (!Actor->Implements<UInterface_Damageable>() || !GetPawn()->Implements<UInterface_Damageable>())
+	if (!Actor->Implements<UInterface_EnemyAI>() || !GetPawn()->Implements<UInterface_EnemyAI>())
 	{
-		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "TargetActor 또는 Pawn이 Interface_Damagable을 구현하지 않았습니다. 그래서 서로 적으로 인식됩니다.");
+		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "TargetActor 또는 Pawn이 UInterface_EnemyAI를 구현하지 않았습니다. 그래서 서로 적으로 인식됩니다.");
 		return false;
 	}
 
-	return IInterface_Damageable::Execute_GetTeamNumber(Actor) == IInterface_Damageable::Execute_GetTeamNumber(GetPawn());
+	return IInterface_EnemyAI::Execute_GetTeamNumber(Actor) == IInterface_EnemyAI::Execute_GetTeamNumber(GetPawn());
 }
 
 void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)

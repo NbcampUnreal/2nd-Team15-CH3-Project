@@ -25,30 +25,17 @@ class SHOOTERPRO_API IInterface_EnemyAI
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
+	int32 GetTeamNumber();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
+	bool IsDead();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
 	APatrolPath* GetPatrolPath();
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
 	float SetMoveSpeed(EAIMovementSpeed NewMovementSpeed);
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	void EquipWeapon();
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	void UnEquipWeapon();
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	void Attack(AActor* NewAttackTarget);
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
 	void JumpToDestination(FVector NewDestination);
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	bool AttackStart(AActor* NewAttackTarget,int32 TokensNeeded);
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	void AttackEnd(AActor* NewAttackTarget);
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Shooter Interface|EnemyAI")
-	void StoreAttackTokens(AActor* AttackToTarget,int32 Amount);
-
 };

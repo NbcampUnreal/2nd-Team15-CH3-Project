@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="AI Behavior")
 	void UpdateState(FGameplayTag UpdateState);
 
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	bool IsInCombat();
+
 public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
@@ -73,11 +76,15 @@ public:
 	 * @param NewAttackTarget 새 공격 대상 액터
 	 * @param bUseLastKnownAttackTarget 기존 공격 대상을 계속 사용할지 여부
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Enemy AI Controller")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="AI Behavior")
 	void SetStateAsAttacking(AActor* NewAttackTarget, bool bUseLastKnownAttackTarget);
 
 	UFUNCTION()
 	void SetStateAsSeeking();
+
+public:
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Movement Setting")
+	float GetRealRotationRate();
 
 public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
@@ -105,6 +112,15 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	bool bUseAimOffset = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float InitialRotationRate = 90.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float CombatRotationRate = 270.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
 	float WalkSpeed = 150.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
@@ -112,6 +128,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
 	float SprintingSpeed = 600.0f;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Combat Trigger")
 	TMap<EAISense, float> AISensePriority;
@@ -128,9 +145,11 @@ public:
 
 public:
 	// 이전 AI 상태
+	UPROPERTY(BlueprintReadOnly,Category="AI Behavior")
 	FGameplayTag PreviousState;
 
 	// 현재 AI 상태
+	UPROPERTY(BlueprintReadOnly,Category="AI Behavior")
 	FGameplayTag CurrentState;
 
 private:

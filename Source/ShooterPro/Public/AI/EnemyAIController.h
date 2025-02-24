@@ -94,7 +94,6 @@ public:
 	/** 감각(Sight, Hearing, Damage) 기반 액터 감지 여부 확인 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
 	bool CanPerceiveActor(AActor* Actor, EAISense SenseType, FAIStimulus& OutAIStimulus);
-	
 
 protected:
 	/** 감지된 액터 목록 업데이트 이벤트 처리 */
@@ -110,14 +109,13 @@ protected:
 	// Blackboard 관련 함수 (상태 및 데이터 업데이트)
 	//=============================================================================
 public:
-	
 	/** 블랙보드에 AI 상태(GameplayTag)를 설정한다 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
 	void UpdateBlackboard_State(FGameplayTag NewStateTag);
-	
+
 	/** 블랙보드에서 현재 AI 상태(GameplayTag)를 가져온다 */
 	UFUNCTION(BlueprintPure, Category="Enemy AI Controller|Blackboard")
-	 FGameplayTag GetCurrentStateTag() const;
+	FGameplayTag GetCurrentStateTag() const;
 
 	/** Blackboard의 공격 반경(Attack Radius) 업데이트 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
@@ -162,6 +160,4 @@ protected:
 	/** 감지 정보 관리 객체 */
 	UPROPERTY(BlueprintReadWrite, Category="Detection")
 	UPerceptionManager* DetectionInfoManager;
-
-
 };

@@ -19,6 +19,7 @@ public class ShooterPro : ModuleRules
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"UMG",
 			"GameplayTags","GameplayTasks","GameplayAbilities", 
 			"AIModule","GameplayBehaviorsModule","NavigationSystem",
+			"MotionWarping",
 			"FunctionalTesting",
 			"GASCompanion",
 		});

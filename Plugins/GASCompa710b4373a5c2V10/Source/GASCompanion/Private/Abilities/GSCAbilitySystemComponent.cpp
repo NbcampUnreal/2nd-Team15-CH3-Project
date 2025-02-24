@@ -582,16 +582,15 @@ void UGSCAbilitySystemComponent::GrantDefaultAbilitiesAndAttributes(AActor* InOw
 		if (AttributeSetDefinition.AttributeSet)
 		{
 			const bool bHasAttributeSet = GetAttributeSubobject(AttributeSetDefinition.AttributeSet) != nullptr;
-			GSC_LOG(Verbose,
-			        TEXT("AttributeSet(%s) 이미 존재 여부: %s"),
-			        *GetNameSafe(AttributeSetDefinition.AttributeSet),
-			        bHasAttributeSet ? TEXT("True") : TEXT("False")
-			);
+			
+			GSC_LOG(Verbose, TEXT("AttributeSet(%s) 이미 존재 여부: %s"),
+			        *GetNameSafe(AttributeSetDefinition.AttributeSet), bHasAttributeSet ? TEXT("True") : TEXT("False"));
 
 			// 없는 경우에만 부여
 			if (!bHasAttributeSet && InOwnerActor)
 			{
 				UAttributeSet* AttributeSet = NewObject<UAttributeSet>(InOwnerActor, AttributeSetDefinition.AttributeSet);
+				
 				// 필요한 경우 DataTable 초기화
 				if (AttributeSetDefinition.InitializationData)
 				{
