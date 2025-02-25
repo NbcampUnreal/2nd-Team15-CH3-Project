@@ -37,10 +37,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	TObjectPtr<UInputAction> JumpAction;
 protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
-	TObjectPtr<UInventoryManagerComponent> InventoryManagerComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
-	TObjectPtr<UQuickBarComponent> QuickBarComponent;
 };

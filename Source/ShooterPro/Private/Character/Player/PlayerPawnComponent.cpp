@@ -5,7 +5,9 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Abilities/GSCAbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Character/ProCharacterBase.h"
 #include "Controller/ShooterProPlayerController.h"
 #include "Equipment/EquipmentManagerComponent.h"
 #include "GameFramework/Character.h"
@@ -40,6 +42,23 @@ void UPlayerPawnComponent::Initialize()
 	SpringArmComponent->AttachToComponent(Character->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	InitializeInput(Character->InputComponent);
+
+	GiveAbilitiesToOwner();
+}
+
+void UPlayerPawnComponent::GiveAbilitiesToOwner()
+{
+	AProCharacterBase* Owner = GetPawn<AProCharacterBase>();
+	if (!ensure(Owner)) return;
+
+	if (!ensure(Owner->AbilitySystemComponent)) return;
+
+	if (!ensure(Owner->AbilitySystemComponent->AbilityActorInfo.IsValid())) return;
+	
+	for (TSubclassOf<UGameplayAbility> Ability : Abilities)
+	{
+		Owner->AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability));
+	}
 }
 
 void UPlayerPawnComponent::InitializeInput(UInputComponent* InputComponent)

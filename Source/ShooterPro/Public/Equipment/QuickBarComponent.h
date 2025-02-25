@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ControllerComponent.h"
+#include "Components/PawnComponent.h"
 #include "QuickBarComponent.generated.h"
 
 class UEquipmentManagerComponent;
 class UEquipmentInstance;
 
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
-class SHOOTERPRO_API UQuickBarComponent : public UControllerComponent
+class SHOOTERPRO_API UQuickBarComponent : public UPawnComponent
 {
 	GENERATED_BODY()
 public:

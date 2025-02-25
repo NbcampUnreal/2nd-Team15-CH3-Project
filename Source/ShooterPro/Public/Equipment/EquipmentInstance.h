@@ -35,20 +35,16 @@ public:
 
 	void SetInstigator(UObject* InInstigator) {Instigator = InInstigator;}
 	
-protected:
 	void SetAnimMontage(UAnimMontage* Montage);
-	
-	UFUNCTION(BlueprintImplementableEvent, Category=Equipment, meta=(DisplayName="OnEquipped"))
-	void K2_OnEquipped();
 
-	UFUNCTION(BlueprintImplementableEvent, Category=Equipment, meta=(DisplayName="OnUnequipped"))
-	void K2_OnUnequipped();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* EquippedAnimMontage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* UnequippedAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
+	TSubclassOf<UAnimInstance> EquippedLayer;
 private:
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;

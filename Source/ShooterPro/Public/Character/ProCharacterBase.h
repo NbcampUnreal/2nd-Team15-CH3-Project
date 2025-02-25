@@ -33,8 +33,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProCharacter)
 	UGSCCoreComponent* CoreComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProCharacter)
 	UGSCAbilityInputBindingComponent* InputBindingComponent;
 };

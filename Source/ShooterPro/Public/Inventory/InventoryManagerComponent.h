@@ -40,7 +40,6 @@ struct FInventoryList
 
 	FInventoryList(UActorComponent* InOwnerComponent): OwnerComponent(InOwnerComponent) {}
 
-
 	UInventoryItemInstance* AddItem(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
 	void RemoveItem(UInventoryItemInstance* Instance);
 	

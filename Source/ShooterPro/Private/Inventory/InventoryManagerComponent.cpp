@@ -18,6 +18,7 @@ UInventoryItemInstance* FInventoryList::AddItem(TSubclassOf<UInventoryItemDefini
 	FInventoryItem& NewItem = Items.AddDefaulted_GetRef();
 	NewItem.Instance = NewObject<UInventoryItemInstance>(OwnerComponent->GetOwner());  //@TODO: Using the actor instead of component as the outer due to UE-127172
 	NewItem.Instance->SetItemDef(ItemDef);
+	
 	for (UInventoryItemFragment* Fragment : GetDefault<UInventoryItemDefinition>(ItemDef)->Fragments)
 	{
 		if (Fragment != nullptr)
@@ -25,6 +26,7 @@ UInventoryItemInstance* FInventoryList::AddItem(TSubclassOf<UInventoryItemDefini
 			Fragment->OnInstanceCreated(NewItem.Instance);
 		}
 	}
+	
 	NewItem.StackCount = StackCount;
 	Result = NewItem.Instance;
 

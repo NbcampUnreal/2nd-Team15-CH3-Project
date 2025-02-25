@@ -167,12 +167,10 @@ void UQuickBarComponent::UnequipItemInSlot()
 
 UEquipmentManagerComponent* UQuickBarComponent::FindEquipmentManager() const
 {
-	if (AController* OwnerController = Cast<AController>(GetOwner()))
+	if (AActor* Owner = GetOwner())
 	{
-		if (APawn* Pawn = OwnerController->GetPawn())
-		{
-			return Pawn->FindComponentByClass<UEquipmentManagerComponent>();
-		}
+		return Owner->FindComponentByClass<UEquipmentManagerComponent>();
 	}
+	
 	return nullptr;
 }

@@ -75,13 +75,14 @@ void UEquipmentInstance::DestroyEquipmentActors()
 void UEquipmentInstance::OnEquipped()
 {
 	SetAnimMontage(EquippedAnimMontage);
-	//K2_OnEquipped();
+	ACharacter* Character = GetOwnerAsTypeTemp<ACharacter>();
+	if (!Character) return;
+	Character->GetMesh()->LinkAnimClassLayers(EquippedLayer);
 }
 
 void UEquipmentInstance::OnUnequipped()
 {
 	SetAnimMontage(UnequippedAnimMontage);
-	//K2_OnUnequipped();
 }
 
 void UEquipmentInstance::SetAnimMontage(UAnimMontage* Montage)

@@ -6,6 +6,7 @@
 #include "Components/PawnComponent.h"
 #include "PlayerPawnComponent.generated.h"
 
+class UGameplayAbility;
 struct FInputActionValue;
 class UCameraComponent;
 class USpringArmComponent;
@@ -25,6 +26,8 @@ public:
 
 	void Initialize();
 private:
+	void GiveAbilitiesToOwner();
+	
 	void InitializeInput(UInputComponent* InputComponent);
 	
 	void Move(const FInputActionValue& Value);
@@ -35,6 +38,9 @@ private:
 
 	void Jump(const FInputActionValue& Value);
 	
+	UPROPERTY(EditDefaultsOnly, Category = Abilities)
+	TArray<TSubclassOf<UGameplayAbility>> Abilities;
+
 	UPROPERTY()
 	TObjectPtr<UCameraComponent> CameraComponent;
 	

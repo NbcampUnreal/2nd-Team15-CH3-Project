@@ -3,6 +3,7 @@
 
 #include "Character/ProCharacterBase.h"
 
+#include "Abilities/GSCAbilitySystemComponent.h"
 #include "Components/GSCAbilityInputBindingComponent.h"
 #include "Components/GSCCoreComponent.h"
 
@@ -20,7 +21,11 @@ AProCharacterBase::AProCharacterBase()
 void AProCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
 }
 
 // Called every frame

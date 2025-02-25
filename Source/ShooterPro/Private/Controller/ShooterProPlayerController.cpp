@@ -9,8 +9,6 @@
 
 AShooterProPlayerController::AShooterProPlayerController()
 {
-	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>(TEXT("InventoryManager"));
-	QuickBarComponent = CreateDefaultSubobject<UQuickBarComponent>(TEXT("QuickBar"));
 }
 
 void AShooterProPlayerController::BeginPlay()

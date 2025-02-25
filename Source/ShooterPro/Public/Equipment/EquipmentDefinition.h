@@ -20,7 +20,7 @@ struct FEquipmentActorToSpawn
 	TSubclassOf<AActor> ActorToSpawn;
 
 	UPROPERTY(EditAnywhere, Category=Equipment)
-	FName AttachSocket;
+	FName AttachSocket;	
 
 	UPROPERTY(EditAnywhere, Category=Equipment)
 	FTransform AttachTransform;
