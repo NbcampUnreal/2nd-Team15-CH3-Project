@@ -687,6 +687,41 @@ void UGSCAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec
 	OnGiveAbilityDelegate.Broadcast(AbilitySpec);
 }
 
+void UGSCAbilitySystemComponent::GetActivatableGameplayAbilitySpecsByAnyMatchingTags(const FGameplayTagContainer& GameplayTagContainer, TArray<FGameplayAbilitySpec*>& MatchingGameplayAbilities, bool bOnlyAbilitiesThatSatisfyTagRequirements) const
+{
+	// 결과 배열 초기화
+	MatchingGameplayAbilities.Reset();
+
+	// 태그 컨테이너가 비어있으면 아무것도 반환하지 않도록 처리 (필요 시 원하는 로직으로 수정)
+	if (!GameplayTagContainer.IsValid() || GameplayTagContainer.Num() == 0)
+	{
+		return;
+	}
+
+	// ActivatableAbilities.Items을 순회하며 검사
+	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (Spec.Ability)
+		{
+			// Ability가 가지는 태그들
+			const FGameplayTagContainer& AbilityTags = Spec.Ability->GetAssetTags();
+
+			// "하나라도" 매칭 : AbilityTags가 GameplayTagContainer와 겹치는(HasAny)지 확인
+			if (AbilityTags.HasAny(GameplayTagContainer))
+			{
+				// bOnlyAbilitiesThatSatisfyTagRequirements == true 이면,
+				// Ability가 태그 블로킹, 요구사항 등 통과해야만 인정
+				if (!bOnlyAbilitiesThatSatisfyTagRequirements 
+					|| Spec.Ability->DoesAbilitySatisfyTagRequirements(*this))
+				{
+					// const_cast로 FGameplayAbilitySpec* 주소를 획득해 결과 배열에 추가
+					MatchingGameplayAbilities.Add(const_cast<FGameplayAbilitySpec*>(&Spec));
+				}
+			}
+		}
+	}
+}
+
 void UGSCAbilitySystemComponent::GrantStartupEffects()
 {
 	// 서버 권한이 아닌 경우는 처리 생략

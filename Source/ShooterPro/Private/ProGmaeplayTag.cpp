@@ -5,9 +5,20 @@ namespace ProGameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Ability, TEXT("Ability"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee, TEXT("Ability.Melee"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Jump, TEXT("Ability.Jump"));
+
+	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
+	
+	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact, TEXT("Ability.HitReact"));
 
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
+
+	
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
 
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

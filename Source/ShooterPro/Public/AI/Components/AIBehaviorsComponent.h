@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
 	bool IsInCombat();
 
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	const FPerceivedActorInfo& GetLastSenseHandle() { return LastSenseHandle; }
+
 public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);

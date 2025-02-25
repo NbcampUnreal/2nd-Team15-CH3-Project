@@ -181,6 +181,17 @@ public:
 	 */
 	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 
+	/**
+	 * @brief GameplayTagContainer에 들어있는 태그 중 "하나라도(ANY)" 일치하는 Activatable AbilitySpec들을 찾는다.
+	 * 
+	 * @param GameplayTagContainer 매칭할 태그 컨테이너
+	 * @param MatchingGameplayAbilities 결과로 얻을 AbilitySpec 리스트 (포인터 배열)
+	 * @param bOnlyAbilitiesThatSatisfyTagRequirements AbilitySpec이 `DoesAbilitySatisfyTagRequirements()`를 통과해야만 포함할지 여부 
+	 */
+	void GetActivatableGameplayAbilitySpecsByAnyMatchingTags(const FGameplayTagContainer& GameplayTagContainer, TArray<FGameplayAbilitySpec*>& MatchingGameplayAbilities,
+	                                                         bool bOnlyAbilitiesThatSatisfyTagRequirements = true
+	) const;
+
 
 	// -----------------------
 	// Ability Granting
@@ -230,6 +241,7 @@ public:
 	// -----------------------
 	// Ability / Attribute Initialization
 	// -----------------------
+
 
 	/**
 	 * @brief ASC 초기화(InitAbilityActorInfo) 시, 기본 Ability와 Attribute를 부여하는 함수

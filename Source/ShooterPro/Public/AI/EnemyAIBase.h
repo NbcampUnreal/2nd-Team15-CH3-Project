@@ -1,6 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Interfaces/Interface_EnemyAI.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "EnemyAIBase.generated.h"
@@ -50,6 +53,14 @@ public:
 
 	virtual APatrolPath* GetPatrolPath_Implementation() override;
 
+protected:
+	/** GSC Core Component와 연결해둔 OnAbilityEnded 델리게이트 콜백 */
+	UFUNCTION()
+	void OnAbilityEndedCallback(const UGameplayAbility* EndedAbility);
+
+	/** 실제 메시지 수신 리스너를 해제하기 위한 FGameplayMessageListenerHandle */
+	FGameplayMessageListenerHandle MessageListenerHandle;
+
 public:
 	/** AIBehaviorsComponent: AI의 행동 로직을 제어하는 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
@@ -58,13 +69,13 @@ public:
 	/** HealthWidgetComponent: 체력 UI 표시용 위젯 (블루프린트에서 설정 가능) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
 	TObjectPtr<UWidgetComponent> HealthWidgetComponent;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
 	TObjectPtr<UGSCCoreComponent> GscCoreComponent;
-	
+
 
 	/** EnemyAIController: AI 캐릭터를 제어하는 컨트롤러 */
 	UPROPERTY(BlueprintReadWrite, Category="AI Base|Rference")

@@ -2,6 +2,8 @@
 
 
 #include "MotionWarpingComponent.h"
+#include "ProGmaeplayTag.h"
+#include "AI/AIGameplayTags.h"
 #include "AI/EnemyAIController.h"
 #include "AI/Components/AIBehaviorsComponent.h"
 
@@ -21,14 +23,8 @@ AEnemyAIBase::AEnemyAIBase()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	// CapsuleComponent, SkeletalMeshComponent, CharacterMovementComponent 등
-	// 기본 컴포넌트 설정은 주석 처리되어 있으므로, 필요 시 해당 주석을 해제하여 사용.
-	// (설정 내용: 캡슐 크기, 충돌 설정, 네비게이션 관련 설정 등)
-
-	// 체력 UI 표시용 위젯 생성 및 SkeletalMesh에 부착
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidgetComponent"));
 	HealthWidgetComponent->SetupAttachment(GetRootComponent());
-
 
 	AIBehaviorsComponent = CreateDefaultSubobject<UAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
@@ -39,11 +35,11 @@ void AEnemyAIBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// AI 컨트롤러 가져오기 (AI 캐릭터를 제어할 컨트롤러)
 	EnemyAIController = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(this));
-	if (EnemyAIController)
-	{
-	}
+
+	if (GscCoreComponent)
+		GscCoreComponent->OnAbilityEnded.AddDynamic(this, &AEnemyAIBase::OnAbilityEndedCallback);
+
 	// 블루프린트에서 Health Widget 설정 여부 확인 (필요 시 추가 처리)
 }
 
@@ -67,6 +63,9 @@ void AEnemyAIBase::JumpToDestination_Implementation(FVector NewDestination)
 
 float AEnemyAIBase::SetMoveSpeed_Implementation(EAIMovementSpeed NewMovementSpeed)
 {
+	if (!AIBehaviorsComponent)
+		return 0.f;
+
 	switch (NewMovementSpeed)
 	{
 	case EAIMovementSpeed::Idle:
@@ -89,4 +88,39 @@ float AEnemyAIBase::SetMoveSpeed_Implementation(EAIMovementSpeed NewMovementSpee
 APatrolPath* AEnemyAIBase::GetPatrolPath_Implementation()
 {
 	return PatrolRoute;
+}
+
+void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
+{
+	if (!EndedAbility)
+		return;
+
+	// 만약 Subsystem이 이미 죽었거나 생성 안 되었으면 그냥 반환
+	if (!UGameplayMessageSubsystem::HasInstance(EndedAbility))
+	{
+		return;
+	}
+
+	// 1) 어빌리티의 태그들
+	FGameplayTagContainer AbilityTags = EndedAbility->GetAssetTags();
+	FGameplayTag BroadcastTag = ProGameplayTags::Ability;
+	if (!AbilityTags.IsEmpty())
+	{
+		BroadcastTag = *AbilityTags.CreateConstIterator();
+	}
+
+	// 2) 보낼 Payload 구성 (새로운 구조체 사용)
+	FEnemyAbilityEndedPayload Payload;
+	Payload.EndedAbilityName = EndedAbility->GetName();
+	Payload.EndedTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	Payload.AbilityOwner = this; // AIBase 자신 (어빌리티 소유자)
+
+	// 대표 태그
+	Payload.EndedAbilityTag = BroadcastTag;
+
+
+
+	// 3) 메시지 전송
+	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
+	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);
 }

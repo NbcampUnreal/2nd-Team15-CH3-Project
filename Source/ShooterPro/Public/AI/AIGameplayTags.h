@@ -19,6 +19,10 @@ namespace AIGameplayTags
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(AIState_Dead);
 
 
+	
+	
+
+
 	// These are mappings from MovementMode enums to GameplayTags associated with those enums (below)
 	SHOOTERPRO_API extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
 	SHOOTERPRO_API extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
