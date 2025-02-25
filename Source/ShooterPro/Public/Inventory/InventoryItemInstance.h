@@ -13,6 +13,7 @@ UCLASS()
 class SHOOTERPRO_API UInventoryItemInstance : public UObject
 {
 	GENERATED_BODY()
+
 public:
 	UInventoryItemInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -25,12 +26,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, meta=(DeterminesOutputType=FragmentClass))
 	const UInventoryItemFragment* FindFragmentByClass(TSubclassOf<UInventoryItemFragment> FragmentClass) const;
-	
+
 	template <typename ResultClass>
-const ResultClass* FindFragmentByClass() const
+	const ResultClass* FindFragmentByClass() const
 	{
 		return (ResultClass*)FindFragmentByClass(ResultClass::StaticClass());
 	}
+
 private:
 	//FGameplayTagStackContainer StatTags;
 

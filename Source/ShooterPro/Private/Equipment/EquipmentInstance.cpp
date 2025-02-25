@@ -3,12 +3,19 @@
 
 #include "Equipment/EquipmentInstance.h"
 
+#include "Components/SphereComponent.h"
 #include "Equipment/EquipmentDefinition.h"
 #include "GameFramework/Character.h"
 
 UEquipmentInstance::UEquipmentInstance(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+	: Super(ObjectInitializer), EquippedAnimMontage(nullptr), UnequippedAnimMontage(nullptr)
 {
+
+}
+
+void UEquipmentInstance::OnInstanceCreated_Implementation()
+{
+	
 }
 
 UWorld* UEquipmentInstance::GetWorld() const

@@ -4,12 +4,11 @@
 #include "Inventory/InventoryItemDefinition.h"
 
 UInventoryItemDefinition::UInventoryItemDefinition(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 }
 
-const UInventoryItemFragment* UInventoryItemDefinition::FindFragmentByClass(
-	TSubclassOf<UInventoryItemFragment> FragmentClass) const
+const UInventoryItemFragment* UInventoryItemDefinition::FindFragmentByClass(TSubclassOf<UInventoryItemFragment> FragmentClass) const
 {
 	if (FragmentClass != nullptr)
 	{
