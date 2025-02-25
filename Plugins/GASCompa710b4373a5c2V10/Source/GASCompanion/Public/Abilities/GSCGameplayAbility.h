@@ -1,4 +1,3 @@
-// Copyright 2021 Mickael Daniel. All Rights Reserved.
 
 #pragma once
 
@@ -242,7 +241,7 @@ public:
 	 * 이 맵은 특정 Gameplay Tag가 부여되었을 때 적용할 GameplayEffect들을 그룹화하여 관리합니다.
 	 * 각 태그에 대해 여러 효과 컨테이너를 설정할 수 있으며, 이를 통해 능력 실행 시 효과 적용을 체계적으로 관리할 수 있습니다.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = GameplayEffects)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS Companion|Ability")
 	TMap<FGameplayTag, FGSCGameplayEffectContainer> EffectContainerMap;
 
 

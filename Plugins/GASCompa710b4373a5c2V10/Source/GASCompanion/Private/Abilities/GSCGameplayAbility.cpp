@@ -72,11 +72,7 @@ FGSCGameplayEffectContainerSpec UGSCGameplayAbility::MakeEffectContainerSpecFrom
 
 FGSCGameplayEffectContainerSpec UGSCGameplayAbility::MakeEffectContainerSpec(FGameplayTag ContainerTag, const FGameplayEventData& EventData, int32 OverrideGameplayLevel)
 {
-	// EffectContainerMap에서 ContainerTag에 해당하는 효과 컨테이너를 검색합니다.
-	FGSCGameplayEffectContainer* FoundContainer = EffectContainerMap.Find(ContainerTag);
-
-	// 만약 효과 컨테이너를 찾았다면, 해당 컨테이너를 이용하여 효과 사양을 생성합니다.
-	if (FoundContainer)
+	if (FGSCGameplayEffectContainer* FoundContainer = EffectContainerMap.Find(ContainerTag))
 	{
 		return MakeEffectContainerSpecFromContainer(*FoundContainer, EventData, OverrideGameplayLevel);
 	}
@@ -102,10 +98,7 @@ TArray<FActiveGameplayEffectHandle> UGSCGameplayAbility::ApplyEffectContainerSpe
 
 TArray<FActiveGameplayEffectHandle> UGSCGameplayAbility::ApplyEffectContainer(FGameplayTag ContainerTag, const FGameplayEventData& EventData, int32 OverrideGameplayLevel)
 {
-	// 먼저 효과 컨테이너 사양을 생성합니다.
 	const FGSCGameplayEffectContainerSpec Spec = MakeEffectContainerSpec(ContainerTag, EventData, OverrideGameplayLevel);
-
-	// 생성된 사양을 적용하여 효과를 활성화한 후, 결과 효과 핸들을 반환합니다.
 	return ApplyEffectContainerSpec(Spec);
 }
 

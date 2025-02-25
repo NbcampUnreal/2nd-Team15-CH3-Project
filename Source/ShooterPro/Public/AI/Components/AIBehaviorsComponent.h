@@ -145,11 +145,11 @@ public:
 
 public:
 	// 이전 AI 상태
-	UPROPERTY(BlueprintReadOnly,Category="AI Behavior")
+	UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
 	FGameplayTag PreviousState;
 
 	// 현재 AI 상태
-	UPROPERTY(BlueprintReadOnly,Category="AI Behavior")
+	UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
 	FGameplayTag CurrentState;
 
 private:
@@ -163,6 +163,7 @@ private:
 	float MaxRandRadius = 500.0f;
 
 private:
+	UPROPERTY(BlueprintReadOnly, Category="AI Behavior", meta=(AllowPrivateAccess=true))
 	FPerceivedActorInfo LastSenseHandle;
 
 	// FTimerHandle SeekTimerHandle;

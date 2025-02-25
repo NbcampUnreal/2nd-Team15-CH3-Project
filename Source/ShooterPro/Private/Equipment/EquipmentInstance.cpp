@@ -75,7 +75,6 @@ void UEquipmentInstance::DestroyEquipmentActors()
 void UEquipmentInstance::OnEquipped()
 {
 	SetAnimMontage(EquippedAnimMontage);
-	
 	//K2_OnEquipped();
 }
 
