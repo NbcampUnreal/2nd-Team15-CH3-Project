@@ -77,6 +77,13 @@ public:
 	virtual void SetReadyToDestroy() override;
 
 public:
+	/** Getter for the message struct type the listener is expecting */
+	const UScriptStruct* GetMessageStructType() const { return MessageStructType.Get(); }
+
+	/** Getter for the pointer to the last received payload */
+	const void* GetReceivedMessagePayloadPtr() const { return ReceivedMessagePayloadPtr; }
+
+public:
 	/**
 	 * @brief 메시지가 지정된 채널에서 브로드캐스트될 때 호출되는 델리게이트입니다.
 	 *

@@ -16,7 +16,7 @@ UInventoryItemInstance* FInventoryList::AddItem(TSubclassOf<UInventoryItemDefini
 	check(OwningActor->HasAuthority());
 
 	FInventoryItem& NewItem = Items.AddDefaulted_GetRef();
-	NewItem.Instance = NewObject<UInventoryItemInstance>(OwnerComponent->GetOwner());  //@TODO: Using the actor instead of component as the outer due to UE-127172
+	NewItem.Instance = NewObject<UInventoryItemInstance>(OwnerComponent->GetOwner()); //@TODO: Using the actor instead of component as the outer due to UE-127172
 	NewItem.Instance->SetItemDef(ItemDef);
 	
 	for (UInventoryItemFragment* Fragment : GetDefault<UInventoryItemDefinition>(ItemDef)->Fragments)
@@ -35,7 +35,6 @@ UInventoryItemInstance* FInventoryList::AddItem(TSubclassOf<UInventoryItemDefini
 
 void FInventoryList::RemoveItem(UInventoryItemInstance* Instance)
 {
-	
 }
 
 TArray<UInventoryItemInstance*> FInventoryList::GetAllItems() const
@@ -52,13 +51,11 @@ TArray<UInventoryItemInstance*> FInventoryList::GetAllItems() const
 }
 
 // Sets default values for this component's properties
-UInventoryManagerComponent::UInventoryManagerComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer), InventoryList(this)
+UInventoryManagerComponent::UInventoryManagerComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), InventoryList(this)
 {
 }
 
-UInventoryItemInstance* UInventoryManagerComponent::AddItemDefinition(
-	TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StakcCount)
+UInventoryItemInstance* UInventoryManagerComponent::AddItemDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StakcCount)
 {
 	UInventoryItemInstance* Result = nullptr;
 
@@ -66,7 +63,7 @@ UInventoryItemInstance* UInventoryManagerComponent::AddItemDefinition(
 	{
 		Result = InventoryList.AddItem(ItemDef, StakcCount);
 	}
-	
+
 	return Result;
 }
 

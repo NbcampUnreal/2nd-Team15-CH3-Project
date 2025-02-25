@@ -20,8 +20,8 @@ namespace UE
 		// 콘솔 변수: 메시지 방송 시 로그 출력을 할지 여부를 결정 (0이면 비활성, 1 이상이면 활성)
 		static int32 ShouldLogMessages = 0;
 		static FAutoConsoleVariableRef CVarShouldLogMessages(TEXT("GameplayMessageSubsystem.LogMessages"),
-			ShouldLogMessages,
-			TEXT("GameplayMessageSubsystem을 통해 방송되는 메시지를 로그에 출력할지 여부를 결정합니다."));
+		                                                     ShouldLogMessages,
+		                                                     TEXT("GameplayMessageSubsystem을 통해 방송되는 메시지를 로그에 출력할지 여부를 결정합니다."));
 	}
 }
 
@@ -62,8 +62,10 @@ UGameplayMessageSubsystem& UGameplayMessageSubsystem::Get(const UObject* WorldCo
 	// WorldContextObject로부터 UWorld를 얻어옴. 에러 발생 시 Assert
 	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::Assert);
 	check(World);
+
 	// 게임 인스턴스에서 UGameplayMessageSubsystem 서브시스템을 검색
-	UGameplayMessageSubsystem* Router = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(World->GetGameInstance());
+	UGameInstance* WorldGameInstance = World->GetGameInstance();
+	UGameplayMessageSubsystem* Router = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(WorldGameInstance);
 	check(Router);
 	return *Router;
 }
@@ -161,10 +163,10 @@ void UGameplayMessageSubsystem::BroadcastMessageInternal(FGameplayTag Channel, c
 					{
 						// 구조체 타입이 불일치할 경우 에러 로그 출력
 						UE_LOG(LogGameplayMessageSubsystem, Error, TEXT("채널 %s에서 구조체 타입 불일치 (송신 타입: %s, 리스너(%s)가 기대하는 타입: %s)"),
-							*Channel.ToString(),
-							*StructType->GetPathName(),
-							*Tag.ToString(),
-							*Listener.ListenerStructType->GetPathName());
+						       *Channel.ToString(),
+						       *StructType->GetPathName(),
+						       *Tag.ToString(),
+						       *Listener.ListenerStructType->GetPathName());
 					}
 				}
 			}

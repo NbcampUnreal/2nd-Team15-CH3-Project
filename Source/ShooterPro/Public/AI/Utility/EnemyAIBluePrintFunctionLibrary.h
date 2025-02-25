@@ -29,9 +29,13 @@ protected:
 	static const FName BBKeyName_StartLocation;
 	static const FName BBKeyName_MaxRangeRadius;
 	static const FName BBKeyName_RandomInt;
+	static const FName BBKeyName_HasActivableAbility;
 
 public:
 	/** Returns blackboard key name */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ShooterAILibrary|AI")
+	static const FName& GetBBKeyName_HasActivableAbility() { return BBKeyName_HasActivableAbility; }
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ShooterAILibrary|AI")
 	static const FName& GetBBKeyName_State() { return BBKeyName_State; }
 

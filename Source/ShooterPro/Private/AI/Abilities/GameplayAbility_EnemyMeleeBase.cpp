@@ -4,6 +4,7 @@
 #include "AI/Abilities/GameplayAbility_EnemyMeleeBase.h"
 
 #include "MotionWarpingComponent.h"
+#include "ProGmaeplayTag.h"
 #include "Abilities/Tasks/GSCTask_PlayMontageWaitForEvent.h"
 #include "AI/EnemyAIBase.h"
 #include "AI/Components/AIBehaviorsComponent.h"
@@ -13,14 +14,14 @@
 UGameplayAbility_EnemyMeleeBase::UGameplayAbility_EnemyMeleeBase()
 {
 	// 여기서 기본값 세팅(예: bActivateOnGranted 등)
-	// bActivateOnGranted = false; 
+	// bActivateOnGranted = false;
+
+	WarpEventTag = ProGameplayTags::Event_Montage_MotionWarping;
+	AttackEffectTag = ProGameplayTags::Event_Montage_TraceCollision;
 }
 
-void UGameplayAbility_EnemyMeleeBase::ActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+void UGameplayAbility_EnemyMeleeBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+                                                      const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	// 1) 커밋 (비용/쿨다운)
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -54,7 +55,7 @@ void UGameplayAbility_EnemyMeleeBase::ActivateAbility(
 		this,
 		NAME_None,
 		AttackMontage,
-		EventTags, // Warp/Hit 등
+		WaitForEventTags, // Warp/Hit 등
 		MontagePlayRate,
 		NAME_None, // section
 		true, // bStopWhenAbilityEnds
@@ -124,7 +125,7 @@ void UGameplayAbility_EnemyMeleeBase::OnAttackEventReceived(FGameplayTag InEvent
 		}
 	}
 	// 만약 "Event.Hit" 태그면 공격 피해 적용
-	else if (InEventTag == HitEventTag)
+	else if (InEventTag == AttackEffectTag)
 	{
 		if (AttackEffectTag.IsValid())
 		{

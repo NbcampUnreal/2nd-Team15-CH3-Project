@@ -80,15 +80,11 @@ protected:
 	 * 예: {Event.Warp, Event.Hit} 등
 	 */
 	UPROPERTY(EditDefaultsOnly, Category="Melee|MotionWarp")
-	FGameplayTagContainer EventTags;
+	FGameplayTagContainer WaitForEventTags;
 
 	/** 워핑 시점 이벤트 예: "Event.Warp" */
 	UPROPERTY(EditDefaultsOnly, Category="Melee|MotionWarp")
 	FGameplayTag WarpEventTag;
-
-	/** 실제 공격 시점 이벤트 예: "Event.Hit" */
-	UPROPERTY(EditDefaultsOnly, Category="Melee|MotionWarp")
-	FGameplayTag HitEventTag;
 
 	/** 공격 시 적용할 EffectContainer용 태그 (HitEvent 시 사용) */
 	UPROPERTY(EditDefaultsOnly, Category="Melee|MotionWarp")

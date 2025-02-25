@@ -16,6 +16,9 @@ class SHOOTERPRO_API UEquipmentInstance : public UObject
 public:
 	UEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(BlueprintNativeEvent,Category="Equipment")
+	void OnInstanceCreated();
+
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Equipment")

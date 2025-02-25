@@ -6,7 +6,7 @@
 
 
 UEquipmentManagerComponent::UEquipmentManagerComponent(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer), EquipmentList(this)
+	: Super(ObjectInitializer), EquipmentList(this)
 {
 	bWantsInitializeComponent = true;
 }
@@ -30,7 +30,7 @@ void UEquipmentManagerComponent::UninitializeComponent()
 	{
 		UnequipItem(EquipInstance);
 	}
-	
+
 	Super::UninitializeComponent();
 }
 
@@ -39,19 +39,19 @@ UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> Eq
 	UEquipmentInstance* Result = nullptr;
 	check(EquipmentDefinition != nullptr);
 	check(OwnerComponent);
-	
+
 	const UEquipmentDefinition* EquipmentCDO = GetDefault<UEquipmentDefinition>(EquipmentDefinition);
 
 	TSubclassOf<UEquipmentInstance> InstanceType = EquipmentCDO->InstanceType;
-	
+
 	if (InstanceType == nullptr)
 	{
 		InstanceType = UEquipmentInstance::StaticClass();
 	}
-	
+
 	FEquipmentItem& NewEntry = Items.AddDefaulted_GetRef();
 	NewEntry.EquipmentDefinition = EquipmentDefinition;
-	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType);  //@TODO: Using the actor instead of component as the outer due to UE-127172
+	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType); //@TODO: Using the actor instead of component as the outer due to UE-127172
 	Result = NewEntry.Instance;
 
 	//if (ULyraAbilitySystemComponent* ASC = GetAbilitySystemComponent())
@@ -84,12 +84,11 @@ void FEquipmentList::RemoveItem(UEquipmentInstance* Instance)
 			//}
 
 			Instance->DestroyEquipmentActors();
-			
+
 			Iter.RemoveCurrent();
 		}
 	}
 }
-
 
 
 UEquipmentInstance* UEquipmentManagerComponent::EquipItem(TSubclassOf<UEquipmentDefinition> EquipmentDefinition)
@@ -98,6 +97,7 @@ UEquipmentInstance* UEquipmentManagerComponent::EquipItem(TSubclassOf<UEquipment
 	if (EquipmentDefinition != nullptr)
 	{
 		Result = EquipmentList.AddItem(EquipmentDefinition);
+		Result->OnInstanceCreated();
 
 		if (Result != nullptr)
 		{
@@ -116,7 +116,7 @@ void UEquipmentManagerComponent::UnequipItem(UEquipmentInstance* ItemInstance)
 	}
 }
 
-	
+
 //UEquipmentInstance* UEquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<UEquipmentInstance> InstanceType)
 //{
 //	
@@ -126,4 +126,3 @@ void UEquipmentManagerComponent::UnequipItem(UEquipmentInstance* ItemInstance)
 //	TSubclassOf<UEquipmentInstance> InstanceType) const
 //{
 //}
-
