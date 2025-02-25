@@ -40,6 +40,9 @@ protected:
 	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 protected:
+	// UPROPERTY(VisibleDefaultsOnly, Category="Projectile")
+	// UStaticMeshComponent* BulletMesh;
+	
 	UPROPERTY(VisibleDefaultsOnly, Category="Projectile")
 	USphereComponent* CollisionComp;
 
@@ -54,6 +57,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
 	float GravityScale = 1.0f;
+	
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
+	// float InitiailDeactivateBullet = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
 	TSubclassOf<UGameplayEffect> DamageEffect;
