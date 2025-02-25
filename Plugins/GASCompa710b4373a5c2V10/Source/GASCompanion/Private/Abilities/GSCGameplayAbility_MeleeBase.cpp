@@ -75,13 +75,11 @@ void UGSCGameplayAbility_MeleeBase::ActivateAbility(const FGameplayAbilitySpecHa
 
 void UGSCGameplayAbility_MeleeBase::OnMontageCancelled(FGameplayTag EventTag, FGameplayEventData EventData)
 {
-	// 능력을 취소하며, 취소 플래그와 강제 종료 플래그를 true로 설정합니다.
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 void UGSCGameplayAbility_MeleeBase::OnMontageCompleted(FGameplayTag EventTag, FGameplayEventData EventData)
 {
-	// 능력을 종료하며, 취소 플래그는 true, 정상 종료 플래그는 false로 설정합니다.
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 

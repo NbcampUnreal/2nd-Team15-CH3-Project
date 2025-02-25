@@ -13,15 +13,11 @@
 ===========================================================================================
 */
 
-/*------------------------------------------------------------------------------
-  전방 선언
-------------------------------------------------------------------------------*/
+
 // 콤보 관련 로직을 관리하는 컴포넌트 클래스
 class UGSCComboManagerComponent;
 
-/*------------------------------------------------------------------------------
-  UGSCGameplayAbility_MeleeBase 클래스 선언
-------------------------------------------------------------------------------*/
+
 
 /**
  * @brief 근접 공격 기본 능력 클래스.
@@ -72,7 +68,7 @@ protected:
 	//-------------------------------------
 	// 능력 활성화 관련 오버라이드 함수
 	//-------------------------------------
-	
+
 	/**
 	 * @brief 능력 활성화 처리 함수.
 	 *
@@ -136,7 +132,7 @@ protected:
 	 * 이 배열에는 근접 공격 시 순차적으로 재생할 애니메이션 몽타주들이 저장됩니다.
 	 * 각 몽타주는 공격 콤보의 다양한 단계를 표현합니다.
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UPROPERTY(EditDefaultsOnly, Category="GAS Companion|Ability|Montages")
 	TArray<TObjectPtr<UAnimMontage>> Montages;
 
 	/**
@@ -145,7 +141,7 @@ protected:
 	 * 이 값은 몽타주 재생 속도를 조절하는데 사용되며, 기본값은 1.0f입니다.
 	 * 값이 클수록 애니메이션이 빨리 재생됩니다.
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UPROPERTY(EditDefaultsOnly, Category="GAS Companion|Ability|Montages")
 	float Rate = 1.f;
 
 	/**
@@ -153,6 +149,6 @@ protected:
 	 *
 	 * 이 태그 컨테이너에 포함된 태그와 일치하는 게임플레이 이벤트가 발생하면, OnEventReceived 콜백이 호출되어 능력에 정의된 효과 컨테이너를 적용합니다.
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UPROPERTY(EditDefaultsOnly, Category="GAS Companion|Ability|Montages")
 	FGameplayTagContainer WaitForEventTag;
 };
