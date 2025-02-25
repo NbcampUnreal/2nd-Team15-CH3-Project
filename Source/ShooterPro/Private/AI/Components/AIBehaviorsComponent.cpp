@@ -47,7 +47,6 @@ bool UAIBehaviorsComponent::IsTriggerEnabled(ECombatTriggerFlags Trigger) const
 bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 {
 	// FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
-
 	if (ChangeState == AIGameplayTags::AIState_Combat)
 	{
 		if (CurrentState != AIGameplayTags::AIState_Dead)

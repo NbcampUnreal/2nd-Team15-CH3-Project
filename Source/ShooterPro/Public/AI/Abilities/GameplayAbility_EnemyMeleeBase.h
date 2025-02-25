@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GSCGameplayAbility.h"
+#include "AbilitySystem/Abilities/ProGameplayAbility.h"
 #include "GameplayAbility_EnemyMeleeBase.generated.h"
 
 /**
@@ -13,7 +13,7 @@
  * - BlueprintImplementableEvent로 SetupMotionWarpTarget를 열어둬, BP에서 원하는 방식으로 워프 타겟들 설정 가능.
  */
 UCLASS()
-class SHOOTERPRO_API UGameplayAbility_EnemyMeleeBase : public UGSCGameplayAbility
+class SHOOTERPRO_API UGameplayAbility_EnemyMeleeBase : public UProGameplayAbility
 {
 	GENERATED_BODY()
 
