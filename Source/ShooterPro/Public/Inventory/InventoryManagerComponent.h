@@ -30,6 +30,9 @@ private:
 	UPROPERTY()
 	int32 StackCount = 0;
 
+	//UPROPERTY()
+	//int32 MaxStackCount; ItemDef에서 값을 가져와야함.
+	
 	UPROPERTY()
 	int32 LastObservedCount = INDEX_NONE;
 };
@@ -48,16 +51,20 @@ struct FInventoryList
 	{
 	}
 	
-	UInventoryItemInstance* AddItem(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
+	UInventoryItemInstance* AddItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
+	bool RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
 	
-	void RemoveItem(UInventoryItemInstance* Instance);
+	void EraseItem(UInventoryItemInstance* Instance);
 
 	TArray<UInventoryItemInstance*> GetAllItems() const;
 
+	FInventoryItem FindFirstItemWithDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
+
 private:
 	UPROPERTY()
-	TArray<FInventoryItem> Items;
-
+	TMap<TSubclassOf<UInventoryItemDefinition>, FInventoryItem> Items;
+	
+	
 	UPROPERTY()
 	TObjectPtr<UActorComponent> OwnerComponent;
 };
@@ -75,8 +82,16 @@ public:
 	UInventoryItemInstance* AddItemDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StakcCount = 1);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Inventory)
-	void RemoveItemInstance(UInventoryItemInstance* ItemInstance);
+	void EraseItemInstance(UInventoryItemInstance* ItemInstance);
 
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	UInventoryItemInstance* FindFirstItemInstanceByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	FInventoryItem FindFirstInventoryItemByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+	
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	bool ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 NumToConsume);
 private:
 	FInventoryList InventoryList;
 };

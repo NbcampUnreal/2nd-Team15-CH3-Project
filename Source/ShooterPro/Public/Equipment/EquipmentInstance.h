@@ -15,7 +15,7 @@ class SHOOTERPRO_API UEquipmentInstance : public UObject
 	GENERATED_BODY()
 public:
 	UEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
+	
 	UFUNCTION(BlueprintNativeEvent,Category="Equipment")
 	void OnInstanceCreated();
 
@@ -36,9 +36,17 @@ public:
 	virtual void OnEquipped();
 	virtual void OnUnequipped();
 
+	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
+	void K2_OnEquipped();
+	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
+	void K2_OnUnequipped();
+
 	void SetInstigator(UObject* InInstigator) {Instigator = InInstigator;}
 	
 	void SetAnimMontage(UAnimMontage* Montage);
+	
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	AActor* FindSpawnedActorByClass(TSubclassOf<AActor> Class) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* EquippedAnimMontage;
@@ -48,11 +56,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	TSubclassOf<UAnimInstance> EquippedLayer;
+	
+	UPROPERTY(BlueprintReadOnly, Category=SpawnedActors)
+	TArray<TObjectPtr<AActor>> SpawnedActors;
 private:
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;
-
-	TArray<TObjectPtr<AActor>> SpawnedActors;
 };
 
 template <typename T>

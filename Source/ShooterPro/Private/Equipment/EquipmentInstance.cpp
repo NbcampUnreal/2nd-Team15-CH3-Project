@@ -108,3 +108,15 @@ void UEquipmentInstance::SetAnimMontage(UAnimMontage* Montage)
 	
 	AnimInstance->Montage_Play(Montage);
 }
+
+AActor* UEquipmentInstance::FindSpawnedActorByClass(TSubclassOf<AActor> Class) const
+{
+	for (AActor* Actor : SpawnedActors)
+	{
+		if (Actor && Actor->IsA(Class))
+		{
+			return Actor;
+		}
+	}
+	return nullptr;
+}

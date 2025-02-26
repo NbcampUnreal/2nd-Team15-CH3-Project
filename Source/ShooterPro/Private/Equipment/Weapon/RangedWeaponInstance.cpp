@@ -24,12 +24,12 @@ void URangedWeaponInstance::Tick(float DeltaSecond)
 
 void URangedWeaponInstance::OnEquipped()
 {
-	Super::OnEquipped();
+	K2_OnEquipped();
 }
 
 void URangedWeaponInstance::OnUnequipped()
 {
-	Super::OnUnequipped();
+	K2_OnUnequipped();
 }
 
 void URangedWeaponInstance::AddSpread()

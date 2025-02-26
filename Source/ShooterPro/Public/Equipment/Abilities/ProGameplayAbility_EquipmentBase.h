@@ -16,6 +16,6 @@ class SHOOTERPRO_API UProGameplayAbility_EquipmentBase : public UProGameplayAbil
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintPure, Category = "Ability")
 	UEquipmentInstance* GetSourceEquipmentInstance();
 };

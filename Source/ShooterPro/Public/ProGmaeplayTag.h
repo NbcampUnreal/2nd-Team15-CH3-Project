@@ -20,7 +20,7 @@ namespace ProGameplayTags
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CoolDown_Ability_Melee);
 
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact_Zombie);
-
+	
 	
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_TraceCollision);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_MotionWarping);
@@ -28,6 +28,9 @@ namespace ProGameplayTags
 	
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
 
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_SpareAmmo);
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_MagazineSize);
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_MagazineAmmo);
 
 	SHOOTERPRO_API FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
 

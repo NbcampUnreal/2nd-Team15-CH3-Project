@@ -17,6 +17,10 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnBullet, TEXT("Event.Montage.SpawnBullet"));
+	
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_SpareAmmo, TEXT("Weapon.SpareAmmo"));
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineSize, TEXT("Weapon.MagazineSize"));
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineAmmo, TEXT("Weapon.MagazineAmmo"));
 
 	
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));

@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "System/GameplayTagStackContainer.h"
 #include "Inventory/InventoryItemDefinition.h"
 #include "InventoryItemInstance.generated.h"
 
 class UInventoryItemDefinition;
+struct FGamplayTag;
+
 
 UCLASS()
 class SHOOTERPRO_API UInventoryItemInstance : public UObject
@@ -20,6 +22,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	TSubclassOf<UInventoryItemDefinition> GetItemDef() const { return ItemDef; }
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
+	
 	void SetItemDef(TSubclassOf<UInventoryItemDefinition> InDef) { ItemDef = InDef; }
 
 	friend struct FInventoryList;
@@ -33,8 +41,9 @@ public:
 		return (ResultClass*)FindFragmentByClass(ResultClass::StaticClass());
 	}
 
+	UPROPERTY()
+	FGameplayTagStackContainer StatTags;
 private:
-	//FGameplayTagStackContainer StatTags;
 
 	TSubclassOf<UInventoryItemDefinition> ItemDef;
 };

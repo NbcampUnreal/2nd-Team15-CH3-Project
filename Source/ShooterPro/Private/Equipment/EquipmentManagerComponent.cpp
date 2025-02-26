@@ -1,6 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Equipment/EquipmentManagerComponent.h"
+
+#include "AbilitySystemGlobals.h"
+#include "Abilities/GSCAbilitySet.h"
+#include "Abilities/GSCAbilitySystemComponent.h"
+#include "AbilitySystem/ProGSCAbilitySet.h"
 #include "Equipment/EquipmentDefinition.h"
 #include "Equipment/EquipmentInstance.h"
 
@@ -34,6 +39,13 @@ void UEquipmentManagerComponent::UninitializeComponent()
 	Super::UninitializeComponent();
 }
 
+UGSCAbilitySystemComponent* FEquipmentList::GetGSCAbilitySystemComponent() const
+{
+	check(OwnerComponent);
+	AActor* OwnerActor = OwnerComponent->GetOwner();
+	return Cast<UGSCAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerActor));
+}
+
 UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> EquipmentDefinition)
 {
 	UEquipmentInstance* Result = nullptr;
@@ -54,17 +66,19 @@ UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> Eq
 	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType); //@TODO: Using the actor instead of component as the outer due to UE-127172
 	Result = NewEntry.Instance;
 
-	//if (ULyraAbilitySystemComponent* ASC = GetAbilitySystemComponent())
-	//{
-	//	for (const TObjectPtr<const ULyraAbilitySet>& AbilitySet : EquipmentCDO->AbilitySetsToGrant)
-	//	{
-	//		AbilitySet->GiveToAbilitySystem(ASC, &NewEntry.GrantedHandles, Result);
-	//	}
-	//}
-	//else
-	//{
-	//	
-	//}
+	if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
+	{
+		//for (const TObjectPtr<const UProGSCAbilitySet>& AbilitySet : EquipmentCDO->AbilitySetsToGrant)
+		//{
+		//	AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
+		//}
+		
+		for (int32 i = 0; i < EquipmentCDO->AbilitySetsToGrant.Num(); i++)
+		{			
+			const TObjectPtr<const UProGSCAbilitySet>& AbilitySet = EquipmentCDO->AbilitySetsToGrant[i];
+			AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
+		}
+	}
 
 	Result->SpawnEquipmentActors(EquipmentCDO->ActorsToSpawn);
 
@@ -78,9 +92,10 @@ void FEquipmentList::RemoveItem(UEquipmentInstance* Instance)
 		FEquipmentItem& Item = *Iter;
 		if (Item.Instance == Instance)
 		{
-			//if (ULyraAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+			//if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
 			//{
-			//	Item.GrantedHandles.TakeFromAbilitySystem(ASC);
+			//	
+			//	//Item.GrantedHandles.(GASC);
 			//}
 
 			Instance->DestroyEquipmentActors();
@@ -117,12 +132,35 @@ void UEquipmentManagerComponent::UnequipItem(UEquipmentInstance* ItemInstance)
 }
 
 
-//UEquipmentInstance* UEquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<UEquipmentInstance> InstanceType)
-//{
-//	
-//}
-//
-//TArray<UEquipmentInstance*> UEquipmentManagerComponent::GetEquipmentInstancesOfType(
-//	TSubclassOf<UEquipmentInstance> InstanceType) const
-//{
-//}
+UEquipmentInstance* UEquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<UEquipmentInstance> InstanceType)
+{
+	for (FEquipmentItem& Entry : EquipmentList.Items)
+	{
+		if (UEquipmentInstance* Instance = Entry.Instance)
+		{
+			if (Instance->IsA(InstanceType))
+			{
+				return Instance;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+TArray<UEquipmentInstance*> UEquipmentManagerComponent::GetEquipmentInstancesOfType(
+	TSubclassOf<UEquipmentInstance> InstanceType) const
+{
+	TArray<UEquipmentInstance*> Results;
+	for (const FEquipmentItem& Entry : EquipmentList.Items)
+	{
+		if (UEquipmentInstance* Instance = Entry.Instance)
+		{
+			if (Instance->IsA(InstanceType))
+			{
+				Results.Add(Instance);
+			}
+		}
+	}
+	return Results;
+}
