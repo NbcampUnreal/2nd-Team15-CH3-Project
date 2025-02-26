@@ -46,19 +46,35 @@ bool UAIBehaviorsComponent::IsTriggerEnabled(ECombatTriggerFlags Trigger) const
 
 bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 {
-	// FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
+	//원하는 상태가 컴뱃이라면
 	if (ChangeState == AIGameplayTags::AIState_Combat)
 	{
-		if (CurrentState != AIGameplayTags::AIState_Dead)
+		//내 현재상태가 죽음이 아니고 && 공격가능한 대상들이 하나라도 있다면
+		if (CurrentState != AIGameplayTags::AIState_Dead && !AttackableTargets.IsEmpty())
 		{
-			return (IsValid(AttackTarget));
+			return true;
 		}
-	}
-	else if (ChangeState == AIGameplayTags::AIState_Idle)
-	{
+		
+		if (CurrentState == AIGameplayTags::AIState_Dead)
+		{
+			return false;
+		}
+		
 		return true;
 	}
-	else if (ChangeState == AIGameplayTags::AIState_Seeking)
+
+
+	if (ChangeState == AIGameplayTags::AIState_Idle)
+	{
+		if (ChangeState == AIGameplayTags::AIState_Combat)
+		{
+			return true;
+		}
+		
+		return true;
+	}
+
+	if (ChangeState == AIGameplayTags::AIState_Seeking)
 	{
 		if (PreviousState == AIGameplayTags::AIState_Combat)
 		{
@@ -69,13 +85,16 @@ bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 			return false;
 		}
 	}
-	else if (ChangeState == AIGameplayTags::AIState_Dead)
+
+	if (ChangeState == AIGameplayTags::AIState_Dead)
 	{
 	}
-	else if (ChangeState == AIGameplayTags::AIState_Seeking)
+
+	if (ChangeState == AIGameplayTags::AIState_Seeking)
 	{
 	}
-	else if (ChangeState == AIGameplayTags::AIState_Disabled)
+
+	if (ChangeState == AIGameplayTags::AIState_Disabled)
 	{
 	}
 
@@ -96,9 +115,6 @@ void UAIBehaviorsComponent::UpdateState(FGameplayTag UpdateState)
 	else if (UpdateState == AIGameplayTags::AIState_Seeking)
 	{
 		SetStateAsSeeking();
-
-		//ToDo::비헤이비어 트리에서 할 것입니다.
-		// GetWorld()->GetTimerManager().SetTimer(SeekTimerHandle, this, &UAIBehaviorsComponent::SetStateAsSeeking, TimeToSeekAfterLosingSight, false);
 	}
 	if (UpdateState == AIGameplayTags::AIState_Idle)
 	{
@@ -124,8 +140,6 @@ void UAIBehaviorsComponent::HandleForgotActor(const FPerceivedActorInfo& Perceiv
 
 void UAIBehaviorsComponent::HandleSensedSight(const FPerceivedActorInfo& PerceivedActorInfo)
 {
-	// AI_ENEMY_SCREEN_LOG_LOG(5.0f, "시야로 감지했습니다");
-
 	// 이미 공격 대상이 설정되어 있다면, 추가적인 타겟 설정을 하지 않음
 	if (AttackTarget == PerceivedActorInfo.DetectedActor)
 		return;
@@ -134,30 +148,19 @@ void UAIBehaviorsComponent::HandleSensedSight(const FPerceivedActorInfo& Perceiv
 	if (AIControllerRef->OnSameTeam(PerceivedActorInfo.DetectedActor))
 		return;
 
-	// UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this, SeekTimerHandle);
-
 	ECombatTriggerFlags SightCombatTrigger = ECombatTriggerFlags::Sight;
 	if (!IsTriggerEnabled(SightCombatTrigger))
 		return;
 
 	// 공격 가능한 타겟 목록에 추가
-	if (!AttackableTargets.Contains(PerceivedActorInfo.DetectedActor))
-	{
-		AttackableTargets.AddUnique(PerceivedActorInfo.DetectedActor);
-	}
+	AttackableTargets.AddUnique(PerceivedActorInfo.DetectedActor);
 }
 
 void UAIBehaviorsComponent::HandleLostSight(const FPerceivedActorInfo& PerceivedActorInfo)
 {
-	// AI_ENEMY_SCREEN_LOG_LOG(5.0f, "시야로 감지한 것을 잃었습니다");
-
-	if (AttackTarget == PerceivedActorInfo.DetectedActor)
-	{
-		if (!AttackableTargets.IsEmpty())
-		{
-			AttackableTargets.Remove(PerceivedActorInfo.DetectedActor);
-		}
-	}
+	AI_ENEMY_SCREEN_LOG_LOG(10.0f,"시야에서 놓쳤습니다. 놓친적이 없어서 이 로그가 호출되면 안됩니다");
+	if (AttackableTargets.Contains(PerceivedActorInfo.DetectedActor))
+		AttackableTargets.Remove(PerceivedActorInfo.DetectedActor);
 }
 
 void UAIBehaviorsComponent::HandleSensedSound(const FPerceivedActorInfo& PerceivedActorInfo)
@@ -205,32 +208,53 @@ float UAIBehaviorsComponent::GetRealRotationRate()
 	return CurrentState == AIGameplayTags::AIState_Combat ? CombatRotationRate : InitialRotationRate;
 }
 
-void UAIBehaviorsComponent::SetStateAsAttacking_Implementation(AActor* NewAttackTarget, bool bUseLastKnownAttackTarget)
+void UAIBehaviorsComponent::SetStateAsAttacking()
 {
-	// 현재 AttackTarget이 유효하고 이전 대상을 사용하도록 지정된 경우 기존 AttackTarget 사용, 그렇지 않으면 새 대상 사용
-	AActor* BestAttackTarget = (IsValid(AttackTarget) && bUseLastKnownAttackTarget) ? AttackTarget : NewAttackTarget;
+	// 공격 가능한 타겟 목록을 가져옵니다.
 
-	// // 유효한 공격 대상이 아닐 경우 상태를 Passive으로 전환하고 함수 종료
-	// if (!IsValid(BestAttackTarget))
-	// {
-	// 	AIControllerRef->BlackBoardUpdate_State(EAIState::Idle);
-	// 	return;
-	// }
+	// 타겟이 없다면, 리턴
+	if (AttackableTargets.IsEmpty())
+	{
+		AttackTarget = nullptr;
+		AIControllerRef->UpdateBlackboard_AttackTarget(AttackTarget);
+		return;
+	}
 
-	// // 공격 대상이 데미지 인터페이스를 구현했는지 확인하고, 이미 사망한 대상인 경우 상태를 Passive으로 전환
-	// if (BestAttackTarget->Implements<UInterface_Damageable>())
-	// {
-	// 	if (IInterface_Damageable::Execute_IsDead(BestAttackTarget))
-	// 	{
-	// 		AIControllerRef->BlackBoardUpdate_State(EAIState::Idle);
-	// 		return;
-	// 	}
-	// }
+	if (AttackableTargets.Num() == 1)
+	{
+		// 최적의 공격 대상을 설정
+		AttackTarget = AttackableTargets[0];
+		AIControllerRef->UpdateBlackboard_AttackTarget(AttackTarget);
+		return;
+	}
 
-	// Blackboard에 공격 대상 및 상태 업데이트
-	// AIControllerRef->BlackBoardUpdate_AttackTarget(BestAttackTarget);
-	// AIControllerRef->BlackBoardUpdate_State(EAIState::Combat);
-	// AttackTarget = BestAttackTarget;
+	//1마리가 만약 아니라면
+
+	// 가장 가까운 타겟을 선택
+	AActor* BestTarget = nullptr;
+	float ShortestDistance = FLT_MAX;
+
+	// 기본적으로는 거리 기반으로 가장 가까운 타겟을 선택
+	for (AActor* PotentialTarget : AttackableTargets)
+	{
+		if (!IsValid(PotentialTarget))
+			continue;
+
+		//ToDo::나중에 죽음에 대한 것도 처리해줘야합니다.
+
+		float Distance = FVector::Dist(GetOwner()->GetActorLocation(), PotentialTarget->GetActorLocation());
+
+		// 가장 가까운 타겟을 선택
+		if (Distance < ShortestDistance)
+		{
+			ShortestDistance = Distance;
+			BestTarget = PotentialTarget;
+		}
+	}
+
+	// 최적의 공격 대상을 설정
+	AttackTarget = BestTarget;
+	AIControllerRef->UpdateBlackboard_AttackTarget(BestTarget);
 }
 
 void UAIBehaviorsComponent::HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo)

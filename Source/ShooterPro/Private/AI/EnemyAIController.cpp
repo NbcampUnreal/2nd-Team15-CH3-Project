@@ -74,41 +74,43 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	if (!DetectionInfoManager)
 		DetectionInfoManager = NewObject<UPerceptionManager>(this, UPerceptionManager::StaticClass());
 
-	// Pawn을 AEnemyAIBase로 캐스팅 시도
+	
+	
 	PossessedAI = Cast<AEnemyAIBase>(InPawn);
 	if (!PossessedAI)
 	{
 		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "InPawn을 AEnemyAIBase로 캐스팅할 수 없습니다.");
 		return;
 	}
-
-	// Behavior Tree가 유효한 경우 실행
-	if (IsValid(PossessedAI->BehaviorTree))
+	
+	if (!IsValid(PossessedAI->BehaviorTree))
 	{
-		// AIBehaviorsComponent가 유효하면 공격 및 방어 반경 업데이트
-		if (IsValid(PossessedAI->AIBehaviorsComponent))
+		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "Behavior을 설정해주세요");
+		return;
+	}
+	
+	// AIBehaviorsComponent가 유효하면 공격 및 방어 반경 업데이트
+	if (IsValid(PossessedAI->AIBehaviorsComponent))
+	{
+		DetectionInfoManager->OnAddPerceptionUpdated.AddDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionUpdated);
+		DetectionInfoManager->OnRemoveExpiredDetection.AddDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionForgotten);
+		
+		AIBehaviorComponent = PossessedAI->AIBehaviorsComponent;
+		if (AIBehaviorComponent)
 		{
-			AIBehaviorComponent = PossessedAI->AIBehaviorsComponent;
-			if (AIBehaviorComponent)
-			{
-				RunBehaviorTree(PossessedAI->BehaviorTree);
-				UpdateBlackboard_State(AIGameplayTags::AIState_Idle);
-				UpdateBlackboard_AttackRadius(AIBehaviorComponent->GetAttackRadius());
-				UpdateBlackboard_DefendRadius(AIBehaviorComponent->GetDefendRadius());
-				UpdateBlackboard_StartLocation(PossessedAI->GetActorLocation());
-				UpdateBlackboard_MaxRandRadius(AIBehaviorComponent->GetMaxRandRadius());
-			}
-			else
-			{
-				AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "PossessedAI가 AIBehaviorComponent를 소유하고 있지 않습니다.");
-			}
+			RunBehaviorTree(PossessedAI->BehaviorTree);
+			UpdateBlackboard_State(AIGameplayTags::AIState_Idle);
+			UpdateBlackboard_AttackRadius(AIBehaviorComponent->GetAttackRadius());
+			UpdateBlackboard_DefendRadius(AIBehaviorComponent->GetDefendRadius());
+			UpdateBlackboard_StartLocation(PossessedAI->GetActorLocation());
+			UpdateBlackboard_MaxRandRadius(AIBehaviorComponent->GetMaxRandRadius());
+		}
+		else
+		{
+			AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "PossessedAI가 AIBehaviorComponent를 소유하고 있지 않습니다.");
 		}
 	}
-	else
-	{
-		// Behavior Tree가 유효하지 않을 경우 오류 로그 출력
-		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "Behavior Tree가 유효하지 않습니다.");
-	}
+
 
 	// AI Perception 업데이트 시 호출될 델리게이트에 이벤트 바인딩
 	AIPerception->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
@@ -277,7 +279,7 @@ bool AEnemyAIController::OnSameTeam(AActor* Actor)
 	// 두 액터가 UInterface_Damagable 인터페이스를 구현하지 않았다면 오류 로그 출력 후 true 반환 (보수적 판단)
 	if (!Actor->Implements<UInterface_EnemyAI>() || !GetPawn()->Implements<UInterface_EnemyAI>())
 	{
-		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "TargetActor 또는 Pawn이 UInterface_EnemyAI를 구현하지 않았습니다. 그래서 서로 적으로 인식됩니다.");
+		// AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "TargetActor 또는 Pawn이 UInterface_EnemyAI를 구현하지 않았습니다. 그래서 서로 적으로 인식됩니다.");
 		return false;
 	}
 

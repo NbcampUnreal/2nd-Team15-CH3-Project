@@ -4,7 +4,6 @@
 #include "GameplayTagContainer.h"
 #include "AI/AIDectionInfoTypes.h"
 #include "AI/EnemyAITypes.h"
-#include "AI/Decorator/BTDecorator_CheckAndSetAIState.h"
 #include "Components/ActorComponent.h"
 #include "AIBehaviorsComponent.generated.h"
 
@@ -44,10 +43,10 @@ public:
 	const FPerceivedActorInfo& GetLastSenseHandle() { return LastSenseHandle; }
 
 public:
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION()
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION()
 	void HandlePerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo);
 
 	UFUNCTION()
@@ -73,14 +72,9 @@ public:
 	void HandleLostDamage(const FPerceivedActorInfo& PerceivedActorInfo);
 
 public:
-	/**
-	 * @brief 공격 상태로 전환
-	 * 공격 대상과 마지막으로 확인된 공격 대상을 바탕으로 AI 상태를 공격 상태로 전환합니다.
-	 * @param NewAttackTarget 새 공격 대상 액터
-	 * @param bUseLastKnownAttackTarget 기존 공격 대상을 계속 사용할지 여부
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="AI Behavior")
-	void SetStateAsAttacking(AActor* NewAttackTarget, bool bUseLastKnownAttackTarget);
+	
+	UFUNCTION()
+	void SetStateAsAttacking();
 
 	UFUNCTION()
 	void SetStateAsSeeking();

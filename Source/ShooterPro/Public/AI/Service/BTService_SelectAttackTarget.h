@@ -33,11 +33,7 @@ protected:
 	virtual void OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
-	/** 공격 가능한 타겟을 선택하는 함수 */
-	void SelectAttackTarget(UBehaviorTreeComponent& OwnerComp);
-
-private:
-	TWeakObjectPtr<AEnemyAIController> CachedAIController;  
-	TWeakObjectPtr<UAIBehaviorsComponent> CachedAIBehaviorsComp;  
+	TArray<TWeakObjectPtr<AEnemyAIController>> CachedAIController;  
+	TArray<TWeakObjectPtr<UAIBehaviorsComponent>> CachedAIBehaviorsComp;  
 
 };
