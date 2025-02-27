@@ -68,16 +68,16 @@ UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> Eq
 
 	if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
 	{
-		//for (const TObjectPtr<const UProGSCAbilitySet>& AbilitySet : EquipmentCDO->AbilitySetsToGrant)
-		//{
-		//	AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
-		//}
-		
-		for (int32 i = 0; i < EquipmentCDO->AbilitySetsToGrant.Num(); i++)
-		{			
-			const TObjectPtr<const UProGSCAbilitySet>& AbilitySet = EquipmentCDO->AbilitySetsToGrant[i];
+		for (const TObjectPtr<const UProGSCAbilitySet>& AbilitySet : EquipmentCDO->AbilitySetsToGrant)
+		{
 			AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
 		}
+		
+		//for (int32 i = 0; i < EquipmentCDO->AbilitySetsToGrant.Num(); i++)
+		//{
+		//	const TObjectPtr<const UProGSCAbilitySet>& AbilitySet = EquipmentCDO->AbilitySetsToGrant[i];
+		//	AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
+		//}
 	}
 
 	Result->SpawnEquipmentActors(EquipmentCDO->ActorsToSpawn);

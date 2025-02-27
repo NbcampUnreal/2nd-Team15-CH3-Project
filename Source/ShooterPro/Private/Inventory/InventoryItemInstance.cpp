@@ -9,13 +9,3 @@ UInventoryItemInstance::UInventoryItemInstance(const FObjectInitializer& ObjectI
 	:Super(ObjectInitializer)
 {
 }
-
-void UInventoryItemInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	StatTags.AddStack(Tag, StackCount);
-}
-
-void UInventoryItemInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	StatTags.RemoveStack(Tag, StackCount);
-}

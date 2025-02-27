@@ -38,16 +38,20 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
 	void K2_OnEquipped();
+	
 	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
 	void K2_OnUnequipped();
-
+	
+	UFUNCTION(BlueprintPure, Category=Equipment)
+	UObject* GetInstigator() const { return Instigator; }
+	
 	void SetInstigator(UObject* InInstigator) {Instigator = InInstigator;}
 	
 	void SetAnimMontage(UAnimMontage* Montage);
 	
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	AActor* FindSpawnedActorByClass(TSubclassOf<AActor> Class) const;
-
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* EquippedAnimMontage;
 	
@@ -59,7 +63,7 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category=SpawnedActors)
 	TArray<TObjectPtr<AActor>> SpawnedActors;
-private:
+
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;
 };

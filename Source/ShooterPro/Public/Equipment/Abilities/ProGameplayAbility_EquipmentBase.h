@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/ProGameplayAbility.h"
 #include "ProGameplayAbility_EquipmentBase.generated.h"
 
+class UProAbilityCost;
 class UEquipmentInstance;
 /**
  * 
@@ -17,5 +18,8 @@ class SHOOTERPRO_API UProGameplayAbility_EquipmentBase : public UProGameplayAbil
 
 public:
 	UFUNCTION(BlueprintPure, Category = "Ability")
-	UEquipmentInstance* GetSourceEquipmentInstance();
+	UEquipmentInstance* GetSourceEquipmentInstance() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	UInventoryItemInstance* GetSourceItemInstance() const;
 };

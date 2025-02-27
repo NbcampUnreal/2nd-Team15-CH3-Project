@@ -11,7 +11,7 @@ class UInventoryItemDefinition;
 struct FGamplayTag;
 
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class SHOOTERPRO_API UInventoryItemInstance : public UObject
 {
 	GENERATED_BODY()
@@ -22,14 +22,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	TSubclassOf<UInventoryItemDefinition> GetItemDef() const { return ItemDef; }
 
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
-	
 	void SetItemDef(TSubclassOf<UInventoryItemDefinition> InDef) { ItemDef = InDef; }
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void AddStatTagStack(FGameplayTag Tag, int32 StackCount) { StatTags.AddStack(Tag, StackCount); }
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)	{ StatTags.RemoveStack(Tag, StackCount); }
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	int32 GetStatTagStackCount(FGameplayTag Tag) const	{ return StatTags.GetStackCount(Tag); }
+
+	bool HasStatTag(FGameplayTag Tag) const	{ return StatTags.ContainsTag(Tag);	}
+	
 	friend struct FInventoryList;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, meta=(DeterminesOutputType=FragmentClass))
@@ -41,9 +46,9 @@ public:
 		return (ResultClass*)FindFragmentByClass(ResultClass::StaticClass());
 	}
 
+private:
 	UPROPERTY()
 	FGameplayTagStackContainer StatTags;
-private:
 
 	TSubclassOf<UInventoryItemDefinition> ItemDef;
 };

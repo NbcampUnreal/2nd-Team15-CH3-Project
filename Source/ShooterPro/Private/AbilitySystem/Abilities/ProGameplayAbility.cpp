@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/ProGameplayAbility.h"
 #include "AbilitySystem/Abilities/ProAbilityCondition.h"
+#include "AbilitySystem/Abilities/ProAbilityCost.h"
 
 
 UProGameplayAbility::UProGameplayAbility()
@@ -54,4 +55,41 @@ bool UProGameplayAbility::CheckAdditionalConditions(const FGameplayAbilitySpecHa
 
 	// 전부 통과하면 true
 	return true;
+}
+
+bool UProGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags)) return false;
+
+	for (const TObjectPtr<UProAbilityCost>& AdditionalCost : ExtendedCosts)
+	{
+		if (AdditionalCost != nullptr)
+		{
+			// UProAbilityConst를 상속받은 클래스는 CheckCost를 구현하도록.
+			if (!AdditionalCost->CheckCost(this, Handle, ActorInfo, OptionalRelevantTags))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void UProGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
+
+	check(ActorInfo);
+	
+	for (const TObjectPtr<UProAbilityCost>& AdditionalCost : ExtendedCosts)
+	{
+		if (AdditionalCost != nullptr)
+		{
+			// UProAbilityConst를 상속받은 클래스는 ApplyCost를 구현하도록.
+			AdditionalCost->ApplyCost(this, Handle, ActorInfo, ActivationInfo);
+		}
+	}
 }

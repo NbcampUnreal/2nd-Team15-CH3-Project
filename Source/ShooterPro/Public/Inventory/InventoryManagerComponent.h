@@ -52,10 +52,15 @@ struct FInventoryList
 	}
 	
 	UInventoryItemInstance* AddItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
-	bool RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
+
+	void RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
 	
 	void EraseItem(UInventoryItemInstance* Instance);
 
+	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
+
+	int GetStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef);
+	
 	TArray<UInventoryItemInstance*> GetAllItems() const;
 
 	FInventoryItem FindFirstItemWithDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
@@ -89,9 +94,21 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	FInventoryItem FindFirstInventoryItemByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
 	
 	UFUNCTION(BlueprintCallable, Category="Inventory")
-	bool ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 NumToConsume);
+	void ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 NumToConsume);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	int32 GetItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void AddItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void SubtractItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
 private:
 	FInventoryList InventoryList;
 };

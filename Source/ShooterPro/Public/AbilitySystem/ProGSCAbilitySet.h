@@ -15,5 +15,5 @@ class SHOOTERPRO_API UProGSCAbilitySet : public UGSCAbilitySet
 public:
 	bool GrantToAbilitySystemWithSource(UAbilitySystemComponent* InASC, UObject* SourceObject, FGSCAbilitySetHandle& OutAbilitySetHandle, FText* OutErrorText = nullptr, const bool bShouldRegisterCoreDelegates = true) const;
 	static bool TryGrantAbilitySetWithSource(UAbilitySystemComponent* InASC, const UGSCAbilitySet* InAbilitySet, UObject* SourceObject, FGSCAbilitySetHandle& OutAbilitySetHandle, TArray<TSharedPtr<FComponentRequestHandle>>* OutComponentRequests = nullptr);
-
+	static void TryGrantAbility(UAbilitySystemComponent* InASC, const FGSCGameFeatureAbilityMapping& InAbilityMapping, FGameplayAbilitySpecHandle& OutAbilityHandle, FGameplayAbilitySpec& OutAbilitySpec, UObject* SourceObject);
 };

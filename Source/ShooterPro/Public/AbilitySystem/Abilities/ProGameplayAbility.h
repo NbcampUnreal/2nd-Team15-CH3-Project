@@ -4,6 +4,7 @@
 #include "Abilities/GSCGameplayAbility.h"
 #include "ProGameplayAbility.generated.h"
 
+class UProAbilityCost;
 class UProAbilityCondition;
 
 
@@ -41,6 +42,13 @@ protected:
 	virtual bool CheckAdditionalConditions(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                                       FGameplayTagContainer* OptionalRelevantTags) const;
 
+
+	//코스트 적용이 가능한지 확인하는 함수
+	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+	//코스트 적용하는 함수
+	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+	
 public:
 	/**
 	 * @brief 추가로 요구되는 '조건(Condition)' 목록
@@ -49,4 +57,8 @@ public:
 	 */
 	UPROPERTY(EditDefaultsOnly, Instanced, Category="Pro|AbilityCondition")
 	TArray<TObjectPtr<UProAbilityCondition>> AdditionalConditions;
+
+	// 적용할 코스트
+	UPROPERTY(EditDefaultsOnly, Instanced, Category="Pro|ExtendedCost")
+	TArray<TObjectPtr<UProAbilityCost>> ExtendedCosts;
 };

@@ -37,29 +37,40 @@ UInventoryItemInstance* FInventoryList::AddItem(const TSubclassOf<UInventoryItem
 	return Result;
 }
 
-bool FInventoryList::RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount)
+void FInventoryList::RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount)
 {
-	if (StackCount <= 0) return false;
-
-	if (!Items.Contains(ItemDef)) return false;
+	if (!HasEnoughItem(ItemDef, StackCount)) return;
 
 	FInventoryItem& Item = Items[ItemDef];
 	
-	if (Item.StackCount < StackCount) return false;
-
 	Item.StackCount -= StackCount;
 
 	if (Item.StackCount == 0) 
 	{
 		Items.Remove(ItemDef);
 	}
-	
-	return true;
 }
 
 void FInventoryList::EraseItem(UInventoryItemInstance* Instance)
 {
 	Items.Remove(Instance->GetItemDef());
+}
+
+bool FInventoryList::HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const
+{
+	if (StackCount <= 0 || !Items.Contains(ItemDef)) 
+	{
+		return false;
+	}
+
+	return Items[ItemDef].StackCount >= StackCount;
+}
+
+int FInventoryList::GetStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef)
+{
+	if (!ItemDef || !Items.Contains(ItemDef)) return 0;
+	
+	return Items[ItemDef].StackCount;
 }
 
 TArray<UInventoryItemInstance*> FInventoryList::GetAllItems() const
@@ -122,8 +133,29 @@ FInventoryItem UInventoryManagerComponent::FindFirstInventoryItemByDefinition(
 	return InventoryList.FindFirstItemWithDefinition(ItemDef);
 }
 
-bool UInventoryManagerComponent::ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef,
+bool UInventoryManagerComponent::HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef,
+	int32 StackCount) const
+{
+	return InventoryList.HasEnoughItem(ItemDef, StackCount);
+}
+
+void UInventoryManagerComponent::ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef,
                                                           int32 NumToConsume)
 {
-	return InventoryList.RemoveItem(ItemDef, NumToConsume);
+	InventoryList.RemoveItem(ItemDef, NumToConsume);
+}
+
+int32 UInventoryManagerComponent::GetItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef)
+{
+	return InventoryList.GetStackCount(ItemDef);
+}
+
+void UInventoryManagerComponent::AddItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount)
+{
+	InventoryList.AddItem(ItemDef, StackCount);
+}
+
+void UInventoryManagerComponent::SubtractItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount)
+{
+	InventoryList.RemoveItem(ItemDef, StackCount);
 }

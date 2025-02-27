@@ -16,7 +16,7 @@ bool UProGSCAbilitySet::GrantToAbilitySystemWithSource(UAbilitySystemComponent* 
 	UGSCAbilitySystemComponent* ASC = Cast<UGSCAbilitySystemComponent>(InASC);
 	if (!ASC) return false;
 
-	const bool bSuccess = UProGSCAbilitySet::TryGrantAbilitySetWithSource(ASC, this, SourceObject, OutAbilitySetHandle);
+	const bool bSuccess = TryGrantAbilitySetWithSource(ASC, this, SourceObject, OutAbilitySetHandle);
 
 	// Make sure to re-register delegates, this set may have added
 	if (bSuccess && bShouldRegisterCoreDelegates)
@@ -66,8 +66,7 @@ bool UProGSCAbilitySet::TryGrantAbilitySetWithSource(UAbilitySystemComponent* In
 		// Try to grant the ability first
 		FGameplayAbilitySpec AbilitySpec;
 		FGameplayAbilitySpecHandle AbilityHandle;
-		FGSCAbilitySystemUtils::TryGrantAbility(InASC, AbilityMapping, AbilityHandle, AbilitySpec);
-		AbilitySpec.SourceObject = SourceObject;
+		TryGrantAbility(InASC, AbilityMapping, AbilityHandle, AbilitySpec, SourceObject);
 		OutAbilitySetHandle.Abilities.Add(AbilityHandle);
 
 		// Handle Input Mapping now
@@ -127,4 +126,60 @@ bool UProGSCAbilitySet::TryGrantAbilitySetWithSource(UAbilitySystemComponent* In
 	// Store the name of the Ability Set "instigator"
 	OutAbilitySetHandle.AbilitySetPathName = InAbilitySet->GetPathName();
 	return true;
+}
+
+void UProGSCAbilitySet::TryGrantAbility(UAbilitySystemComponent* InASC,
+	const FGSCGameFeatureAbilityMapping& InAbilityMapping, FGameplayAbilitySpecHandle& OutAbilityHandle,
+	FGameplayAbilitySpec& OutAbilitySpec, UObject* SourceObject)
+{
+	check(InASC);
+	
+	if (InAbilityMapping.AbilityType.IsNull())
+	{
+		GSC_PLOG(Error, TEXT("Failed to Grant Ability \"%s\" because SoftClassPtr is null"), *InAbilityMapping.AbilityType.ToString())
+		return;
+	}
+	
+	const TSubclassOf<UGameplayAbility> AbilityType = InAbilityMapping.AbilityType.LoadSynchronous();
+	check(AbilityType);
+
+	UGSCAbilitySystemComponent* ASC = Cast<UGSCAbilitySystemComponent>(InASC);
+	if (!ASC)
+	{
+		GSC_PLOG(Error, TEXT("Failed to Grant Ability \"%s\" because ASC \"%s\" is not a UGSCAbilitySystemComponent"), *GetNameSafe(AbilityType), *GetNameSafe(InASC))
+		return;
+	}
+
+	OutAbilitySpec = ASC->BuildAbilitySpecFromClass(AbilityType, InAbilityMapping.Level);
+	OutAbilitySpec.SourceObject = SourceObject;
+	// Try to grant the ability first
+	if (ASC->IsOwnerActorAuthoritative())
+	{
+		// Only Grant abilities on authority, and only if we should (ability not granted yet or wants reset on spawn)
+		if (!FGSCAbilitySystemUtils::IsAbilityGranted(ASC, AbilityType, InAbilityMapping.Level))
+		{
+			GSC_PLOG(Verbose, TEXT("Authority, Grant Ability (%s)"), *AbilityType->GetName())
+			OutAbilityHandle = ASC->GiveAbility(OutAbilitySpec);
+		}
+		else
+		{
+			// In case granting is prevented because of ability already existing, return the existing handle
+			const FGameplayAbilitySpec* ExistingAbilitySpec = ASC->FindAbilitySpecFromClass(AbilityType);
+			if (ExistingAbilitySpec)
+			{
+				OutAbilityHandle = ExistingAbilitySpec->Handle;
+			}
+		}
+	}
+	else
+	{
+		// For clients, try to get ability spec and update handle used later on for input binding
+		const FGameplayAbilitySpec* ExistingAbilitySpec = ASC->FindAbilitySpecFromClass(AbilityType);
+		if (ExistingAbilitySpec)
+		{
+			OutAbilityHandle = ExistingAbilitySpec->Handle;
+		}
+		
+		GSC_LOG(Verbose, TEXT("AddActorAbilities: Not Authority, try to find ability handle from spec: %s"), *OutAbilityHandle.ToString())
+	}
 }
