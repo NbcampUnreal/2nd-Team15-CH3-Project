@@ -14,7 +14,7 @@ class SHOOTERPRO_API UInventoryFragment_SetStats : public UInventoryItemFragment
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category=Equipment)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Equipment)
 	TMap<FGameplayTag, int32> InitialItemStats;
 
 public:

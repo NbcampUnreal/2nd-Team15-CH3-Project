@@ -96,7 +96,7 @@ void AProPlayerCharacter::Move(const FInputActionValue& Value)
 
 void AProPlayerCharacter::Look(const FInputActionValue& Value)
 {
-	const FVector2D LookValue = Value.Get<FVector2D>();
+		const FVector2D LookValue = Value.Get<FVector2D>();
 
 	if (LookValue.X != 0.0f)
 	{

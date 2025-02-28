@@ -5,6 +5,11 @@
 
 #include "Inventory/ProBulletBase.h"
 
+UBulletItemInstance::UBulletItemInstance()
+{
+	ProjectileActorClass =  AProBulletBase::StaticClass();
+}
+
 AProBulletBase* UBulletItemInstance::RequestBullet(TSubclassOf<AProBulletBase> BulletClass)
 {
 	// 1) BulletPool 배열에서 "비활성화된" Bullet을 찾아서 반환

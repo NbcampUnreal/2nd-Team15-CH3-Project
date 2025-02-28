@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -32,7 +31,7 @@ private:
 
 	//UPROPERTY()
 	//int32 MaxStackCount; ItemDef에서 값을 가져와야함.
-	
+
 	UPROPERTY()
 	int32 LastObservedCount = INDEX_NONE;
 };
@@ -50,17 +49,17 @@ struct FInventoryList
 	FInventoryList(UActorComponent* InOwnerComponent): OwnerComponent(InOwnerComponent)
 	{
 	}
-	
+
 	UInventoryItemInstance* AddItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
 
 	void RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
-	
+
 	void EraseItem(UInventoryItemInstance* Instance);
 
 	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
 
 	int GetStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef);
-	
+
 	TArray<UInventoryItemInstance*> GetAllItems() const;
 
 	FInventoryItem FindItemByDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
@@ -68,7 +67,6 @@ struct FInventoryList
 private:
 	UPROPERTY()
 	TMap<TSubclassOf<UInventoryItemDefinition>, FInventoryItem> Items;
-	
 	
 	UPROPERTY()
 	TObjectPtr<UActorComponent> OwnerComponent;
@@ -82,7 +80,7 @@ class SHOOTERPRO_API UInventoryManagerComponent : public UActorComponent
 
 public:
 	UInventoryManagerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	UInventoryItemInstance* AddItemDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StakcCount = 1);
 
@@ -97,7 +95,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
-	
+
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	void ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 NumToConsume);
 
@@ -109,6 +107,17 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	void SubtractItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	UInventoryItemInstance* GetItemInstanceByIndex(int32 Index) const;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	bool DoesItemExistAtIndex(int32 Index) const;
+
+	UFUNCTION(BlueprintPure, Category="Inventory")
+	TArray<UInventoryItemInstance*> GetAllItems() ;
+	
 private:
 	FInventoryList InventoryList;
 };
+

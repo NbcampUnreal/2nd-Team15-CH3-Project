@@ -12,6 +12,7 @@
 UBTTask_ActivateAbilityAndWaitForMessage::UBTTask_ActivateAbilityAndWaitForMessage()
 {
 	NodeName = TEXT("ActivateAbilityAndWaitForMessage");
+	bCreateNodeInstance = true;
 
 	// Task가 종료될 때 OnTaskFinished가 호출되도록 설정
 	// (bNotifyTaskFinished = true와 동일, 매크로 방식)
@@ -52,7 +53,7 @@ EBTNodeResult::Type UBTTask_ActivateAbilityAndWaitForMessage::ExecuteTask(UBehav
 	if (bUseAbilityTag)
 	{
 		// Tag 기반 Activate
-		AI_ENEMY_LOG_DISPLAY("%s - Activating abilities by tag: %s", *GetName(), *AbilityTag.ToString());
+		// AI_ENEMY_LOG_DISPLAY("%s - Activating abilities by tag: %s", *GetName(), *AbilityTag.ToString());
 
 		bActivationSucceeded = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(AbilityTag), /*bAllowRemoteActivation=*/false);
 		if (!bActivationSucceeded)
@@ -117,7 +118,7 @@ EBTNodeResult::Type UBTTask_ActivateAbilityAndWaitForMessage::ExecuteTask(UBehav
 
 	// 메시지 대기용 태그 추출
 	ListeningTag = ExtractFirstTagOrDefault(AbilityTags);
-	AI_ENEMY_LOG_DISPLAY("%s - ListeningTag: %s", *GetName(), *ListeningTag.ToString());
+	// AI_ENEMY_LOG_DISPLAY("%s - ListeningTag: %s", *GetName(), *ListeningTag.ToString());
 
 	// 3) 메시지 수신 대기(AsyncListener)
 	{
@@ -138,7 +139,7 @@ EBTNodeResult::Type UBTTask_ActivateAbilityAndWaitForMessage::ExecuteTask(UBehav
 
 		if (!AsyncListener)
 		{
-			AI_ENEMY_LOG_WARNING("%s - Failed to create UAsyncAction_ListenForGameplayMessage", *GetName());
+			// AI_ENEMY_LOG_WARNING("%s - Failed to create UAsyncAction_ListenForGameplayMessage", *GetName());
 			return EBTNodeResult::Failed;
 		}
 
@@ -157,7 +158,7 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 		return;
 	}
 
-	AI_ENEMY_LOG_LOG("OnMessageReceived - Received Tag=[%s], ListeningTag=[%s]", *ActualChannel.ToString(), *ListeningTag.ToString());
+	// AI_ENEMY_LOG_LOG("OnMessageReceived - Received Tag=[%s], ListeningTag=[%s]", *ActualChannel.ToString(), *ListeningTag.ToString());
 
 	// 메시지 구조체 타입이 우리가 원하는 FEnemyAbilityEndedPayload인지 확인
 	const UScriptStruct* DesiredStruct = FEnemyAbilityEndedPayload::StaticStruct();
@@ -167,17 +168,17 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 		{
 			if (const FEnemyAbilityEndedPayload* PayloadPtr = reinterpret_cast<const FEnemyAbilityEndedPayload*>(DataPtr))
 			{
-				AI_ENEMY_SCREEN_LOG_LOG(5.0f,
-				                        "Received FEnemyAbilityEndedPayload => AbilityName=%s, Tag=%s, Time=%.2f",
-				                        *PayloadPtr->EndedAbilityName,
-				                        *PayloadPtr->EndedAbilityTag.ToString(),
-				                        PayloadPtr->EndedTime
-				);
+				// AI_ENEMY_SCREEN_LOG_LOG(5.0f,
+				//                         "Received FEnemyAbilityEndedPayload => AbilityName=%s, Tag=%s, Time=%.2f",
+				//                         *PayloadPtr->EndedAbilityName,
+				//                         *PayloadPtr->EndedAbilityTag.ToString(),
+				//                         PayloadPtr->EndedTime
+				// );
 
 				// 예: OwnerActor 체크
 				if (AActor* OwningActor = PayloadPtr->AbilityOwner.Get())
 				{
-					AI_ENEMY_LOG_DISPLAY("AbilityOwner=[%s]", *OwningActor->GetName());
+					// AI_ENEMY_LOG_DISPLAY("AbilityOwner=[%s]", *OwningActor->GetName());
 				}
 			}
 		}
@@ -186,7 +187,7 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 	// 태그가 ListeningTag와 같으면 Succeeded 처리
 	if (ActualChannel == ListeningTag)
 	{
-		AI_ENEMY_SCREEN_LOG_LOG(3.0f, "Message Tag matched => Task Succeeded!");
+		// AI_ENEMY_SCREEN_LOG_LOG(3.0f, "Message Tag matched => Task Succeeded!");
 		FinishLatentTask(*MyOwnerComp, EBTNodeResult::Succeeded);
 	}
 }

@@ -3,17 +3,18 @@
 #include "AI/EnemyAIController.h"
 #include "AI/EnemyAILog.h"
 #include "AI/Components/AIBehaviorsComponent.h"
-#include "Perception/AIPerceptionComponent.h"
+
 
 UBTService_HandlePerception::UBTService_HandlePerception()
 {
-	// BTService 기본 설정
 	Interval = 0.5f; // 0.5초마다 실행
 	RandomDeviation = 0.1f; // ±0.1초의 랜덤 편차
 	bNotifyTick = true;
 	bNotifyOnSearch = false;
 	bNotifyBecomeRelevant = true;
 	bNotifyCeaseRelevant = true;
+
+	bCreateNodeInstance = true; // 이 값을 true로 설정하면 각 AI마다 독립된 서비스 인스턴스를 만듭니다.
 }
 
 void UBTService_HandlePerception::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

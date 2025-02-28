@@ -4,7 +4,6 @@
 #include "GameplayTagContainer.h"
 #include "AI/AIDectionInfoTypes.h"
 #include "AI/EnemyAITypes.h"
-#include "AI/Decorator/BTDecorator_CheckAndSetAIState.h"
 #include "Components/ActorComponent.h"
 #include "AIBehaviorsComponent.generated.h"
 
@@ -35,59 +34,49 @@ public:
 	bool CanChangeState(FGameplayTag ChangeState);
 
 	UFUNCTION(BlueprintCallable, Category="AI Behavior")
-	void UpdateState(FGameplayTag UpdateState);
+	bool UpdateState(FGameplayTag UpdateState);
 
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
 	bool IsInCombat();
 
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
-	const FPerceivedActorInfo& GetLastSenseHandle() { return LastSenseHandle; }
+	const FPerceivedActorInfo& GetLastSenseHandle() { return RecentSenseHandle; }
 
 public:
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION()
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION()
 	void HandlePerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo);
 
 	UFUNCTION()
-	void HandleForgotActor(const FPerceivedActorInfo& PerceivedActorInfo);
+	void RemoveActorFromAttackList(AActor* LostActor);
 
 public:
 	UFUNCTION()
-	void HandleSensedSight(const FPerceivedActorInfo& PerceivedActorInfo);
+	void HandleSensedSight();
+	
+	UFUNCTION()
+	void HandleLostSight();
 
 	UFUNCTION()
-	void HandleLostSight(const FPerceivedActorInfo& PerceivedActorInfo);
+	void HandleSensedSound();
 
 	UFUNCTION()
-	void HandleSensedSound(const FPerceivedActorInfo& PerceivedActorInfo);
+	void HandleSensedDamage();
 
 	UFUNCTION()
-	void HandleSensedDamage(const FPerceivedActorInfo& PerceivedActorInfo);
+	void HandleLostSound();
 
 	UFUNCTION()
-	void HandleLostSound(const FPerceivedActorInfo& PerceivedActorInfo);
-
-	UFUNCTION()
-	void HandleLostDamage(const FPerceivedActorInfo& PerceivedActorInfo);
+	void HandleLostDamage();
 
 public:
-	/**
-	 * @brief 공격 상태로 전환
-	 * 공격 대상과 마지막으로 확인된 공격 대상을 바탕으로 AI 상태를 공격 상태로 전환합니다.
-	 * @param NewAttackTarget 새 공격 대상 액터
-	 * @param bUseLastKnownAttackTarget 기존 공격 대상을 계속 사용할지 여부
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="AI Behavior")
-	void SetStateAsAttacking(AActor* NewAttackTarget, bool bUseLastKnownAttackTarget);
+	UFUNCTION()
+	void SetStateAsAttacking();
 
 	UFUNCTION()
 	void SetStateAsSeeking();
-
-public:
-	UFUNCTION(BlueprintPure, Category="AI Behavior|Movement Setting")
-	float GetRealRotationRate();
 
 public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
@@ -115,15 +104,6 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
-	bool bUseAimOffset = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
-	float InitialRotationRate = 90.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
-	float CombatRotationRate = 270.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
 	float WalkSpeed = 150.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
@@ -131,6 +111,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
 	float SprintingSpeed = 600.0f;
+
+	/** 시야에서 벗어난 후, 몇 초 뒤에 타겟을 제거할 것인지 */
+	UPROPERTY(EditAnywhere, Category="AI Behavior|Config")
+	float ForgetSightTime = 3.0f;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Combat Trigger")
@@ -147,13 +131,13 @@ public:
 	TArray<AActor*> AttackableTargets;
 
 public:
-	// 이전 AI 상태
-	UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
-	FGameplayTag PreviousState;
-
-	// 현재 AI 상태
-	UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
-	FGameplayTag CurrentState;
+	// // 이전 AI 상태
+	// UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
+	// FGameplayTag PreviousState;
+	//
+	// // 현재 AI 상태
+	// UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
+	// FGameplayTag CurrentState;
 
 private:
 	UPROPERTY(EditAnywhere, Category="AI Behavior")
@@ -167,7 +151,35 @@ private:
 
 private:
 	UPROPERTY(BlueprintReadOnly, Category="AI Behavior", meta=(AllowPrivateAccess=true))
-	FPerceivedActorInfo LastSenseHandle;
+	FPerceivedActorInfo RecentSenseHandle;
+
+private:
+	/** '시야를 벗어난 타겟'을 지우기 위한 타이머를 저장하는 맵 */
+	UPROPERTY()
+	TMap<AActor*, FTimerHandle> ForgetTimers;
+
 
 	// FTimerHandle SeekTimerHandle;
 };
+
+
+/* 옛날 코드들
+	public:
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Movement Setting")
+	float GetRealRotationRate();
+
+	float UAIBehaviorsComponent::GetRealRotationRate()
+	{
+		return CurrentState == AIGameplayTags::AIState_Combat ? CombatRotationRate : InitialRotationRate;
+	}
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	bool bUseAimOffset = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float InitialRotationRate = 90.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float CombatRotationRate = 270.0f;
+ */

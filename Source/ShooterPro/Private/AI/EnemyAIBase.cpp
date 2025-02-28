@@ -118,8 +118,6 @@ void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
 	// 대표 태그
 	Payload.EndedAbilityTag = BroadcastTag;
 
-
-
 	// 3) 메시지 전송
 	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
 	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "EquipmentDefinition.h"
 #include "EquipmentInstance.generated.h"
 
 struct FEquipmentActorToSpawn;
@@ -15,6 +16,7 @@ class SHOOTERPRO_API UEquipmentInstance : public UObject
 	GENERATED_BODY()
 public:
 	UEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UEquipmentInstance(UEquipmentDefinition* EquipDef, const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 	UFUNCTION(BlueprintNativeEvent,Category="Equipment")
 	void OnInstanceCreated();
@@ -51,6 +53,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	AActor* FindSpawnedActorByClass(TSubclassOf<AActor> Class) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	UEquipmentDefinition* GetEquipmentDefinition() const {return EquipmentDefinition;}
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* EquippedAnimMontage;
@@ -64,6 +69,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category=SpawnedActors)
 	TArray<TObjectPtr<AActor>> SpawnedActors;
 
+	UPROPERTY()
+	UEquipmentDefinition* EquipmentDefinition;
+	
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;
 };

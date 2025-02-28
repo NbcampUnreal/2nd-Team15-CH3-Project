@@ -10,7 +10,6 @@ class UProAbilityCondition;
 
 /**
  * @brief UGSCGameplayAbility를 상속하여 'ProAbilityCondition'들을 통한 추가 조건 로직을 도입
- *
  * - AdditionalConditions: 능력 활성화 전( `CheckCost` )에 조건을 검사하여 불충분 시 능력 발동 불가
  */
 UCLASS()
@@ -25,10 +24,11 @@ protected:
 	// ---------------------------------------------------------
 	// UGameplayAbility Overrides
 	// ---------------------------------------------------------
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	                                const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
 	                                FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
-	
+
 	// ---------------------------------------------------------
 	// Condition Logic
 	// ---------------------------------------------------------

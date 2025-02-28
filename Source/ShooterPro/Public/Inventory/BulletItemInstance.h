@@ -16,6 +16,8 @@ class SHOOTERPRO_API UBulletItemInstance : public UInventoryItemInstance
 	GENERATED_BODY()
 
 public:
+	UBulletItemInstance();
+	
 	// 풀에서 탄환을 가져옴 (필요시 스폰)
 	//UFUNCTION(BlueprintCallable)
 	AProBulletBase* RequestBullet(TSubclassOf<AProBulletBase> BulletClass);

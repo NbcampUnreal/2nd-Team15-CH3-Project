@@ -63,7 +63,7 @@ UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> Eq
 
 	FEquipmentItem& NewEntry = Items.AddDefaulted_GetRef();
 	NewEntry.EquipmentDefinition = EquipmentDefinition;
-	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType); //@TODO: Using the actor instead of component as the outer due to UE-127172
+	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType);
 	Result = NewEntry.Instance;
 
 	if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
@@ -72,12 +72,6 @@ UEquipmentInstance* FEquipmentList::AddItem(TSubclassOf<UEquipmentDefinition> Eq
 		{
 			AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
 		}
-		
-		//for (int32 i = 0; i < EquipmentCDO->AbilitySetsToGrant.Num(); i++)
-		//{
-		//	const TObjectPtr<const UProGSCAbilitySet>& AbilitySet = EquipmentCDO->AbilitySetsToGrant[i];
-		//	AbilitySet->GrantToAbilitySystemWithSource(GASC, Result, NewEntry.GrantedHandles);
-		//}
 	}
 
 	Result->SpawnEquipmentActors(EquipmentCDO->ActorsToSpawn);
@@ -92,12 +86,11 @@ void FEquipmentList::RemoveItem(UEquipmentInstance* Instance)
 		FEquipmentItem& Item = *Iter;
 		if (Item.Instance == Instance)
 		{
-			//if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
-			//{
-			//	
-			//	//Item.GrantedHandles.(GASC);
-			//}
-
+			if (UGSCAbilitySystemComponent* GASC = GetGSCAbilitySystemComponent())
+			{
+				UGSCAbilitySet::RemoveFromAbilitySystem(GASC, Item.GrantedHandles);
+			}
+			
 			Instance->DestroyEquipmentActors();
 
 			Iter.RemoveCurrent();
@@ -163,4 +156,17 @@ TArray<UEquipmentInstance*> UEquipmentManagerComponent::GetEquipmentInstancesOfT
 		}
 	}
 	return Results;
+}
+
+UEquipmentInstance* UEquipmentManagerComponent::GetEquipmentInstanceByDefinition(TSubclassOf<UEquipmentDefinition> InDefinition) const
+{
+	// 간단히, 리스트를 순회하여 EquipmentDefinition이 동일한 엔트리를 찾음
+	for (const FEquipmentItem& Entry : EquipmentList.Items)
+	{
+		if (Entry.EquipmentDefinition == InDefinition)
+		{
+			return Entry.Instance;
+		}
+	}
+	return nullptr;
 }

@@ -48,11 +48,7 @@ public:
 	// 감지 당시의 센서 위치
 	UPROPERTY(BlueprintReadWrite, Category="Perceived Actor Info")
 	FVector LastSensorLocation = FVector::ZeroVector;
-
-	// 감지된 액터가 적인지 여부
-	UPROPERTY(BlueprintReadWrite, Category="Perceived Actor Info")
-	bool bIsHostile = false;
-
+	
 	// 감지된 감각 유형 (시각, 청각 등)
 	UPROPERTY(BlueprintReadWrite, Category="Perceived Actor Info")
 	EAISense DetectedSense = EAISense::None;
@@ -63,7 +59,7 @@ public:
 
 public:
 	/** 감지된 자극을 업데이트하는 함수 */
-	void UpdateWithStimulus(const FAIStimulus& NewStimulus, float CurrentTime, bool bHostile);
+	void UpdateWithStimulus(const FAIStimulus& NewStimulus, float CurrentTime);
 
 
 	FPerceivedActorInfo()
@@ -80,7 +76,6 @@ public:
 		bLostStimulus = Other.bLostStimulus;
 		LastKnownLocation = Other.LastKnownLocation;
 		LastSensorLocation = Other.LastSensorLocation;
-		bIsHostile = Other.bIsHostile;
 		DetectedSense = Other.DetectedSense;
 		SenseData = Other.SenseData;  // 복사 생성자에서 복사
 	}
@@ -96,7 +91,6 @@ public:
 			bLostStimulus = Other.bLostStimulus;
 			LastKnownLocation = Other.LastKnownLocation;
 			LastSensorLocation = Other.LastSensorLocation;
-			bIsHostile = Other.bIsHostile;
 			DetectedSense = Other.DetectedSense;
 			SenseData = Other.SenseData;
 		}
@@ -159,7 +153,7 @@ public:
 	//===========================================
 
 	/** 감지 정보를 추가하거나 업데이트하는 함수 */
-	void AddOrUpdateDetection(AActor* Detector, AActor* DetectedActor, EAISense SenseType, const FAIStimulus& NewStimulus, bool bHostile, float CurrentTime);
+	void AddOrUpdateDetection(AActor* Detector, AActor* DetectedActor, EAISense SenseType, const FAIStimulus& NewStimulus, float CurrentTime);
 
 	/** 특정 액터에 대한 감지 정보를 가져오는 함수 */
 	const FPerceivedActorEntry* GetDetectionEntry(AActor* Actor) const;

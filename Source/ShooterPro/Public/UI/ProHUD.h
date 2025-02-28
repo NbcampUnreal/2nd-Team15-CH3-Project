@@ -18,20 +18,20 @@ public:
 
 	virtual void BeginPlay() override;
 
-	DECLARE_DYNAMIC_DELEGATE_OneParam(FQuickSlotChangedDelegate, int, NewSlot);
+	// DECLARE_DYNAMIC_DELEGATE_OneParam(FQuickSlotChangedDelegate, int, NewSlot);
 	
-	void ClearAllWidgets();
-
-	void CreateWidgets();
-
-	void ShowWidgets();
-
-	void UpdateQuickBar();
+	// void ClearAllWidgets();
+	//
+	// void CreateWidgets();
+	//
+	// void ShowWidgets();
+	//
+	// void UpdateQuickBar();
 protected:
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="HUD")
-	TSubclassOf<UUserWidget> UserWidgetClass;
-
-	UPROPERTY()
-	UUserWidget* UserWidget;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="HUD")
+	// TSubclassOf<UUserWidget> UserWidgetClass;
+	//
+	// UPROPERTY()
+	// UUserWidget* UserWidget;
 };
