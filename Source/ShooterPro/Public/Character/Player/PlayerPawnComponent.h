@@ -24,29 +24,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void Initialize();
 private:
-	void GiveAbilitiesToOwner();
 	
-	void InitializeInput(UInputComponent* InputComponent);
 	
-	void Move(const FInputActionValue& Value);
-
-	void Look(const FInputActionValue& Value);
-
-	void Crouch(const FInputActionValue& Value);
-
-	void Jump(const FInputActionValue& Value);
-	
-	UPROPERTY(EditDefaultsOnly, Category = Abilities)
-	TArray<TSubclassOf<UGameplayAbility>> Abilities;
-
-	UPROPERTY()
-	TObjectPtr<UCameraComponent> CameraComponent;
-	
-	UPROPERTY()
-	TObjectPtr<USpringArmComponent> SpringArmComponent;
-	
-	//UPROPERTY()
-	//TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 };

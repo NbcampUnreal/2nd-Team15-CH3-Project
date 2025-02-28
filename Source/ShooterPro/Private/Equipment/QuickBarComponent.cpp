@@ -64,6 +64,8 @@ void UQuickBarComponent::SetActiveSlotIndex_Implementation(int32 NewIndex)
 		ActiveSlotIndex = NewIndex;
 
 		EquipItemInSlot();
+
+		if (OnSlotChanged.IsBound()) OnSlotChanged.Broadcast();
 	}
 }
 

@@ -22,6 +22,7 @@ struct SHOOTERPRO_API FGameplayTagStackContainer
 
 	int32 GetStackCount(FGameplayTag Tag) const
 	{
+		if (!TagMap.Contains(Tag)) return 0;
 		return TagMap.FindRef(Tag);
 	}
 

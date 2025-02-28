@@ -86,7 +86,7 @@ TArray<UInventoryItemInstance*> FInventoryList::GetAllItems() const
 	return Results;
 }
 
-FInventoryItem FInventoryList::FindFirstItemWithDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const
+FInventoryItem FInventoryList::FindItemByDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const
 {
 	return Items.Contains(ItemDef) ? Items[ItemDef] : FInventoryItem();
 }
@@ -126,11 +126,11 @@ UInventoryItemInstance* UInventoryManagerComponent::FindFirstItemInstanceByDefin
 	return nullptr;
 }
 
-FInventoryItem UInventoryManagerComponent::FindFirstInventoryItemByDefinition(
+FInventoryItem UInventoryManagerComponent::FindInventoryItemByDefinition(
 	TSubclassOf<UInventoryItemDefinition> ItemDef) const
 {
 	
-	return InventoryList.FindFirstItemWithDefinition(ItemDef);
+	return InventoryList.FindItemByDefinition(ItemDef);
 }
 
 bool UInventoryManagerComponent::HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef,

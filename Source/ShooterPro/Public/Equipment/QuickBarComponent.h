@@ -9,12 +9,16 @@
 class UEquipmentManagerComponent;
 class UEquipmentInstance;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FQuickSlotChangedDelegate);
+
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class SHOOTERPRO_API UQuickBarComponent : public UPawnComponent
 {
 	GENERATED_BODY()
 public:
 	UQuickBarComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
 	void CheckSlots();
@@ -48,8 +52,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	UInventoryItemInstance* RemoveItemFromSlot(int32 SlotIndex);
-
-	virtual void BeginPlay() override;
+	
+	UPROPERTY(BlueprintAssignable, Category = "QuickBar")
+	FQuickSlotChangedDelegate OnSlotChanged;
 private:
 	void UnequipItemInSlot();
 	void EquipItemInSlot();
@@ -58,7 +63,7 @@ private:
 
 protected:
 	UPROPERTY()
-	int32 NumSlots = 4;
+	int32 NumSlots = 3;
 
 private:
 	TArray<TObjectPtr<UInventoryItemInstance>> Slots;

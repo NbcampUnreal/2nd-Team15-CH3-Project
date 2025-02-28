@@ -13,13 +13,13 @@ URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectIni
 
 void URangedWeaponInstance::Tick(float DeltaSecond)
 {
-	APawn* Pawn = GetOwnerAsPawn();
-	check(Pawn);
+	//APawn* Pawn = GetOwnerAsPawn();
+	//check(Pawn);
 	
-	const bool bMinSpread = UpdateSpread(DeltaSecond);
-	const bool bMinMultipliers = UpdateMultipliers(DeltaSecond);
+	//const bool bMinSpread = UpdateSpread(DeltaSecond);
+	//const bool bMinMultipliers = UpdateMultipliers(DeltaSecond);
 
-	bHasFirstShotAccuracy = bAllowFirstShotAccuracy && bMinMultipliers & bMinSpread;
+	//bHasFirstShotAccuracy = bAllowFirstShotAccuracy && bMinMultipliers & bMinSpread;
 }
 
 void URangedWeaponInstance::OnEquipped()

@@ -63,7 +63,7 @@ struct FInventoryList
 	
 	TArray<UInventoryItemInstance*> GetAllItems() const;
 
-	FInventoryItem FindFirstItemWithDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
+	FInventoryItem FindItemByDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
 
 private:
 	UPROPERTY()
@@ -93,7 +93,7 @@ public:
 	UInventoryItemInstance* FindFirstItemInstanceByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
-	FInventoryItem FindFirstInventoryItemByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+	FInventoryItem FindInventoryItemByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
