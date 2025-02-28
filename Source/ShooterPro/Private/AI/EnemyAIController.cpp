@@ -19,6 +19,7 @@
 
 #include "BlackboardKeyType_GameplayTag.h"
 
+
 AEnemyAIController::AEnemyAIController()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -71,89 +72,58 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if (!DetectionInfoManager)
-		DetectionInfoManager = NewObject<UPerceptionManager>(this, UPerceptionManager::StaticClass());
-
-	
-	
 	PossessedAI = Cast<AEnemyAIBase>(InPawn);
 	if (!PossessedAI)
 	{
 		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "InPawn을 AEnemyAIBase로 캐스팅할 수 없습니다.");
 		return;
 	}
-	
+
 	if (!IsValid(PossessedAI->BehaviorTree))
 	{
 		AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "Behavior을 설정해주세요");
 		return;
 	}
-	
+
 	// AIBehaviorsComponent가 유효하면 공격 및 방어 반경 업데이트
 	if (IsValid(PossessedAI->AIBehaviorsComponent))
 	{
-		DetectionInfoManager->OnAddPerceptionUpdated.AddDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionUpdated);
-		DetectionInfoManager->OnRemoveExpiredDetection.AddDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionForgotten);
-		
 		AIBehaviorComponent = PossessedAI->AIBehaviorsComponent;
 		if (AIBehaviorComponent)
 		{
+			DetectionInfoManager = NewObject<UPerceptionManager>(this, UPerceptionManager::StaticClass());
+
 			RunBehaviorTree(PossessedAI->BehaviorTree);
 			UpdateBlackboard_State(AIGameplayTags::AIState_Idle);
 			UpdateBlackboard_AttackRadius(AIBehaviorComponent->GetAttackRadius());
 			UpdateBlackboard_DefendRadius(AIBehaviorComponent->GetDefendRadius());
 			UpdateBlackboard_StartLocation(PossessedAI->GetActorLocation());
 			UpdateBlackboard_MaxRandRadius(AIBehaviorComponent->GetMaxRandRadius());
+
+			AIPerception->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
+			AIPerception->OnTargetPerceptionForgotten.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
 		}
 		else
 		{
 			AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "PossessedAI가 AIBehaviorComponent를 소유하고 있지 않습니다.");
 		}
 	}
-
-
-	// AI Perception 업데이트 시 호출될 델리게이트에 이벤트 바인딩
-	AIPerception->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
-	AIPerception->OnTargetPerceptionForgotten.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
 }
 
 void AEnemyAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
+
+	DetectionInfoManager->OnAddPerceptionUpdated.RemoveDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionUpdated);
+	DetectionInfoManager->OnRemoveExpiredDetection.RemoveDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionForgotten);
+
+	AIPerception->OnPerceptionUpdated.RemoveDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
+	AIPerception->OnTargetPerceptionForgotten.RemoveDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
 }
 
 void AEnemyAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AEnemyAIController::SetStateAsPassive()
-{
-	// UpdateBlackboard_State(EAIState::Idle);
-}
-
-
-void AEnemyAIController::SetStateAsInvestigating(const FVector& Location)
-{
-	// UpdateBlackboard_State(EAIState::Investigating);
-	// UpdateBlackboard_PointOfInterest(Location);
-}
-
-void AEnemyAIController::SetStateAsDead()
-{
-	// UpdateBlackboard_State(EAIState::Dead);
-}
-
-void AEnemyAIController::SetStateAsFrozen()
-{
-	// UpdateBlackboard_State(EAIState::Disabled);
-}
-
-void AEnemyAIController::SeekAttackTarget()
-{
-	// UpdateBlackboard_State(EAIState::Seeking);
-	// UpdateBlackboard_PointOfInterest(AIBehaviorComponent->AttackTarget->GetActorLocation());
-	// UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this, SeekAttackTargetTimer);
 }
 
 void AEnemyAIController::UpdatePerception(float DeltaTime)
@@ -288,57 +258,33 @@ bool AEnemyAIController::OnSameTeam(AActor* Actor)
 
 void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	// 새로운 감지 이벤트가 발생했을 때 호출됩니다.
-	// UpdatedActors에는 새로운 자극이 감지되었거나 상태가 변경된 액터들이 포함됩니다.
 	const float CurrentTime = GetWorld()->GetTimeSeconds();
 
 	for (AActor* UpdatedActor : UpdatedActors)
 	{
-		if (!IsValid(UpdatedActor))
-		{
+		if (!IsValid(UpdatedActor) || OnSameTeam(UpdatedActor))
 			continue;
-		}
 
 		// 해당 액터의 최신 Perception 정보를 가져옵니다.
 		FActorPerceptionBlueprintInfo ActorPerceptionInfo;
 		if (!AIPerception->GetActorsPerception(UpdatedActor, ActorPerceptionInfo))
-		{
 			continue;
-		}
 
 		// 각 감각별 자극 정보를 확인합니다.
 		for (const FAIStimulus& Stimulus : ActorPerceptionInfo.LastSensedStimuli)
 		{
-			if (!Stimulus.IsValid())
-			{
-				continue;
-			}
+			if (!Stimulus.IsValid()) continue;
 
 			// Stimulus에 해당하는 감각 클래스를 결정합니다.
 			TSubclassOf<UAISense> SenseClass = UAIPerceptionSystem::GetSenseClassForStimulus(this, Stimulus);
 			EAISense SenseType = EAISense::None;
-			if (SenseClass == UAISense_Sight::StaticClass())
-			{
-				SenseType = EAISense::Sight;
-			}
-			else if (SenseClass == UAISense_Hearing::StaticClass())
-			{
-				SenseType = EAISense::Hearing;
-			}
-			else if (SenseClass == UAISense_Damage::StaticClass())
-			{
-				SenseType = EAISense::Damage;
-			}
-			if (SenseType == EAISense::None)
-			{
-				continue;
-			}
-
-			// 팀 판정을 통해 적대 여부 결정 (예: OnSameTeam)
-			bool bHostile = !OnSameTeam(UpdatedActor);
+			if (SenseClass == UAISense_Sight::StaticClass()) SenseType = EAISense::Sight;
+			else if (SenseClass == UAISense_Hearing::StaticClass()) SenseType = EAISense::Hearing;
+			else if (SenseClass == UAISense_Damage::StaticClass()) SenseType = EAISense::Damage;
+			if (SenseType == EAISense::None) continue;
 
 			// 새로운 자극 또는 감지 상태의 변화가 있을 때, DetectionInfo를 추가 또는 업데이트합니다.
-			DetectionInfoManager->AddOrUpdateDetection(GetPawn(), UpdatedActor, SenseType, Stimulus, bHostile, CurrentTime);
+			DetectionInfoManager->AddOrUpdateDetection(GetPawn(), UpdatedActor, SenseType, Stimulus, CurrentTime);
 		}
 	}
 }
@@ -351,16 +297,23 @@ void AEnemyAIController::OnTargetPerceptionForgotten(AActor* ForgottenActor)
 
 void AEnemyAIController::UpdateBlackboard_State(FGameplayTag NewStateTag)
 {
-	GetBlackboardComponent()->SetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_State(), FGameplayTagContainer(NewStateTag));
+	GetBlackboardComponent()->SetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState(), FGameplayTagContainer(GetCurrentStateTag()));
+	GetBlackboardComponent()->SetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState(), FGameplayTagContainer(NewStateTag));
 }
 
 FGameplayTag AEnemyAIController::GetCurrentStateTag() const
 {
 	// 블랙보드에서 GameplayTag를 Get
-	FGameplayTagContainer StateTagContainer = GetBlackboardComponent()->GetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_State());
+	FGameplayTagContainer StateTagContainer = GetBlackboardComponent()->GetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState());
 	return StateTagContainer.First();
 }
 
+FGameplayTag AEnemyAIController::GetPreviousStateTag() const
+{
+	// 블랙보드에서 GameplayTag를 Get
+	FGameplayTagContainer StateTagContainer = GetBlackboardComponent()->GetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState());
+	return StateTagContainer.First();
+}
 
 void AEnemyAIController::UpdateBlackboard_AttackRadius(float NewAttackRadius)
 {
@@ -390,4 +343,9 @@ void AEnemyAIController::UpdateBlackboard_PointOfInterest(FVector NewPointOfInte
 void AEnemyAIController::UpdateBlackboard_AttackTarget(UObject* NewAttackTarget)
 {
 	GetBlackboardComponent()->SetValueAsObject(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_AttackTarget(), NewAttackTarget);
+}
+
+void AEnemyAIController::UpdateBlackboard_AttackTarget_ClearValue()
+{
+	GetBlackboardComponent()->ClearValue(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_AttackTarget());
 }

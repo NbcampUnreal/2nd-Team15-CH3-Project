@@ -4,6 +4,7 @@
 #include "AI/Decorator/BTDecorator_CheckPreviousAndCurrentState.h"
 
 #include "AIController.h"
+#include "AI/EnemyAIController.h"
 #include "AI/Components/AIBehaviorsComponent.h"
 
 UBTDecorator_CheckPreviousAndCurrentState::UBTDecorator_CheckPreviousAndCurrentState()
@@ -25,29 +26,23 @@ bool UBTDecorator_CheckPreviousAndCurrentState::CalculateRawConditionValue(UBeha
 	bool bConditionResult = true;
 
 	// 1. AAIController 가져오기
-	AAIController* AICon = OwnerComp.GetAIOwner();
-	if (!AICon)
+	AEnemyAIController* AIController = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
+	if (!AIController)
 	{
 		return false;
 	}
 
 	// 2. Pawn에서 UAIBehaviorsComponent 찾기
-	APawn* Pawn = AICon->GetPawn();
+	APawn* Pawn = AIController->GetPawn();
 	if (!Pawn)
 	{
 		return false;
 	}
-
-	UAIBehaviorsComponent* BehaviorsComp = Pawn->FindComponentByClass<UAIBehaviorsComponent>();
-	if (!BehaviorsComp)
-	{
-		return false;
-	}
-
+	
 	// 3. 이전 상태 검사
 	if (bCheckPreviousState)
 	{
-		if (BehaviorsComp->PreviousState != CheckPreviousState)
+		if (AIController->GetPreviousStateTag() != CheckPreviousState)
 		{
 			// 이전 상태가 다르면 false
 			bConditionResult = false;
@@ -57,18 +52,16 @@ bool UBTDecorator_CheckPreviousAndCurrentState::CalculateRawConditionValue(UBeha
 	// 4. 현재 상태 검사
 	if (bCheckCurrentState)
 	{
-		if (BehaviorsComp->CurrentState != CheckCurrentState)
+		if (AIController->GetCurrentStateTag() != CheckCurrentState)
 		{
 			// 현재 상태가 다르면 false
 			bConditionResult = false;
 		}
 	}
-
-	// 둘 다 false면 어떻게 처리할 지 결정
-	// 여기서는 "어느 것도 체크하지 않으면 false" 라고 가정
+	
 	if (!bCheckPreviousState && !bCheckCurrentState)
 	{
-		bConditionResult = false;
+		bConditionResult = true;
 	}
 
 	return bConditionResult;

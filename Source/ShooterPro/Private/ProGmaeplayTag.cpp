@@ -5,19 +5,36 @@ namespace ProGameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Ability, TEXT("Ability"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee, TEXT("Ability.Melee"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee2, TEXT("Ability.Melee2"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee3, TEXT("Ability.Melee3"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Range, TEXT("Ability.Range"));
+	
+
+
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Jump, TEXT("Ability.Jump"));
 
+
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));
-	
+	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee2, TEXT("CoolDown.Ability.Melee2"));
+	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee3, TEXT("CoolDown.Ability.Melee3"));
+	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Range, TEXT("CoolDown.Ability.Range"));
+
+
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
-	
-	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_PoisonEffect, TEXT("GameplayCue.PoisonEffect"));
+
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_Poison, TEXT("GameplayEffect.Poison"));
+
+	UE_DEFINE_GAMEPLAY_TAG(State_Poison, TEXT("State.Poison"));
+
+
 	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact, TEXT("Ability.HitReact"));
 
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Throw, TEXT("Event.Montage.Throw"));
 
-	
+
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
 
 

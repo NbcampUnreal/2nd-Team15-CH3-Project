@@ -5,7 +5,6 @@
 #include "EnemyAITypes.h"
 #include "DetourCrowdAIController.h"
 #include "GameplayTagContainer.h"
-#include "Decorator/BTDecorator_CheckAndSetAIState.h"
 #include "EnemyAIController.generated.h"
 
 
@@ -48,30 +47,6 @@ protected:
 public:
 	/** 매 틱마다 호출되는 함수 */
 	virtual void Tick(float DeltaTime) override;
-
-	//=============================================================================
-	// AI 상태 전환 함수
-	//=============================================================================
-public:
-	/** AI 상태를 Passive 상태로 설정 */
-	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
-	void SetStateAsPassive();
-
-	/** 조사(Investigating) 상태로 전환 */
-	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
-	void SetStateAsInvestigating(const FVector& Location);
-
-	/** 죽음(Dead) 상태로 전환 */
-	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
-	void SetStateAsDead();
-
-	/** 얼어붙은(Frozen) 상태로 전환 */
-	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
-	void SetStateAsFrozen();
-
-	/** 공격 대상 탐색(Seeking) 상태로 전환 */
-	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller")
-	void SeekAttackTarget();
 
 
 	//=============================================================================
@@ -117,6 +92,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="Enemy AI Controller|Blackboard")
 	FGameplayTag GetCurrentStateTag() const;
 
+	UFUNCTION(BlueprintPure, Category="Enemy AI Controller|Blackboard")
+	FGameplayTag GetPreviousStateTag() const;
+
 	/** Blackboard의 공격 반경(Attack Radius) 업데이트 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
 	void UpdateBlackboard_AttackRadius(float NewAttackRadius);
@@ -138,7 +116,9 @@ public:
 	/** Blackboard의 공격 대상 업데이트 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
 	void UpdateBlackboard_AttackTarget(UObject* NewAttackTarget);
-
+	
+	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
+	void UpdateBlackboard_AttackTarget_ClearValue();
 
 	//=============================================================================
 	// 멤버 변수 (프로퍼티)
@@ -161,3 +141,4 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category="Detection")
 	UPerceptionManager* DetectionInfoManager;
 };
+

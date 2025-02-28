@@ -47,11 +47,9 @@ bool UProGameplayAbility::CheckAdditionalConditions(const FGameplayAbilitySpecHa
 		const bool bPassed = Condition->CheckCondition(this, Handle, ActorInfo, OptionalRelevantTags);
 		if (!bPassed)
 		{
-			// 하나라도 실패하면 능력 발동 불가능
-			return false;
+			return false; // 하나라도 실패하면 능력 발동 불가능
 		}
 	}
 
-	// 전부 통과하면 true
-	return true;
+	return true; // 전부 통과하면 true
 }

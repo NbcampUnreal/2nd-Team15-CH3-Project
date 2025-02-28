@@ -3,11 +3,8 @@
 #include "AI/EnemyAIController.h"
 #include "Perception/AIPerceptionComponent.h"
 
-void FPerceivedActorInfo::UpdateWithStimulus(const FAIStimulus& NewStimulus, float CurrentTime, bool bHostile)
+void FPerceivedActorInfo::UpdateWithStimulus(const FAIStimulus& NewStimulus, float CurrentTime)
 {
-	// 팀 여부 업데이트
-	bIsHostile = bHostile;
-
 	if (NewStimulus.WasSuccessfullySensed())
 	{
 		bCurrentlySensed = true;
@@ -42,7 +39,7 @@ void UPerceptionManager::BeginDestroy()
 	UObject::BeginDestroy();
 }
 
-void UPerceptionManager::AddOrUpdateDetection(AActor* Detector, AActor* DetectedActor, EAISense SenseType, const FAIStimulus& NewStimulus, bool bHostile, float CurrentTime)
+void UPerceptionManager::AddOrUpdateDetection(AActor* Detector, AActor* DetectedActor, EAISense SenseType, const FAIStimulus& NewStimulus, float CurrentTime)
 {
 	if (!IsValid(DetectedActor))
 		return;
@@ -77,7 +74,7 @@ void UPerceptionManager::AddOrUpdateDetection(AActor* Detector, AActor* Detected
 				{
 					// 감각 정보를 업데이트
 					Info.Detector = Detector;
-					Info.UpdateWithStimulus(NewStimulus, CurrentTime, bHostile);
+					Info.UpdateWithStimulus(NewStimulus, CurrentTime);
 
 					FPerceivedActorInfo NewPerceivedActorInfo = Info;
 
@@ -101,7 +98,7 @@ void UPerceptionManager::AddOrUpdateDetection(AActor* Detector, AActor* Detected
 		NewInfo.Detector = Detector;
 		NewInfo.DetectedActor = DetectedActor;
 		NewInfo.DetectedSense = SenseType;
-		NewInfo.UpdateWithStimulus(NewStimulus, CurrentTime, bHostile);
+		NewInfo.UpdateWithStimulus(NewStimulus, CurrentTime);
 
 		// 새로운 항목을 추가
 		DetectionEntry->PerceivedActorInfos.Add(NewInfo);
@@ -117,7 +114,7 @@ void UPerceptionManager::AddOrUpdateDetection(AActor* Detector, AActor* Detected
 		NewInfo.Detector = Detector;
 		NewInfo.DetectedActor = DetectedActor;
 		NewInfo.DetectedSense = SenseType;
-		NewInfo.UpdateWithStimulus(NewStimulus, CurrentTime, bHostile);
+		NewInfo.UpdateWithStimulus(NewStimulus, CurrentTime);
 		NewEntry.PerceivedActorInfos.Add(NewInfo);
 		DetectionList.Add(DetectedActor, NewEntry);
 
@@ -149,7 +146,7 @@ void UPerceptionManager::TickSenseDetectionsForActor(float DeltaTime, EAISense T
 		{
 			if (Info.DetectedSense == TickSense)
 			{
-				Info.UpdateWithStimulus(TickStimulus, CurrentTime, Info.bIsHostile);
+				Info.UpdateWithStimulus(TickStimulus, CurrentTime);
 			}
 		}
 	}

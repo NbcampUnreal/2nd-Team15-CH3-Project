@@ -1,11 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Equipment/Weapon/RangedWeaponInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	HeatToHeatPerShotCurve.EditorCurveData.AddKey(0.0f, 1.0f);
 	HeatToCoolDownPerSecondCurve.EditorCurveData.AddKey(0.0f, 2.0f);
@@ -15,7 +11,7 @@ void URangedWeaponInstance::Tick(float DeltaSecond)
 {
 	APawn* Pawn = GetOwnerAsPawn();
 	check(Pawn);
-	
+
 	const bool bMinSpread = UpdateSpread(DeltaSecond);
 	const bool bMinMultipliers = UpdateMultipliers(DeltaSecond);
 

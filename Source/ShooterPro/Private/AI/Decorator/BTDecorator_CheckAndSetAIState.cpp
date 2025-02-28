@@ -53,10 +53,7 @@ bool UBTDecorator_CheckAndSetAIState::CalculateRawConditionValue(UBehaviorTreeCo
 
 	if (AIBehaviors->CanChangeState(DesiredStateTag))
 	{
-		AIBehaviors->UpdateState(DesiredStateTag);
-
-		// 다시 현재 상태를 읽어서 일치하는지 확인
-		return (AIBehaviors->CurrentState == DesiredStateTag);
+		return AIBehaviors->UpdateState(DesiredStateTag);
 	}
 
 	// 변경 불가하면 false

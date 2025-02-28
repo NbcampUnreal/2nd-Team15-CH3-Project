@@ -21,7 +21,8 @@ class SHOOTERPRO_API UEnemyAIBluePrintFunctionLibrary : public UBlueprintFunctio
 	/*							BLACKBOARD KEYS                             */
 	/************************************************************************/
 protected:
-	static const FName BBKeyName_State;
+	static const FName BBKeyName_PreviousState;
+	static const FName BBKeyName_CurrentState;
 	static const FName BBKeyName_AttackRadius;
 	static const FName BBKeyName_DefendRadius;
 	static const FName BBKeyName_PointOfInterest;
@@ -37,7 +38,10 @@ public:
 	static const FName& GetBBKeyName_HasActivableAbility() { return BBKeyName_HasActivableAbility; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ShooterAILibrary|AI")
-	static const FName& GetBBKeyName_State() { return BBKeyName_State; }
+	static const FName& GetBBKeyName_PreviousState() { return BBKeyName_PreviousState; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ShooterAILibrary|AI")
+	static const FName& GetBBKeyName_CurrentState() { return BBKeyName_CurrentState; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ShooterAILibrary|AI")
 	static const FName& GetBBKeyName_StartLocation() { return BBKeyName_StartLocation; }

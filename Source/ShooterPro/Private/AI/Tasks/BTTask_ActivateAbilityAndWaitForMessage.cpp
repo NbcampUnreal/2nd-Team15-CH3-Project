@@ -12,6 +12,7 @@
 UBTTask_ActivateAbilityAndWaitForMessage::UBTTask_ActivateAbilityAndWaitForMessage()
 {
 	NodeName = TEXT("ActivateAbilityAndWaitForMessage");
+	bCreateNodeInstance = true;
 
 	// Task가 종료될 때 OnTaskFinished가 호출되도록 설정
 	// (bNotifyTaskFinished = true와 동일, 매크로 방식)
@@ -167,12 +168,12 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 		{
 			if (const FEnemyAbilityEndedPayload* PayloadPtr = reinterpret_cast<const FEnemyAbilityEndedPayload*>(DataPtr))
 			{
-				AI_ENEMY_SCREEN_LOG_LOG(5.0f,
-				                        "Received FEnemyAbilityEndedPayload => AbilityName=%s, Tag=%s, Time=%.2f",
-				                        *PayloadPtr->EndedAbilityName,
-				                        *PayloadPtr->EndedAbilityTag.ToString(),
-				                        PayloadPtr->EndedTime
-				);
+				// AI_ENEMY_SCREEN_LOG_LOG(5.0f,
+				//                         "Received FEnemyAbilityEndedPayload => AbilityName=%s, Tag=%s, Time=%.2f",
+				//                         *PayloadPtr->EndedAbilityName,
+				//                         *PayloadPtr->EndedAbilityTag.ToString(),
+				//                         PayloadPtr->EndedTime
+				// );
 
 				// 예: OwnerActor 체크
 				if (AActor* OwningActor = PayloadPtr->AbilityOwner.Get())
