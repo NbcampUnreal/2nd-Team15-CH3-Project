@@ -26,7 +26,7 @@ public:
 	// virtual void Tick(float DeltaTime) override;
 public:
 	UFUNCTION(BlueprintCallable)
-	void ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed = 2000.0f);
+	void ActivateBullet(AActor* AvatarActor, const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed = 2000.0f);
 	
 	UFUNCTION(BlueprintCallable)
 	void DeactivateBullet();
@@ -40,15 +40,15 @@ protected:
 	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 protected:
-	// UPROPERTY(VisibleDefaultsOnly, Category="Projectile")
-	// UStaticMeshComponent* BulletMesh;
+	UPROPERTY()
+	AActor* AvatarActor;
 	
 	UPROPERTY(VisibleDefaultsOnly, Category="Projectile")
 	USphereComponent* CollisionComp;
 
 	UPROPERTY(VisibleAnywhere, Category="Movement")
 	UProjectileMovementComponent* ProjectileMovement;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
 	FVector InitialDirection;
 
@@ -57,9 +57,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
 	float GravityScale = 1.0f;
-	
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
-	// float InitiailDeactivateBullet = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile|Config", meta=(ExposeOnSpawn=true))
 	TSubclassOf<UGameplayEffect> DamageEffect;

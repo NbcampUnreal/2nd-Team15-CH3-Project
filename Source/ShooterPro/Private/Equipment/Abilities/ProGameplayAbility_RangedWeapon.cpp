@@ -5,9 +5,10 @@
 
 #include "Equipment/EquipmentInstance.h"
 #include "Equipment/Weapon/RangedWeaponInstance.h"
+#include "Inventory/ProBulletBase.h"
 #include "Projectile/ProjectileManagerComponent.h"
 
-void UProGameplayAbility_RangedWeapon::FireWeapon(FVector StartLocation, FVector Direction)
+void UProGameplayAbility_RangedWeapon::FireWeapon(FVector StartLocation, FVector Direction, TSubclassOf<AProBulletBase> BulletClass)
 {
 	URangedWeaponInstance* RangedWeaponInstance = GetSourceRangedWeaponInstance();
 
@@ -19,36 +20,38 @@ void UProGameplayAbility_RangedWeapon::FireWeapon(FVector StartLocation, FVector
 
 	for (int i = 0; i < BulletPerCatridge; ++i)
 	{
-		//ProjectileManager->RequestBullet();
+		AProBulletBase* Bullet = ProjectileManager->RequestBullet(BulletClass);
+		FRotator BulletRotation = Direction.Rotation();
+		Bullet->ActivateBullet(GetAvatarActorFromActorInfo(), StartLocation, BulletRotation, Direction);
 	}
 }
 
-FHitResult UProGameplayAbility_RangedWeapon::GetHitResultWithRayCast()
+FVector UProGameplayAbility_RangedWeapon::GetHitResultWithRayCast(APlayerController* Controller)
 {	
-	APlayerController* PlayerController = Cast<APlayerController>(GetAvatarActorFromActorInfo()->GetComponentByClass(APlayerController::StaticClass()));
-	
 	int32 ViewportX = 0, ViewportY = 0;
 
-	PlayerController->GetViewportSize(ViewportX, ViewportY);
+	Controller->GetViewportSize(ViewportX, ViewportY);
 
 	FVector2D ScreenCenter(ViewportX * 0.5f, ViewportY * 0.5f);
 
 	FVector WorldLocation, WorldDirection;
 
-	PlayerController->DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, WorldLocation, WorldDirection);
+	Controller->DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, WorldLocation, WorldDirection);
 
 	URangedWeaponInstance* RangedWeaponInstance = GetSourceRangedWeaponInstance();
-	RangedWeaponInstance->GetMaxDamageRange();
 	
 	FVector TraceStart = WorldLocation;
-	//FVector TraceEnd = TraceStart + (WorldDirection * TraceDistance);
+	FVector TraceEnd = TraceStart + (WorldDirection * RangedWeaponInstance->GetLineTraceRange());
 
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(PerformCameraCenterTrace), true);
 
-	//PlayerController->GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+	if (Controller->GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+	{
+		return HitResult.ImpactPoint;
+	}
 
-	return HitResult;
+	return TraceEnd;
 }
 
 

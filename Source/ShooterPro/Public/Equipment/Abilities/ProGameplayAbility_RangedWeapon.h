@@ -6,6 +6,7 @@
 #include "Equipment/Abilities/ProGameplayAbility_EquipmentBase.h"
 #include "ProGameplayAbility_RangedWeapon.generated.h"
 
+class AProBulletBase;
 class URangedWeaponInstance;
 class UProjectileManagerComponent;
 /**
@@ -19,13 +20,12 @@ public:
 
 	//총알 스폰 (RangedWeaponInstance의 데이터로 변경 가능)
 	UFUNCTION(BlueprintCallable)
-	void FireWeapon(FVector StartLocation, FVector Direction);
+	void FireWeapon(FVector StartLocation, FVector Direction, TSubclassOf<AProBulletBase> BulletClass);
 	
 	//레이케스팅 결과 찾는 함수
 	UFUNCTION(BlueprintCallable)
-	FHitResult GetHitResultWithRayCast();
+	FVector GetHitResultWithRayCast(APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable, Category="RangedWeapon")
 	URangedWeaponInstance* GetSourceRangedWeaponInstance() const;
-	
 };
