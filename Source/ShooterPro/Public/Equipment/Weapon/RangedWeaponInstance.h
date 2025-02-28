@@ -43,11 +43,6 @@ public:
 		return SpreadExponent;
 	}
 
-	float GetMaxDamageRange() const
-	{
-		return MaxDamageRange;
-	}
-
 	float GetBulletTraceSweepRadius() const
 	{
 		return BulletTraceSweepRadius;
@@ -61,13 +56,9 @@ public:
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
 
-	void AddSpread();
-
 protected:
 	
-	// Spread exponent, affects how tightly shots will cluster around the center line
-	// when the weapon has spread (non-perfect accuracy). Higher values will cause shots
-	// to be closer to the center (default is 1.0 which means uniformly within the spread range)
+	// 탄 퍼짐 계수(높을수록 정확도가 올라감.)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ClampMin=0.1), Category="Spread|Fire Params")
 	float SpreadExponent = 1.0f;
 
@@ -104,11 +95,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params")
 	float TransitionRate_StandingStill = 5.0f;
 
-	// 정지 탄퍼짐 계수 (어느정도의 이동은 정지로 취급할거임)
+	// 정지 상태를 결정하는 계수 (어느 정도의 이동은 정지로 취급할거임)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits="cm/s"))
 	float StandingStillSpeedThreshold = 80.0f;
 
-	// 이동 탄퍼짐 최대치
+	// 정지->이동 시 사용할 계수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits="cm/s"))
 	float StandingStillToMovingSpeedRange = 20.0f;
 
@@ -132,22 +123,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Config")
 	int32 BulletsPerCartridge = 1;
 
-	// 무기 최대거리
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Config", meta=(ForceUnits=cm))
-	float MaxDamageRange = 25000.0f;
-
 	// 탄이 좀 더 곡선으로 나가게 만들게
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Config", meta=(ForceUnits=cm))
 	float BulletTraceSweepRadius = 0.0f;
 	
-	// 거리 비례 데미지 감소량
-	UPROPERTY(EditAnywhere, Category = "Weapon Config")
-	FRuntimeFloatCurve DistanceDamageFalloff;
-
-	// 총알에 맞은 대상의 재질에 따라 받는 데미지 배율 설정
-	UPROPERTY(EditAnywhere, Category = "Weapon Config")
-	TMap<FGameplayTag, float> MaterialDamageMultiplier;
-
+	// 총 쏘기 전 라인트레이싱에 사용할 end 거리
 	UPROPERTY(EditAnywhere, Category = "Weapon Config")
 	float LineTraceRange;
 private:
@@ -164,7 +144,7 @@ private:
 	}
 	
 	bool UpdateSpread(float DeltaSecond);
-	bool UpdateMultipliers(float DeltaSecond);
+	bool UpdateMultipliers(float DeltaSeconds);
 	
 	double LastFireTime = 0.0;
 

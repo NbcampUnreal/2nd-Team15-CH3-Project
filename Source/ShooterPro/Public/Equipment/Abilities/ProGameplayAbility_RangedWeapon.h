@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetHitResultWithRayCast(APlayerController* PlayerController);
 
+	UFUNCTION(BlueprintCallable)
+	FVector RandConeNormalDistribution(const FVector& Dir, const float ConeHalfDegree, const float Exponent);
+	
 	UFUNCTION(BlueprintCallable, Category="RangedWeapon")
 	URangedWeaponInstance* GetSourceRangedWeaponInstance() const;
 };
