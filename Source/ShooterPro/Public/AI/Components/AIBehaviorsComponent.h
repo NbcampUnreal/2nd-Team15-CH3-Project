@@ -127,6 +127,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="AI Behavior|Combat")
 	AActor* AttackTarget;
 
+	//공격 가능한 액터들
 	UPROPERTY(BlueprintReadOnly, Category="AI Behavior|Combat")
 	TArray<AActor*> AttackableTargets;
 
@@ -140,16 +141,20 @@ public:
 	// FGameplayTag CurrentState;
 
 private:
+	//공격 거리
 	UPROPERTY(EditAnywhere, Category="AI Behavior")
 	float AttackRadius = 200.0f;
 
+	//방어 거리
 	UPROPERTY(EditAnywhere, Category="AI Behavior")
 	float DefendRadius = 400.0f;
 
+	//랜덤 거리
 	UPROPERTY(EditAnywhere, Category="AI Behavior")
 	float MaxRandRadius = 500.0f;
 
 private:
+	//최근 감지한 정보 구조체
 	UPROPERTY(BlueprintReadOnly, Category="AI Behavior", meta=(AllowPrivateAccess=true))
 	FPerceivedActorInfo RecentSenseHandle;
 
