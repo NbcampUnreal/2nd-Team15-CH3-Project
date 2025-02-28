@@ -44,16 +44,20 @@ void AProBulletBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AProBulletBase::ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed)
+void AProBulletBase::ActivateBullet(AActor* Avatar, const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed)
 {
 	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
-    
+
+	AvatarActor = Avatar;
+	
 	// ProjectileMovement를 재설정
 	ProjectileMovement->Velocity = Direction * Speed; // 원하는 방향 * 속도
 	ProjectileMovement->Activate(); // 혹시나 비활성화되었을 수도 있으므로 활성화
 	ProjectileMovement->SetUpdatedComponent(CollisionComp);
+	
+	CollisionComp->IgnoreActorWhenMoving(AvatarActor, true);
     
 	// LifeSpan 대신, 풀링 구조에서는 보통 LifeSpan을 0으로 맞춰두고,
 	// 일정 시간이 지나면 DeactivateBullet()을 호출하는 식으로 운용 가능
@@ -67,6 +71,7 @@ void AProBulletBase::DeactivateBullet()
 	ProjectileMovement->StopMovementImmediately();
 	ProjectileMovement->Deactivate();
 
+
 	// 여기서 "풀 매니저에게 반환"을 해도 되지만,
 	// 보통은 탄환이 자신만 알기보다 "매니저 호출" 함수를 통해
 	// BulletPoolManager가 ReleaseBullet(this)를 호출하도록 하는 편이 낫습니다.
@@ -74,6 +79,11 @@ void AProBulletBase::DeactivateBullet()
 
 void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor == AvatarActor)
+	{
+		return;
+	}
+	
 	// 1. 데미지 적용 (GameplayEffect 적용)
 	if (DamageEffect && OtherActor)
 	{
@@ -93,7 +103,7 @@ void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	
 	// 2. 물리적 충격력 적용 (대상에 물리 힘 가하기)
 	if (OtherComp && OtherComp->IsSimulatingPhysics())
-		{
+	{
 		FVector BulletVelocity = ProjectileMovement->Velocity;
 		float Mass = OtherComp->GetMass();
 		FVector Impulse = BulletVelocity * Mass * ImpactForceMultiplier; 
@@ -102,11 +112,11 @@ void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	}
 
 	// 3. 튕김 또는 관통 처리
-	ProjectileMovement->bShouldBounce = true;
-	ProjectileMovement->Bounciness = 0.6f;  // 에너지 보존율: 1.0이면 완전탄성 충돌, 0.0이면 충돌시 정지
-	ProjectileMovement->Friction = 0.2f;    // 표면 마찰 (값이 클수록 속도 감소가 큼)
-	ProjectileMovement->BounceVelocityStopSimulatingThreshold = 100.f; // 이 이하 속도가 되면 튕김 중지
-	ProjectileMovement->OnProjectileBounce.AddDynamic(this, &AProBulletBase::OnBounce);
+	//ProjectileMovement->bShouldBounce = true;
+	//ProjectileMovement->Bounciness = 0.6f;  // 에너지 보존율: 1.0이면 완전탄성 충돌, 0.0이면 충돌시 정지
+	//ProjectileMovement->Friction = 0.2f;    // 표면 마찰 (값이 클수록 속도 감소가 큼)
+	//ProjectileMovement->BounceVelocityStopSimulatingThreshold = 100.f; // 이 이하 속도가 되면 튕김 중지
+	//ProjectileMovement->OnProjectileBounce.AddDynamic(this, &AProBulletBase::OnBounce);
 
 
 	
@@ -117,17 +127,7 @@ void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 
 	if (bShouldDeactivate)
 	{
-		//ToDo::불렛 인스턴스 가져오기
-		// if (BulletInstance) // AProBulletBase에 UBulletPoolComponent* PoolComponent가 있다고 가정
-		// {
-		// 	BulletInstance->ReleaseBullet(this);
-		// }
-		// else
-		// {
-		// 	// 풀 매니저가 없다면 그냥 Destroy()하거나, 
-		// 	// 또는 DeactivateBullet()만 해두고 아무곳에도 반환하지 않으면 재사용 안 됨.
-		// 	DeactivateBullet();
-		// }
+		DeactivateBullet();
 	}
 
 	//ToDd: 웨폰에서 Fire시 설정

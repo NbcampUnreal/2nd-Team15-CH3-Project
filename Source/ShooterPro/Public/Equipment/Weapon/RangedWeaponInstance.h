@@ -53,6 +53,11 @@ public:
 		return BulletTraceSweepRadius;
 	}
 
+	float GetLineTraceRange() const
+	{
+		return LineTraceRange;
+	}
+
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
 
