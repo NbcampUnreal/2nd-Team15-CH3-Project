@@ -11,3 +11,4 @@ const FName UEnemyAIBluePrintFunctionLibrary::BBKeyName_StartLocation = FName("S
 const FName UEnemyAIBluePrintFunctionLibrary::BBKeyName_MaxRangeRadius = FName("MaxRangeRadius");
 const FName UEnemyAIBluePrintFunctionLibrary::BBKeyName_RandomInt = FName("RandomInt");
 const FName UEnemyAIBluePrintFunctionLibrary::BBKeyName_HasActivableAbility = FName("HasActivableAbility");
+

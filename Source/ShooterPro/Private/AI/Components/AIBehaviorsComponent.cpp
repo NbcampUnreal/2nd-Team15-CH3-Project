@@ -193,6 +193,9 @@ void UAIBehaviorsComponent::HandleLostSight()
 
 void UAIBehaviorsComponent::HandleSensedSound()
 {
+	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	// AttackableTargets.AddUnique(NewlySensedActor);
+	
 	// EAIState CurrentState = GetCurrentState();
 	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
 	// {
@@ -202,6 +205,9 @@ void UAIBehaviorsComponent::HandleSensedSound()
 
 void UAIBehaviorsComponent::HandleSensedDamage()
 {
+	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	// AttackableTargets.Remove(NewlySensedActor);
+	
 	// if (OnSameTeam(Actor))
 	// 	return;
 	//
@@ -248,7 +254,7 @@ void UAIBehaviorsComponent::SetStateAsAttacking()
 		return;
 	}
 
-	//1마리가 만약 아니라면
+	//2마리 이상일 경우
 
 	// 가장 가까운 타겟을 선택
 	AActor* BestTarget = nullptr;
@@ -279,7 +285,7 @@ void UAIBehaviorsComponent::SetStateAsAttacking()
 
 void UAIBehaviorsComponent::HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo)
 {
-	RecentSenseHandle = PerceivedActorInfo;
+	RecentSenseHandle = PerceivedActorInfo;	
 
 	if (RecentSenseHandle.DetectedSense == EAISense::Sight)
 	{
@@ -294,7 +300,7 @@ void UAIBehaviorsComponent::HandlePerceptionUpdated(const FPerceivedActorInfo& P
 		if (RecentSenseHandle.bCurrentlySensed)
 			HandleSensedSound();
 		else
-			HandleSensedSound();
+			HandleLostSound();
 	}
 
 	else if (RecentSenseHandle.DetectedSense == EAISense::Damage)

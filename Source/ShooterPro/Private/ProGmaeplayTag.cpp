@@ -8,9 +8,11 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee2, TEXT("Ability.Melee2"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Melee3, TEXT("Ability.Melee3"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Range, TEXT("Ability.Range"));
-	
-
-
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Hit, TEXT("Ability.Hit"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact, TEXT("Ability.HitReact"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Reload, TEXT("Ability.Reload"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire, TEXT("Ability.Fire"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Death, TEXT("Ability.Death"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Jump, TEXT("Ability.Jump"));
 
 
@@ -21,29 +23,25 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
-	
-	/// 어빌리티
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_PoisonEffect, TEXT("GameplayCue.PoisonEffect"));
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Pistol, TEXT("GameplayCue.HitImpact.Pistol"));
+
+	/// 어빌리티
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_Poison, TEXT("GameplayEffect.Poison"));
 
 	UE_DEFINE_GAMEPLAY_TAG(State_Poison, TEXT("State.Poison"));
 
 
-	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact, TEXT("Ability.HitReact"));
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Reload, TEXT("Ability.Reload"));
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire, TEXT("Ability.Fire"));
-	
-
 	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_SlotsAddedChanged, TEXT("Event.QuickBar.SlotsAddedChanged"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_SlotsRemovedChanged, TEXT("Event.QuickBar.SlotsRemovedChanged"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_ActiveIndexChanged, TEXT("Event.QuickBar.ActiveIndexChanged"));
-	
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnBullet, TEXT("Event.Montage.SpawnBullet"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Reload, TEXT("Event.Montage.Reload"));
-	
+
 	/// 무기
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_SpareAmmo, TEXT("Weapon.SpareAmmo"));
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineSize, TEXT("Weapon.MagazineSize"));
@@ -52,9 +50,6 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
-
-	
-
 
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

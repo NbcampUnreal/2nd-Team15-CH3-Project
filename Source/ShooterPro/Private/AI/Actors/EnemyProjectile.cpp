@@ -67,7 +67,7 @@ void AEnemyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 	if (ImpactEffectWorld)
 	{
 		// Niagara에서는 SpawnEmitterAtLocation 대신 SpawnSystemAtLocation 사용
-		 UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 			GetWorld(),
 			ImpactEffectWorld,
 			Hit.ImpactPoint,
