@@ -1,15 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Equipment/QuickBarComponent.h"
 
+#include "ProGmaeplayTag.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Inventory/InventoryFragment_EquippableItem.h"
 #include "Inventory/InventoryItemInstance.h"
 
-UQuickBarComponent::UQuickBarComponent(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+UQuickBarComponent::UQuickBarComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+}
+
+void UQuickBarComponent::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void UQuickBarComponent::CheckSlots()
@@ -22,9 +25,11 @@ void UQuickBarComponent::CheckSlots()
 
 void UQuickBarComponent::CycleActiveSlotForward()
 {
-	if (Slots.Num() < 2) return;
+	if (Slots.Num() < 2)
+		return;
 
 	const int32 OldIndex = (ActiveSlotIndex < 0 ? Slots.Num() - 1 : ActiveSlotIndex);
+
 	int32 NewIndex = ActiveSlotIndex;
 
 	do
@@ -35,14 +40,16 @@ void UQuickBarComponent::CycleActiveSlotForward()
 			SetActiveSlotIndex(NewIndex);
 			return;
 		}
-	} while (NewIndex != OldIndex);
+	}
+	while (NewIndex != OldIndex);
 }
 
 void UQuickBarComponent::CycleActiveSlotBackward()
 {
-	if (Slots.Num() < 2) return;
+	if (Slots.Num() < 2)
+		return;
 
-	const int32 OldIndex = (ActiveSlotIndex < 0 ? Slots.Num()-1 : ActiveSlotIndex);
+	const int32 OldIndex = (ActiveSlotIndex < 0 ? Slots.Num() - 1 : ActiveSlotIndex);
 	int32 NewIndex = ActiveSlotIndex;
 	do
 	{
@@ -52,20 +59,39 @@ void UQuickBarComponent::CycleActiveSlotBackward()
 			SetActiveSlotIndex(NewIndex);
 			return;
 		}
-	} while (NewIndex != OldIndex);
+	}
+	while (NewIndex != OldIndex);
 }
 
-void UQuickBarComponent::SetActiveSlotIndex_Implementation(int32 NewIndex)
+void UQuickBarComponent::ChangeQuickBarSlot(int32 NewIndex)
+{
+	if (Slots.IsValidIndex(NewIndex))
+	{
+		SetActiveSlotIndex(NewIndex);
+	}
+}
+
+void UQuickBarComponent::SetActiveSlotIndex(int32 NewIndex)
 {
 	if (Slots.IsValidIndex(NewIndex) && (ActiveSlotIndex != NewIndex))
 	{
+		const int32 OldIndex = ActiveSlotIndex;
+
 		UnequipItemInSlot();
 
 		ActiveSlotIndex = NewIndex;
 
 		EquipItemInSlot();
 
-		if (OnSlotChanged.IsBound()) OnSlotChanged.Broadcast();
+		if (OnSlotChanged.IsBound())
+		{
+			OnSlotChanged.Broadcast(OldIndex, NewIndex);
+		}
+
+		// 메시지 보낼 때, FQuickBarSlotData를 채운다.
+		FQuickBarSlotData Payload = MakeSlotData(NewIndex);
+		UGameplayMessageSubsystem& Subsystem = UGameplayMessageSubsystem::Get(this);
+		Subsystem.BroadcastMessage<FQuickBarSlotData>(ProGameplayTags::Event_QuickBar_ActiveIndexChanged, Payload);
 	}
 }
 
@@ -76,6 +102,7 @@ UInventoryItemInstance* UQuickBarComponent::GetActiveSlotItem() const
 
 int32 UQuickBarComponent::GetNextFreeItemSlot() const
 {
+	// ...
 	int32 SlotIndex = 0;
 	for (const TObjectPtr<UInventoryItemInstance>& ItemPtr : Slots)
 	{
@@ -91,6 +118,7 @@ int32 UQuickBarComponent::GetNextFreeItemSlot() const
 
 UInventoryItemInstance* UQuickBarComponent::RemoveItemFromSlot(int32 SlotIndex)
 {
+	// ...
 	UInventoryItemInstance* Result = nullptr;
 
 	if (ActiveSlotIndex == SlotIndex)
@@ -102,37 +130,41 @@ UInventoryItemInstance* UQuickBarComponent::RemoveItemFromSlot(int32 SlotIndex)
 	if (Slots.IsValidIndex(SlotIndex))
 	{
 		Result = Slots[SlotIndex];
-
 		if (Result != nullptr)
 		{
 			Slots[SlotIndex] = nullptr;
+			FQuickBarSlotData Payload = MakeSlotData(SlotIndex);
+
+			UGameplayMessageSubsystem& Subsystem = UGameplayMessageSubsystem::Get(this);
+			Subsystem.BroadcastMessage<FQuickBarSlotData>(ProGameplayTags::Event_QuickBar_SlotsRemovedChanged, Payload);
 		}
 	}
-
 	return Result;
-}
-
-void UQuickBarComponent::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void UQuickBarComponent::AddItemToSlot(int32 SlotIndex, UInventoryItemInstance* Item)
 {
+	// ...
 	CheckSlots();
-	
+
 	if (Slots.IsValidIndex(SlotIndex) && (Item != nullptr))
 	{
 		if (Slots[SlotIndex] == nullptr)
 		{
 			Slots[SlotIndex] = Item;
+
+			FQuickBarSlotData Payload = MakeSlotData(SlotIndex);
+			UGameplayMessageSubsystem& Subsystem = UGameplayMessageSubsystem::Get(this);
+			Subsystem.BroadcastMessage<FQuickBarSlotData>(ProGameplayTags::Event_QuickBar_SlotsAddedChanged, Payload);
 		}
 	}
 }
 
 void UQuickBarComponent::EquipItemInSlot()
 {
-	check(Slots.IsValidIndex(ActiveSlotIndex));
+	if (!Slots.IsValidIndex(ActiveSlotIndex))
+		return;
+
 	check(EquippedItem == nullptr);
 
 	if (UInventoryItemInstance* SlotItem = Slots[ActiveSlotIndex])
@@ -173,6 +205,38 @@ UEquipmentManagerComponent* UQuickBarComponent::FindEquipmentManager() const
 	{
 		return Owner->FindComponentByClass<UEquipmentManagerComponent>();
 	}
-	
 	return nullptr;
+}
+
+FQuickBarSlotData UQuickBarComponent::MakeSlotData(int32 SlotIndex) const
+{
+	FQuickBarSlotData Data;
+	Data.SlotIndex = SlotIndex;
+	Data.Owner = GetOwner();
+
+	if (!Slots.IsValidIndex(SlotIndex))
+	{
+		return Data;
+	}
+
+	if (UInventoryItemInstance* ItemInstance = Slots[SlotIndex])
+	{
+		Data.InventoryItemInstance = ItemInstance;
+		Data.InventoryDef = ItemInstance->GetItemDef();
+
+		if (const UInventoryFragment_EquippableItem* EquipFrag = ItemInstance->FindFragmentByClass<UInventoryFragment_EquippableItem>())
+		{
+			TSubclassOf<UEquipmentDefinition> EquipmentDefinition = EquipFrag->EquipmentDefinition;
+			if (EquipmentDefinition != nullptr)
+			{
+				Data.EquipmentDef = EquipmentDefinition;
+				if (UEquipmentManagerComponent* EquipmentManager = FindEquipmentManager())
+				{
+					Data.EquipmentInstance = EquipmentManager->GetEquipmentInstanceByDefinition(EquipmentDefinition);
+				}
+			}
+		}
+	}
+
+	return Data;
 }

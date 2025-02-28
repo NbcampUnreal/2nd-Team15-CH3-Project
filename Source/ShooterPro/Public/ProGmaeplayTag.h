@@ -33,6 +33,10 @@ namespace ProGameplayTags
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Poison);
 
 	
+
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_QuickBar_SlotsAddedChanged);
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_QuickBar_SlotsRemovedChanged);
+	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_QuickBar_ActiveIndexChanged);
 	
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_TraceCollision);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_MotionWarping);
@@ -40,11 +44,15 @@ namespace ProGameplayTags
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Throw);
 	
 	
+	
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
 
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_SpareAmmo);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_MagazineSize);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_MagazineAmmo);
+
+	
+	
 
 	SHOOTERPRO_API FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
 

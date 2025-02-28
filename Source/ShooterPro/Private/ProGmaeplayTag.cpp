@@ -34,7 +34,11 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Reload, TEXT("Ability.Reload"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire, TEXT("Ability.Fire"));
 	
-	/// 몽타주
+
+	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_SlotsAddedChanged, TEXT("Event.QuickBar.SlotsAddedChanged"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_SlotsRemovedChanged, TEXT("Event.QuickBar.SlotsRemovedChanged"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_QuickBar_ActiveIndexChanged, TEXT("Event.QuickBar.ActiveIndexChanged"));
+	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnBullet, TEXT("Event.Montage.SpawnBullet"));
@@ -48,6 +52,9 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
+
+	
+
 
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

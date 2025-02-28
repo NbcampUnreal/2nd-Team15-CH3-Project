@@ -164,3 +164,16 @@ TArray<UEquipmentInstance*> UEquipmentManagerComponent::GetEquipmentInstancesOfT
 	}
 	return Results;
 }
+
+UEquipmentInstance* UEquipmentManagerComponent::GetEquipmentInstanceByDefinition(TSubclassOf<UEquipmentDefinition> InDefinition) const
+{
+	// 간단히, 리스트를 순회하여 EquipmentDefinition이 동일한 엔트리를 찾음
+	for (const FEquipmentItem& Entry : EquipmentList.Items)
+	{
+		if (Entry.EquipmentDefinition == InDefinition)
+		{
+			return Entry.Instance;
+		}
+	}
+	return nullptr;
+}

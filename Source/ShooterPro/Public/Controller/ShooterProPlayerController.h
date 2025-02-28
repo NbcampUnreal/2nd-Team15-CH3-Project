@@ -20,10 +20,7 @@ public:
 	AShooterProPlayerController();
 
 	virtual void BeginPlay() override;
-
-	void CreateWidgets();
-	void ShowWidgets();
-	void ClearAllWidgets();
+	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	TObjectPtr<UInputMappingContext> MappingContext;
@@ -48,13 +45,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category=UI)
 	void QuickBarSlotChanged(int32 NewSlot);
-
-protected:
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="HUD")
-	TSubclassOf<UUserWidget> UserWidgetClass;
 
-	UPROPERTY()
-	UUserWidget* UserWidget;
 };
 
