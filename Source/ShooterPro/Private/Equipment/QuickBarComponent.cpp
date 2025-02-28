@@ -2,17 +2,31 @@
 
 #include "ProGmaeplayTag.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "Equipment/Weapon/RangedWeaponInstance.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Inventory/InventoryFragment_EquippableItem.h"
 #include "Inventory/InventoryItemInstance.h"
 
 UQuickBarComponent::UQuickBarComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UQuickBarComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UQuickBarComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (ActiveSlotIndex >= 0 && ActiveSlotIndex <= 2)
+	{
+		EquippedItem->Tick(DeltaTime);
+	}
 }
 
 void UQuickBarComponent::CheckSlots()

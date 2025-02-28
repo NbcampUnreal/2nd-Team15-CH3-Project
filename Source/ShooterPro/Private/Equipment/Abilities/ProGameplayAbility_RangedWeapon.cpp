@@ -35,15 +35,17 @@ void UProGameplayAbility_RangedWeapon::FireWeapon(FVector StartLocation, FVector
 }
 
 
-FVector UProGameplayAbility_RangedWeapon::RandConeNormalDistribution(const FVector& Dir, const float ConeHalfDegree,
+FVector UProGameplayAbility_RangedWeapon::RandConeNormalDistribution(const FVector& Dir, const float ConeHalfAngleRad,
 	const float Exponent)
 {
-	if (ConeHalfDegree > 0.f)
+	if (ConeHalfAngleRad > 0.f)
 	{
+		const float ConeHalfAngleDegrees = FMath::RadiansToDegrees(ConeHalfAngleRad);
+		
 		// 0~1 사이 난수 생성
 		const float FromCenter = FMath::Pow(FMath::FRand(), Exponent);
 		// 원뿔 중심에서 벗어나는 각도 생성
-		const float AngleFromCenter = FromCenter * ConeHalfDegree;
+		const float AngleFromCenter = FromCenter * ConeHalfAngleDegrees;
 		// 0~360도 범위에 랜덤 회전 각도 생성
 		const float AngleAround = FMath::FRand() * 360.f;
 

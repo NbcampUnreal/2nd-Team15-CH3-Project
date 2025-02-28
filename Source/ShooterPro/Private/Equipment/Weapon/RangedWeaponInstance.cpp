@@ -51,10 +51,25 @@ void URangedWeaponInstance::OnUnequipped()
 
 void URangedWeaponInstance::ComputeSpreadRange(float& MinSpread, float& MaxSpread)
 {
+	HeatToSpreadCurve.GetRichCurveConst()->GetValueRange(/*out*/ MinSpread, /*out*/ MaxSpread);
 }
 
 void URangedWeaponInstance::ComputeHeatRange(float& MinHeat, float& MaxHeat)
 {
+	float Min1;
+	float Max1;
+	HeatToHeatPerShotCurve.GetRichCurveConst()->GetTimeRange(/*out*/ Min1, /*out*/ Max1);
+
+	float Min2;
+	float Max2;
+	HeatToCoolDownPerSecondCurve.GetRichCurveConst()->GetTimeRange(/*out*/ Min2, /*out*/ Max2);
+
+	float Min3;
+	float Max3;
+	HeatToSpreadCurve.GetRichCurveConst()->GetTimeRange(/*out*/ Min3, /*out*/ Max3);
+
+	MinHeat = FMath::Min(FMath::Min(Min1, Min2), Min3);
+	MaxHeat = FMath::Max(FMath::Max(Max1, Max2), Max3);
 }
 
 // 

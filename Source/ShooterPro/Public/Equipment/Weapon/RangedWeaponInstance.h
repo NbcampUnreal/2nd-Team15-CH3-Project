@@ -16,7 +16,7 @@ class SHOOTERPRO_API URangedWeaponInstance : public UWeaponInstance
 public:
 	URangedWeaponInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	void Tick(float DeltaSecond);
+	virtual void Tick(float DeltaSecond) override;
 	
 	int32 GetBulletsPerCartridge() const
 	{
@@ -66,9 +66,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Spread|Fire Params")
 	FRuntimeFloatCurve HeatToSpreadCurve;
 
-	// A curve that maps the current heat to the amount a single shot will further 'heat up'
-	// This is typically a flat curve with a single data point indicating how much heat a shot adds,
-	// but can be other shapes to do things like punish overheating by adding progressively more heat.
+	// 한 발을 쏠 때 추가되는 열, X축은 현재 무기 과열, Y축은 한 발당 추가되는 열
 	UPROPERTY(EditAnywhere, Category="Spread|Fire Params")
 	FRuntimeFloatCurve HeatToHeatPerShotCurve;
 	

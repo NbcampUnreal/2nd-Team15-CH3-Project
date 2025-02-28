@@ -17,6 +17,8 @@ class SHOOTERPRO_API UEquipmentInstance : public UObject
 public:
 	UEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	UEquipmentInstance(UEquipmentDefinition* EquipDef, const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void Tick(float DeltaTime) {}
 	
 	UFUNCTION(BlueprintNativeEvent,Category="Equipment")
 	void OnInstanceCreated();
