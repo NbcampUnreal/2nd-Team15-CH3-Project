@@ -4,8 +4,11 @@
 #include "CoreMinimal.h"
 #include "EquipmentDefinition.h"
 #include "EquipmentInstance.h"
+#include "Abilities/GSCAbilitySet.h"
 #include "Components/PawnComponent.h"
 #include "EquipmentManagerComponent.generated.h"
+
+class UGSCAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FEquipmentItem
@@ -24,8 +27,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<UEquipmentInstance> Instance = nullptr;
 
-	//UPROPERTY(NotReplicated)
-	//FAbilitySet_GrantedHandles GrantedHandles;
+	UPROPERTY()
+	FGSCAbilitySetHandle GrantedHandles;
 };
 
 
@@ -37,7 +40,10 @@ struct FEquipmentList
 	FEquipmentList() :OwnerComponent(nullptr) {}
 	FEquipmentList(UActorComponent* OwnerComponent) :OwnerComponent(OwnerComponent) {}
 
+	UGSCAbilitySystemComponent* GetGSCAbilitySystemComponent() const;
+	
 	UEquipmentInstance* AddItem(TSubclassOf<UEquipmentDefinition> EquipmentDefinition);
+	
 	void RemoveItem(UEquipmentInstance* Instance);
 	
 private:
@@ -68,20 +74,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void UnequipItem(UEquipmentInstance* ItemInstance);
 	
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	//UEquipmentInstance* GetFirstInstanceOfType(TSubclassOf<UEquipmentInstance> InstanceType);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UEquipmentInstance* GetFirstInstanceOfType(TSubclassOf<UEquipmentInstance> InstanceType);
 
-	/** Returns all equipped instances of a given type, or an empty array if none are found */
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	//TArray<UEquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<UEquipmentInstance> InstanceType) const;
-
-	template <typename T>
-	T* GetFirstInstanceOfType()
-	{
-		return (T*)GetFirstInstanceOfType(T::StaticClass());
-	}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<UEquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<UEquipmentInstance> InstanceType) const;
 
 private:
 	UPROPERTY()
 	FEquipmentList EquipmentList;
 };
+
+

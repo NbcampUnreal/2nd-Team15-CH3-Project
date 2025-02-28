@@ -49,7 +49,6 @@ public:
 	float GetTimeSinceLastInteractedWith() const;
 
 protected:
-//Need AnimationSet
 	
 	double TimeLastEquipped = 0.;
 	double TimeLastFired = 0.;

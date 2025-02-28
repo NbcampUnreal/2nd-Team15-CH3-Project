@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "EquipmentDefinition.generated.h"
 
+class UProGSCAbilitySet;
 class UEquipmentInstance;
 
 USTRUCT()
@@ -20,7 +21,7 @@ struct FEquipmentActorToSpawn
 	TSubclassOf<AActor> ActorToSpawn;
 
 	UPROPERTY(EditAnywhere, Category=Equipment)
-	FName AttachSocket;
+	FName AttachSocket;	
 
 	UPROPERTY(EditAnywhere, Category=Equipment)
 	FTransform AttachTransform;
@@ -37,8 +38,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Equipment)
 	TSubclassOf<UEquipmentInstance> InstanceType;
 
-	//UPROPERTY(EditDefaultsOnly, Category = Equipment)
-	//TArray<TSubclassOf<const U>>
+	UPROPERTY(EditAnywhere, Category=Equipment)
+	TArray<TObjectPtr<const UProGSCAbilitySet>> AbilitySetsToGrant;
 
 	UPROPERTY(EditDefaultsOnly, Category = Equipment)
 	TArray<FEquipmentActorToSpawn> ActorsToSpawn;

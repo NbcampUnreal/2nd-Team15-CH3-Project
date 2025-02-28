@@ -3,13 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "System/GameplayTagStackContainer.h"
 #include "Inventory/InventoryItemDefinition.h"
 #include "InventoryItemInstance.generated.h"
 
 class UInventoryItemDefinition;
+struct FGamplayTag;
 
-UCLASS()
+
+UCLASS(BlueprintType, Blueprintable)
 class SHOOTERPRO_API UInventoryItemInstance : public UObject
 {
 	GENERATED_BODY()
@@ -22,6 +24,17 @@ public:
 
 	void SetItemDef(TSubclassOf<UInventoryItemDefinition> InDef) { ItemDef = InDef; }
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void AddStatTagStack(FGameplayTag Tag, int32 StackCount) { StatTags.AddStack(Tag, StackCount); }
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)	{ StatTags.RemoveStack(Tag, StackCount); }
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	int32 GetStatTagStackCount(FGameplayTag Tag) const	{ return StatTags.GetStackCount(Tag); }
+
+	bool HasStatTag(FGameplayTag Tag) const	{ return StatTags.ContainsTag(Tag);	}
+	
 	friend struct FInventoryList;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, meta=(DeterminesOutputType=FragmentClass))
@@ -34,7 +47,8 @@ public:
 	}
 
 private:
-	//FGameplayTagStackContainer StatTags;
+	UPROPERTY()
+	FGameplayTagStackContainer StatTags;
 
 	TSubclassOf<UInventoryItemDefinition> ItemDef;
 };

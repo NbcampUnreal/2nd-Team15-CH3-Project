@@ -27,6 +27,5 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Equipment, Instanced)
 	TArray<TObjectPtr<UInventoryItemFragment>> Fragments;
 
-public:
 	const UInventoryItemFragment* FindFragmentByClass(TSubclassOf<UInventoryItemFragment> FragmentClass) const;
 };

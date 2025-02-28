@@ -82,14 +82,14 @@ void UEquipmentInstance::DestroyEquipmentActors()
 void UEquipmentInstance::OnEquipped()
 {
 	SetAnimMontage(EquippedAnimMontage);
-	
-	//K2_OnEquipped();
+	ACharacter* Character = GetOwnerAsTypeTemp<ACharacter>();
+	if (!Character) return;
+	Character->GetMesh()->LinkAnimClassLayers(EquippedLayer);
 }
 
 void UEquipmentInstance::OnUnequipped()
 {
 	SetAnimMontage(UnequippedAnimMontage);
-	//K2_OnUnequipped();
 }
 
 void UEquipmentInstance::SetAnimMontage(UAnimMontage* Montage)
@@ -107,4 +107,16 @@ void UEquipmentInstance::SetAnimMontage(UAnimMontage* Montage)
 	if (!ensure(AnimInstance)) return;
 	
 	AnimInstance->Montage_Play(Montage);
+}
+
+AActor* UEquipmentInstance::FindSpawnedActorByClass(TSubclassOf<AActor> Class) const
+{
+	for (AActor* Actor : SpawnedActors)
+	{
+		if (Actor && Actor->IsA(Class))
+		{
+			return Actor;
+		}
+	}
+	return nullptr;
 }

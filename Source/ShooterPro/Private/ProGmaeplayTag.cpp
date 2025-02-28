@@ -21,6 +21,8 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
+	
+	/// 어빌리티
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_PoisonEffect, TEXT("GameplayCue.PoisonEffect"));
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_Poison, TEXT("GameplayEffect.Poison"));
@@ -29,9 +31,19 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(Ability_HitReact, TEXT("Ability.HitReact"));
-
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Reload, TEXT("Ability.Reload"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire, TEXT("Ability.Fire"));
+	
+	/// 몽타주
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_TraceCollision, TEXT("Event.Montage.TraceCollision"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_MotionWarping, TEXT("Event.Montage.MotionWarping"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnBullet, TEXT("Event.Montage.SpawnBullet"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Reload, TEXT("Event.Montage.Reload"));
+	
+	/// 무기
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_SpareAmmo, TEXT("Weapon.SpareAmmo"));
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineSize, TEXT("Weapon.MagazineSize"));
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineAmmo, TEXT("Weapon.MagazineAmmo"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Throw, TEXT("Event.Montage.Throw"));
 
 

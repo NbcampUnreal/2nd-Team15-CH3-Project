@@ -30,6 +30,9 @@ private:
 	UPROPERTY()
 	int32 StackCount = 0;
 
+	//UPROPERTY()
+	//int32 MaxStackCount; ItemDef에서 값을 가져와야함.
+	
 	UPROPERTY()
 	int32 LastObservedCount = INDEX_NONE;
 };
@@ -48,16 +51,25 @@ struct FInventoryList
 	{
 	}
 	
-	UInventoryItemInstance* AddItem(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
-	
-	void RemoveItem(UInventoryItemInstance* Instance);
+	UInventoryItemInstance* AddItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
 
+	void RemoveItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount);
+	
+	void EraseItem(UInventoryItemInstance* Instance);
+
+	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
+
+	int GetStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef);
+	
 	TArray<UInventoryItemInstance*> GetAllItems() const;
+
+	FInventoryItem FindItemByDefinition(const TSubclassOf<UInventoryItemDefinition>& ItemDef) const;
 
 private:
 	UPROPERTY()
-	TArray<FInventoryItem> Items;
-
+	TMap<TSubclassOf<UInventoryItemDefinition>, FInventoryItem> Items;
+	
+	
 	UPROPERTY()
 	TObjectPtr<UActorComponent> OwnerComponent;
 };
@@ -75,8 +87,28 @@ public:
 	UInventoryItemInstance* AddItemDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StakcCount = 1);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Inventory)
-	void RemoveItemInstance(UInventoryItemInstance* ItemInstance);
+	void EraseItemInstance(UInventoryItemInstance* ItemInstance);
 
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	UInventoryItemInstance* FindFirstItemInstanceByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	FInventoryItem FindInventoryItemByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef) const;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	bool HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const;
+	
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void ConsumeItemsByDefinition(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 NumToConsume);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	int32 GetItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void AddItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void SubtractItemStackCount(TSubclassOf<UInventoryItemDefinition> ItemDef, int32 StackCount);
 private:
 	FInventoryList InventoryList;
 };

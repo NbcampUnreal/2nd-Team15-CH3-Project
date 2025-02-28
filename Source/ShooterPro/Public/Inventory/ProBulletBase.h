@@ -26,7 +26,7 @@ public:
 	// virtual void Tick(float DeltaTime) override;
 public:
 	UFUNCTION(BlueprintCallable)
-	void ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& InVelocity);
+	void ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed = 2000.0f);
 	
 	UFUNCTION(BlueprintCallable)
 	void DeactivateBullet();

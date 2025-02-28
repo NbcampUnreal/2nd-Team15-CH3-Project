@@ -43,14 +43,14 @@ void AProBulletBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AProBulletBase::ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& InVelocity)
+void AProBulletBase::ActivateBullet(const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed)
 {
 	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 
 	// ProjectileMovement를 재설정
-	ProjectileMovement->Velocity = InVelocity; // 원하는 방향 * 속도
+	ProjectileMovement->Velocity = Direction * Speed; // 원하는 방향 * 속도
 	ProjectileMovement->Activate(); // 혹시나 비활성화되었을 수도 있으므로 활성화
 	ProjectileMovement->SetUpdatedComponent(CollisionComp);
 

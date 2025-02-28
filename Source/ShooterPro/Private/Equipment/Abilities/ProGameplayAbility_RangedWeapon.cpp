@@ -19,7 +19,7 @@ void UProGameplayAbility_RangedWeapon::FireWeapon(FVector StartLocation, FVector
 
 	for (int i = 0; i < BulletPerCatridge; ++i)
 	{
-		ProjectileManager->RequestBullet();
+		//ProjectileManager->RequestBullet();
 	}
 }
 
@@ -41,12 +41,12 @@ FHitResult UProGameplayAbility_RangedWeapon::GetHitResultWithRayCast()
 	RangedWeaponInstance->GetMaxDamageRange();
 	
 	FVector TraceStart = WorldLocation;
-	FVector TraceEnd = TraceStart + (WorldDirection * TraceDistance);
+	//FVector TraceEnd = TraceStart + (WorldDirection * TraceDistance);
 
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(PerformCameraCenterTrace), true);
 
-	PlayerController->GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+	//PlayerController->GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
 
 	return HitResult;
 }
@@ -59,9 +59,4 @@ URangedWeaponInstance* UProGameplayAbility_RangedWeapon::GetSourceRangedWeaponIn
 		return Cast<URangedWeaponInstance>(Equipment);
 	}
 	return nullptr;
-}
-
-void UProGameplayAbility_RangedWeapon::SpawnBullets()
-{
-	
 }

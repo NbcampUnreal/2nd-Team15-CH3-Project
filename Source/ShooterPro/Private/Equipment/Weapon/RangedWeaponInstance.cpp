@@ -1,7 +1,11 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "Equipment/Weapon/RangedWeaponInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
 	HeatToHeatPerShotCurve.EditorCurveData.AddKey(0.0f, 1.0f);
 	HeatToCoolDownPerSecondCurve.EditorCurveData.AddKey(0.0f, 2.0f);
@@ -9,23 +13,23 @@ URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectIni
 
 void URangedWeaponInstance::Tick(float DeltaSecond)
 {
-	APawn* Pawn = GetOwnerAsPawn();
-	check(Pawn);
+	//APawn* Pawn = GetOwnerAsPawn();
+	//check(Pawn);
+	
+	//const bool bMinSpread = UpdateSpread(DeltaSecond);
+	//const bool bMinMultipliers = UpdateMultipliers(DeltaSecond);
 
-	const bool bMinSpread = UpdateSpread(DeltaSecond);
-	const bool bMinMultipliers = UpdateMultipliers(DeltaSecond);
-
-	bHasFirstShotAccuracy = bAllowFirstShotAccuracy && bMinMultipliers & bMinSpread;
+	//bHasFirstShotAccuracy = bAllowFirstShotAccuracy && bMinMultipliers & bMinSpread;
 }
 
 void URangedWeaponInstance::OnEquipped()
 {
-	Super::OnEquipped();
+	K2_OnEquipped();
 }
 
 void URangedWeaponInstance::OnUnequipped()
 {
-	Super::OnUnequipped();
+	K2_OnUnequipped();
 }
 
 void URangedWeaponInstance::AddSpread()

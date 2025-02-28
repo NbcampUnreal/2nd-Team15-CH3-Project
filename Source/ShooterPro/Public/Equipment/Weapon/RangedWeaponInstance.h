@@ -107,7 +107,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits="cm/s"))
 	float StandingStillToMovingSpeedRange = 20.0f;
 
-
 	// 앉아있을 때 탄 퍼짐 계수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits=x))
 	float SpreadAngleMultiplier_Crouching = 1.0f;
@@ -143,7 +142,9 @@ protected:
 	// 총알에 맞은 대상의 재질에 따라 받는 데미지 배율 설정
 	UPROPERTY(EditAnywhere, Category = "Weapon Config")
 	TMap<FGameplayTag, float> MaterialDamageMultiplier;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Config")
+	float LineTraceRange;
 private:
 	void ComputeSpreadRange(float& MinSpread, float& MaxSpread);
 	void ComputeHeatRange(float& MinHeat, float& MaxHeat);

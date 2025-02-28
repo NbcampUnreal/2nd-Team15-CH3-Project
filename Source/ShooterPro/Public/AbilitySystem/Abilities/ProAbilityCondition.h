@@ -15,7 +15,7 @@ class UProGameplayAbility;
  * - 능력(Ability)을 활성화하기 전, 추가로 확인해야 할 조건(상태, 상황, etc)을 정의.
  * - 예: 특정 무기 장착 여부, 현재 에너지 값이 일정 이상인지, 특정 태그 상태인지 등
  */
-UCLASS(DefaultToInstanced, EditInlineNew, Abstract)
+UCLASS(Blueprintable, BlueprintType, DefaultToInstanced, EditInlineNew, Abstract)
 class SHOOTERPRO_API UProAbilityCondition : public UObject
 {
 	GENERATED_BODY()
@@ -39,6 +39,11 @@ public:
 								const FGameplayAbilityActorInfo* ActorInfo,
 								FGameplayTagContainer* OptionalRelevantTags) const
 	{
-		return true; // 기본은 무조건 통과
+		return K2_CheckCondition(Ability, Handle, *ActorInfo, *OptionalRelevantTags); // 기본은 무조건 통과
 	}
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	bool K2_CheckCondition(const UProGameplayAbility* Ability, const FGameplayAbilitySpecHandle Handle,
+								const FGameplayAbilityActorInfo& ActorInfo,
+								FGameplayTagContainer& OptionalRelevantTags) const;
 };

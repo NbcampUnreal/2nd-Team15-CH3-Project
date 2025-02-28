@@ -3,6 +3,8 @@
 
 #include "Inventory/InventoryItemInstance.h"
 
+#include "GameplayTagContainer.h"
+
 UInventoryItemInstance::UInventoryItemInstance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {

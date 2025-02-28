@@ -15,7 +15,7 @@ class SHOOTERPRO_API UEquipmentInstance : public UObject
 	GENERATED_BODY()
 public:
 	UEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
+	
 	UFUNCTION(BlueprintNativeEvent,Category="Equipment")
 	void OnInstanceCreated();
 
@@ -36,27 +36,36 @@ public:
 	virtual void OnEquipped();
 	virtual void OnUnequipped();
 
+	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
+	void K2_OnEquipped();
+	
+	UFUNCTION(BlueprintImplementableEvent,Category="Equipment")
+	void K2_OnUnequipped();
+	
+	UFUNCTION(BlueprintPure, Category=Equipment)
+	UObject* GetInstigator() const { return Instigator; }
+	
 	void SetInstigator(UObject* InInstigator) {Instigator = InInstigator;}
 	
-protected:
 	void SetAnimMontage(UAnimMontage* Montage);
 	
-	UFUNCTION(BlueprintImplementableEvent, Category=Equipment, meta=(DisplayName="OnEquipped"))
-	void K2_OnEquipped();
-
-	UFUNCTION(BlueprintImplementableEvent, Category=Equipment, meta=(DisplayName="OnUnequipped"))
-	void K2_OnUnequipped();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	AActor* FindSpawnedActorByClass(TSubclassOf<AActor> Class) const;
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* EquippedAnimMontage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
 	UAnimMontage* UnequippedAnimMontage;
-private:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation)
+	TSubclassOf<UAnimInstance> EquippedLayer;
+	
+	UPROPERTY(BlueprintReadOnly, Category=SpawnedActors)
+	TArray<TObjectPtr<AActor>> SpawnedActors;
+
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;
-
-	TArray<TObjectPtr<AActor>> SpawnedActors;
 };
 
 template <typename T>

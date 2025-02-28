@@ -6,6 +6,7 @@
 #include "Components/PawnComponent.h"
 #include "PlayerPawnComponent.generated.h"
 
+class UGameplayAbility;
 struct FInputActionValue;
 class UCameraComponent;
 class USpringArmComponent;
@@ -23,24 +24,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void Initialize();
 private:
-	void InitializeInput(UInputComponent* InputComponent);
 	
-	void Move(const FInputActionValue& Value);
-
-	void Look(const FInputActionValue& Value);
-
-	void Crouch(const FInputActionValue& Value);
-
-	void Jump(const FInputActionValue& Value);
 	
-	UPROPERTY()
-	TObjectPtr<UCameraComponent> CameraComponent;
-	
-	UPROPERTY()
-	TObjectPtr<USpringArmComponent> SpringArmComponent;
-	
-	//UPROPERTY()
-	//TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 };

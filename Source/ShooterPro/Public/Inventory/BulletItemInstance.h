@@ -19,11 +19,11 @@ public:
 	UBulletItemInstance();
 	
 	// 풀에서 탄환을 가져옴 (필요시 스폰)
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	AProBulletBase* RequestBullet(TSubclassOf<AProBulletBase> BulletClass);
 
 	// 탄환을 풀로 되돌려놓음
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void ReleaseBullet(AProBulletBase* Bullet);
 
 public:
