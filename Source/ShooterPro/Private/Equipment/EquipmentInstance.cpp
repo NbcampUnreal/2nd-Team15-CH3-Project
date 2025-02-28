@@ -8,9 +8,15 @@
 #include "GameFramework/Character.h"
 
 UEquipmentInstance::UEquipmentInstance(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer), EquippedAnimMontage(nullptr), UnequippedAnimMontage(nullptr)
+	: Super(ObjectInitializer), EquippedAnimMontage(nullptr), UnequippedAnimMontage(nullptr), EquipmentDefinition(nullptr)
 {
 
+}
+
+UEquipmentInstance::UEquipmentInstance(UEquipmentDefinition* EquipDef, const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer), EquippedAnimMontage(nullptr), UnequippedAnimMontage(nullptr), EquipmentDefinition(EquipDef)
+{
+	
 }
 
 void UEquipmentInstance::OnInstanceCreated_Implementation()
@@ -120,3 +126,4 @@ AActor* UEquipmentInstance::FindSpawnedActorByClass(TSubclassOf<AActor> Class) c
 	}
 	return nullptr;
 }
+

@@ -27,6 +27,8 @@ public:
 	UPROPERTY()
 	TObjectPtr<UEquipmentInstance> Instance = nullptr;
 
+	
+		
 	UPROPERTY()
 	FGSCAbilitySetHandle GrantedHandles;
 };
