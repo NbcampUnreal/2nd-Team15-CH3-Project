@@ -49,4 +49,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	TObjectPtr<UQuickBarComponent> QuickBarComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	bool IsAiming;
 };

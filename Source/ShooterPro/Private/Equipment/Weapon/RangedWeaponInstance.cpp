@@ -3,7 +3,10 @@
 
 #include "Equipment/Weapon/RangedWeaponInstance.h"
 
+#include "AbilitySystemComponent.h"
+#include "ProGmaeplayTag.h"
 #include "Camera/CameraComponent.h"
+#include "Character/Player/ProPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 URangedWeaponInstance::URangedWeaponInstance(const FObjectInitializer& ObjectInitializer)
@@ -131,8 +134,13 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 
 	// ADS 보정값 -> 태그나 카메라 가져오기.
 	float AimingAlpha = 0.0f;
-	//if (const UCameraComponent* CameraComponent = (Pawn))
-	//{
+	
+	if (const AProPlayerCharacter* Character = Cast<AProPlayerCharacter>(Pawn))
+	{
+		if (Character->IsAiming) AimingAlpha = 1.0f; //여기 바꿔야함.
+	}
+
+		//{
 	//	float TopCameraWeight;
 	//	FGameplayTag TopCameraTag;
 	//	CameraComponent->GetBlendInfo(/*out*/ TopCameraWeight, /*out*/ TopCameraTag);

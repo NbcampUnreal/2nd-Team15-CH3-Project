@@ -14,6 +14,7 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire, TEXT("Ability.Fire"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Death, TEXT("Ability.Death"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Jump, TEXT("Ability.Jump"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS, TEXT("Ability.ADS"));
 
 
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));

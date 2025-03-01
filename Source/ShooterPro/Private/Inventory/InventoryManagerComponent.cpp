@@ -58,7 +58,7 @@ void FInventoryList::EraseItem(UInventoryItemInstance* Instance)
 
 bool FInventoryList::HasEnoughItem(const TSubclassOf<UInventoryItemDefinition>& ItemDef, int32 StackCount) const
 {
-	if (StackCount <= 0 || !Items.Contains(ItemDef))
+	if (!Items.Contains(ItemDef))
 	{
 		return false;
 	}
