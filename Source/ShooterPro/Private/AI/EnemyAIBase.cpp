@@ -31,6 +31,12 @@ AEnemyAIBase::AEnemyAIBase()
 	GscCoreComponent = CreateDefaultSubobject<UGSCCoreComponent>(TEXT("GscCoreComponent"));
 }
 
+// 바인딩된 함수들을 액터 사망시 실행시킬 함수 - 김민재 추가
+void AEnemyAIBase::EnemyOnKilled()
+{
+	OnKilledActor.Broadcast(this);
+}
+
 void AEnemyAIBase::BeginPlay()
 {
 	Super::BeginPlay();

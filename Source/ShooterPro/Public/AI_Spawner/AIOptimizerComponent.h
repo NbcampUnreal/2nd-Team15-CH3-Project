@@ -18,6 +18,13 @@ public:
 
 	virtual void BeginPlay() override;
 
+	// Distance-based optimization system starts working
+// 거리기반 최적화 시스템 작동 시작
+	void OptimizerChecker();
+	// Distance-based optimization system stop working
+// 거리기반 최적화 시스템 정지
+	void OptimizerCheckerStop();
+
 	/**
 	* Bitmasks can be used to disable features for optimization.
 	* 비트마스크를 활용해 최적화를 위한 기능 비활성화가 가능합니다.
