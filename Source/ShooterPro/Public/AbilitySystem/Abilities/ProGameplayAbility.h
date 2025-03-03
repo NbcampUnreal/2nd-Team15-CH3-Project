@@ -27,6 +27,7 @@ protected:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                                const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
 	                                FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	
 
 
 	// ---------------------------------------------------------
@@ -48,7 +49,7 @@ protected:
 
 	//코스트 적용하는 함수
 	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
-	
+
 public:
 	/**
 	 * @brief 추가로 요구되는 '조건(Condition)' 목록

@@ -49,6 +49,39 @@ void AEnemyAIBase::BeginPlay()
 	// 블루프린트에서 Health Widget 설정 여부 확인 (필요 시 추가 처리)
 }
 
+void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
+{
+	if (!EndedAbility)
+		return;
+
+	// 만약 Subsystem이 이미 죽었거나 생성 안 되었으면 그냥 반환
+	if (!UGameplayMessageSubsystem::HasInstance(EndedAbility))
+	{
+		return;
+	}
+
+	// 1) 어빌리티의 태그들
+	FGameplayTagContainer AbilityTags = EndedAbility->GetAssetTags();
+	FGameplayTag BroadcastTag = ProGameplayTags::Ability;
+	if (!AbilityTags.IsEmpty())
+	{
+		BroadcastTag = *AbilityTags.CreateConstIterator();
+	}
+
+	// 2) 보낼 Payload 구성 (새로운 구조체 사용)
+	FEnemyAbilityEndedPayload Payload;
+	Payload.EndedAbilityName = EndedAbility->GetName();
+	Payload.EndedTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	Payload.AbilityOwner = this; // AIBase 자신 (어빌리티 소유자)
+
+	// 대표 태그
+	Payload.EndedAbilityTag = BroadcastTag;
+
+	// 3) 메시지 전송
+	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
+	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);
+}
+
 void AEnemyAIBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -94,37 +127,4 @@ float AEnemyAIBase::SetMoveSpeed_Implementation(EAIMovementSpeed NewMovementSpee
 APatrolPath* AEnemyAIBase::GetPatrolPath_Implementation()
 {
 	return PatrolRoute;
-}
-
-void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
-{
-	if (!EndedAbility)
-		return;
-
-	// 만약 Subsystem이 이미 죽었거나 생성 안 되었으면 그냥 반환
-	if (!UGameplayMessageSubsystem::HasInstance(EndedAbility))
-	{
-		return;
-	}
-
-	// 1) 어빌리티의 태그들
-	FGameplayTagContainer AbilityTags = EndedAbility->GetAssetTags();
-	FGameplayTag BroadcastTag = ProGameplayTags::Ability;
-	if (!AbilityTags.IsEmpty())
-	{
-		BroadcastTag = *AbilityTags.CreateConstIterator();
-	}
-
-	// 2) 보낼 Payload 구성 (새로운 구조체 사용)
-	FEnemyAbilityEndedPayload Payload;
-	Payload.EndedAbilityName = EndedAbility->GetName();
-	Payload.EndedTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
-	Payload.AbilityOwner = this; // AIBase 자신 (어빌리티 소유자)
-
-	// 대표 태그
-	Payload.EndedAbilityTag = BroadcastTag;
-
-	// 3) 메시지 전송
-	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
-	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);
 }

@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "AIController.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/AbilityTypes.h"
 #include "AI/EnemyAILog.h"
 #include "AI/EnemyAITypes.h"
 #include "GameFramework/AsyncAction_ListenForGameplayMessage.h"
@@ -24,7 +25,7 @@ EBTNodeResult::Type UBTTask_ActivateAbilityAndWaitForMessage::ExecuteTask(UBehav
 	MyOwnerComp = &OwnerComp;
 
 	// 1) Pawn(혹은 Controller)에서 ASC 찾기
-	APawn* Pawn = OwnerComp.GetAIOwner() ? OwnerComp.GetAIOwner()->GetPawn() : nullptr;
+	APawn* Pawn = MyOwnerComp->GetAIOwner() ? MyOwnerComp->GetAIOwner()->GetPawn() : nullptr;
 	if (!Pawn)
 	{
 		AI_ENEMY_LOG_WARNING("%s - No Pawn for AIOwner", *GetName());
@@ -155,10 +156,9 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 {
 	if (!MyOwnerComp)
 	{
+		FinishLatentTask(*MyOwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-
-	// AI_ENEMY_LOG_LOG("OnMessageReceived - Received Tag=[%s], ListeningTag=[%s]", *ActualChannel.ToString(), *ListeningTag.ToString());
 
 	// 메시지 구조체 타입이 우리가 원하는 FEnemyAbilityEndedPayload인지 확인
 	const UScriptStruct* DesiredStruct = FEnemyAbilityEndedPayload::StaticStruct();
@@ -168,27 +168,18 @@ void UBTTask_ActivateAbilityAndWaitForMessage::OnMessageReceived(UAsyncAction_Li
 		{
 			if (const FEnemyAbilityEndedPayload* PayloadPtr = reinterpret_cast<const FEnemyAbilityEndedPayload*>(DataPtr))
 			{
-				// AI_ENEMY_SCREEN_LOG_LOG(5.0f,
-				//                         "Received FEnemyAbilityEndedPayload => AbilityName=%s, Tag=%s, Time=%.2f",
-				//                         *PayloadPtr->EndedAbilityName,
-				//                         *PayloadPtr->EndedAbilityTag.ToString(),
-				//                         PayloadPtr->EndedTime
-				// );
+				APawn* Pawn = MyOwnerComp->GetAIOwner() ? MyOwnerComp->GetAIOwner()->GetPawn() : nullptr;
 
-				// 예: OwnerActor 체크
 				if (AActor* OwningActor = PayloadPtr->AbilityOwner.Get())
 				{
-					// AI_ENEMY_LOG_DISPLAY("AbilityOwner=[%s]", *OwningActor->GetName());
+					// 태그가 ListeningTag와 같으면 Succeeded 처리
+					if (Pawn == OwningActor && ActualChannel == ListeningTag)
+					{
+						FinishLatentTask(*MyOwnerComp, EBTNodeResult::Succeeded);
+					}
 				}
 			}
 		}
-	}
-
-	// 태그가 ListeningTag와 같으면 Succeeded 처리
-	if (ActualChannel == ListeningTag)
-	{
-		// AI_ENEMY_SCREEN_LOG_LOG(3.0f, "Message Tag matched => Task Succeeded!");
-		FinishLatentTask(*MyOwnerComp, EBTNodeResult::Succeeded);
 	}
 }
 
