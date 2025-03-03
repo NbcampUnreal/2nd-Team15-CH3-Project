@@ -1,599 +1,356 @@
 #include "AI/Components/AIBehaviorsComponent.h"
 
-#include "AIController.h"
-#include "AI/ShooterAIController.h"
-#include "AI/Actors/PatrolPath.h"
+#include "ProGmaeplayTag.h"
+#include "AI/AIGameplayTags.h"
+#include "AI/EnemyAIBase.h"
+#include "AI/EnemyAIController.h"
+#include "AI/EnemyAILog.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
-UAIBehaviorsComponent::UAIBehaviorsComponent(): CurrentState(), DeadAnimation(),
-                                                CurrentTransition(), ApproachTransition(),
-                                                MeleeAttackTransition(),
-                                                RangeAttackTransition(),
-                                                StrafeTransition(),
-                                                CompanionTransition(),
-                                                MeleeAttackAnimation(),
-                                                RangeAttackAnimation(nullptr),
-                                                RangeReloadAnimation(nullptr), HitAnimation(), EquipWeaponAnimation(nullptr), UnEquipWeaponAnimation(nullptr)
+UAIBehaviorsComponent::UAIBehaviorsComponent(): AttackTarget(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
-	// ...
-	TargetTagCompanion = "Player";
-
-	TargetTags.Add("Player");
-
-	InitialBehavior = EAIBehavior::Idle;
-	CurrentState = EAIState::Idle;
-
-	CurrentBehaviorConfig.BehaviorType = EAIBehavior::Idle;
-	CurrentBehaviorConfig.MovementSpeedType = EAIMovementState::Idle;
-	CurrentBehaviorConfig.OnSenseFoundTarget = EAIBehavior::Idle;
-	CurrentBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-	IdleBehaviorConfig.BehaviorType = EAIBehavior::Idle;
-	IdleBehaviorConfig.MovementSpeedType = EAIMovementState::Idle;
-	IdleBehaviorConfig.OnSenseFoundTarget = EAIBehavior::Approach;
-	IdleBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-	PatrolBehaviorConfig.BehaviorType = EAIBehavior::Patrol;
-	PatrolBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	PatrolBehaviorConfig.OnSenseFoundTarget = EAIBehavior::MeleeAttack;
-	PatrolBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Patrol;
-
-	ApproachBehaviorConfig.BehaviorType = EAIBehavior::Approach;
-	ApproachBehaviorConfig.MovementSpeedType = EAIMovementState::Jog;
-	ApproachBehaviorConfig.OnSenseFoundTarget = EAIBehavior::Approach;
-	ApproachBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-	CompanionBehaviorConfig.BehaviorType = EAIBehavior::Companion;
-	CompanionBehaviorConfig.MovementSpeedType = EAIMovementState::Jog;
-	CompanionBehaviorConfig.OnSenseFoundTarget = EAIBehavior::MeleeAttack;
-	CompanionBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Companion;
-
-
-	RoamingBehaviorConfig.BehaviorType = EAIBehavior::Roaming;
-	RoamingBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	RoamingBehaviorConfig.OnSenseFoundTarget = EAIBehavior::MeleeAttack;
-	RoamingBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-
-	RoamingBehaviorConfig.BehaviorType = EAIBehavior::Roaming;
-	RoamingBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	RoamingBehaviorConfig.OnSenseFoundTarget = EAIBehavior::MeleeAttack;
-	RoamingBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-
-	MeleeAttackBehaviorConfig.BehaviorType = EAIBehavior::MeleeAttack;
-	MeleeAttackBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	MeleeAttackBehaviorConfig.OnSenseFoundTarget = EAIBehavior::MeleeAttack;
-	MeleeAttackBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-
-	RangeAttackBehaviorConfig.BehaviorType = EAIBehavior::RangeAttack;
-	RangeAttackBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	RangeAttackBehaviorConfig.OnSenseFoundTarget = EAIBehavior::RangeAttack;
-	RangeAttackBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-
-	StrafeBehaviorConfig.BehaviorType = EAIBehavior::Strafe;
-	StrafeBehaviorConfig.MovementSpeedType = EAIMovementState::Walk;
-	StrafeBehaviorConfig.OnSenseFoundTarget = EAIBehavior::Strafe;
-	StrafeBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
-
-
-	HitBehaviorConfig.BehaviorType = EAIBehavior::Hit;
-	HitBehaviorConfig.MovementSpeedType = EAIMovementState::Idle;
-	HitBehaviorConfig.OnSenseFoundTarget = EAIBehavior::Idle;
-	HitBehaviorConfig.OnSenseLoseTarget = EAIBehavior::Idle;
+	AISensePriority.Add(EAISense::Damage, 1.0f);
+	AISensePriority.Add(EAISense::Sight, 0.8);
+	AISensePriority.Add(EAISense::Hearing, 0.4);
 }
 
 void UAIBehaviorsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-
-	AAIController* OwnerAIController = UAIBlueprintHelperLibrary::GetAIController(GetOwner());
-	if (IsValid(OwnerAIController))
+	CharacterRef = Cast<AEnemyAIBase>(GetOwner());
+	if (CharacterRef)
 	{
-		OwnerControllerRef = Cast<AAIController>(OwnerAIController);
-		OwnerCharacterRef = Cast<ACharacter>(OwnerControllerRef->GetPawn());
+		AIControllerRef = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(CharacterRef));
 	}
-
-	ChangeBehavior(InitialBehavior);
 }
 
 void UAIBehaviorsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
-void UAIBehaviorsComponent::ChangeBehavior(EAIBehavior NewBehavior)
+bool UAIBehaviorsComponent::IsTriggerEnabled(ECombatTriggerFlags Trigger) const
 {
-	if (NewBehavior == EAIBehavior::Idle) CurrentBehaviorConfig = IdleBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Patrol) CurrentBehaviorConfig = PatrolBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Approach) CurrentBehaviorConfig = ApproachBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Roaming) CurrentBehaviorConfig = RoamingBehaviorConfig;
-	if (NewBehavior == EAIBehavior::MeleeAttack) CurrentBehaviorConfig = MeleeAttackBehaviorConfig;
-	if (NewBehavior == EAIBehavior::RangeAttack) CurrentBehaviorConfig = RangeAttackBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Strafe) CurrentBehaviorConfig = StrafeBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Hit) CurrentBehaviorConfig = HitBehaviorConfig;
-	if (NewBehavior == EAIBehavior::Companion) CurrentBehaviorConfig = CompanionBehaviorConfig;
-
-	SetMovementState(CurrentBehaviorConfig.MovementSpeedType);
-
-	UpdateBehaviorKey(NewBehavior);
-
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::Approach) CurrentTransition = ApproachTransition;
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::MeleeAttack) CurrentTransition = MeleeAttackTransition;
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::RangeAttack) CurrentTransition = RangeAttackTransition;
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::Strafe) CurrentTransition = StrafeTransition;
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::Companion) CurrentTransition = CompanionTransition;
-
-	if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::MeleeAttack) AcceptanceDistance = MeleeAttackDistance;
-	else if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::RangeAttack) AcceptanceDistance = RangeAttackDistance;
-	else if (CurrentBehaviorConfig.BehaviorType == EAIBehavior::Companion) AcceptanceDistance = FMath::FRandRange(CompanionAcceptDistanceMin, CompanionAcceptDistanceMax);
-	else { AcceptanceDistance = 0.0f; }
-
-	SwitchTransitionBehavior();
+	// Trigger가 이미 1, 2, 4, 8 등의 비트값을 갖고 있으므로 그대로 마스크 연산
+	const uint8 MaskValue = static_cast<uint8>(Trigger);
+	return (CombatTriggerMask & MaskValue) != 0;
 }
 
-void UAIBehaviorsComponent::UpdateBehavior(bool bNewCompanion)
+bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 {
-	if (IsValid(Target))
+	FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
+	FGameplayTag PreviousState = AIControllerRef->GetPreviousStateTag();
+
+	//원하는 상태가 컴뱃이라면
+	if (ChangeState == AIGameplayTags::AIState_Combat)
 	{
-		ChangeBehavior(bNewCompanion ? EAIBehavior::Companion : CurrentBehaviorConfig.OnSenseFoundTarget);
-	}
-	else
-	{
-		ChangeBehavior(CurrentBehaviorConfig.OnSenseLoseTarget);
-	}
-}
-
-void UAIBehaviorsComponent::SetMovementState(EAIMovementState MovementState)
-{
-	UCharacterMovementComponent* CharacterMovement = GetOwner()->FindComponentByClass<UCharacterMovementComponent>();
-
-	if (!IsValid(CharacterMovement))
-		return;
-
-	if (MovementState == EAIMovementState::Idle) CharacterMovement->MaxWalkSpeed = 0.0f;
-	else if (MovementState == EAIMovementState::Walk) CharacterMovement->MaxWalkSpeed = WalkSpeed;
-	else if (MovementState == EAIMovementState::Jog) CharacterMovement->MaxWalkSpeed = JogSpeed;
-	else if (MovementState == EAIMovementState::RandomWalkOrJog)
-	{
-		FMath::RandBool() ? CharacterMovement->MaxWalkSpeed = WalkSpeed : CharacterMovement->MaxWalkSpeed = JogSpeed;
-	}
-}
-
-void UAIBehaviorsComponent::SwitchTransitionBehavior()
-{
-	float Time = CurrentTransition.DelayTrigger + FMath::FRandRange(0.0f, CurrentTransition.RandomDeviation);
-	TransitionBehaviorTimer = UKismetSystemLibrary::K2_SetTimer(this, "StartTransitionBehavior", Time, true);
-}
-
-void UAIBehaviorsComponent::StartTransitionBehavior()
-{
-	for (const FAITransition& Transition : CurrentTransition.Transitions)
-	{
-		float DistanceTarget = OwnerCharacterRef->GetDistanceTo(Target);
-
-		bool bDistanceComparison = false;
-		if (Transition.Comparison == EComparisonMethod::Equal_To) bDistanceComparison = DistanceTarget == Transition.DistanceToTarget;
-		if (Transition.Comparison == EComparisonMethod::Not_Equal_To) bDistanceComparison = DistanceTarget != Transition.DistanceToTarget;
-		if (Transition.Comparison == EComparisonMethod::Greater_Than_Or_Equal_To) bDistanceComparison = DistanceTarget >= Transition.DistanceToTarget;
-		if (Transition.Comparison == EComparisonMethod::Less_Than_Or_Equal_To) bDistanceComparison = DistanceTarget <= Transition.DistanceToTarget;
-		if (Transition.Comparison == EComparisonMethod::Greater_Than) bDistanceComparison = DistanceTarget > Transition.DistanceToTarget;
-		if (Transition.Comparison == EComparisonMethod::Less_Than) bDistanceComparison = DistanceTarget < Transition.DistanceToTarget;
-
-		if (!bDistanceComparison)
-			return;
-
-		int RandChance = FMath::RandRange(1, 100);
-
-		if (Transition.RateChance <= RandChance)
+		//내 현재상태가 죽음이 아니고 && 공격가능한 대상들이 하나라도 있다면
+		if (CurrentState != AIGameplayTags::AIState_Dead && !AttackableTargets.IsEmpty())
 		{
-			DoOnceStartTransitionBehavior.Execute([this, Transition]()
-			{
-				UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this, TransitionBehaviorTimer);
-				ChangeBehavior(Transition.NewBehavior);
-			});
+			return true;
 		}
-	}
-}
 
-void UAIBehaviorsComponent::SetCombatMode(bool bValue)
-{
-	bInCombatMode = bValue;
+		//비활성화 모드 일 때
+		if (CurrentState == AIGameplayTags::AIState_Disabled)
+		{
+			IGameplayTagAssetInterface* TagAsset = Cast<IGameplayTagAssetInterface>(CharacterRef);
+			if (TagAsset && TagAsset->HasMatchingGameplayTag(ProGameplayTags::Ability_HitReact))
+			{
+				return true;
+			}
 
-	if (OnCombatChange.IsBound())
-		OnCombatChange.Broadcast(bInCombatMode);
-}
+			return false;
+		}
 
-void UAIBehaviorsComponent::StartEquipOrUnEquipWeapon(bool bEquip)
-{
-	SetState(EAIState::SwitchCombat);
-
-	UAnimMontage* SelectAnimMontage = bEquip ? EquipWeaponAnimation : UnEquipWeaponAnimation;
-	if (IsValid(SelectAnimMontage))
-	{
-		PlayMontage(SelectAnimMontage);
-		float AnimMontageLength = SelectAnimMontage->GetPlayLength();
-		UKismetSystemLibrary::K2_SetTimer(this, "ResetState", AnimMontageLength, false);
-	}
-	else
-	{
-		SetCombatMode(bEquip);
-	}
-}
-
-void UAIBehaviorsComponent::SetState(EAIState NewState)
-{
-	EAIState PrevState = CurrentState;
-	CurrentState = NewState;
-
-	if (PrevState != CurrentState)
-	{
-		if (OnStateChanged.IsBound())
-			OnStateChanged.Broadcast(PrevState, NewState);
-	}
-}
-
-void UAIBehaviorsComponent::ResetState()
-{
-	if (CurrentState != EAIState::Dead)
-	{
-		SetState(EAIState::Idle);
-	}
-}
-
-void UAIBehaviorsComponent::PlayMontage(UAnimMontage* MontageToPlay)
-{
-	OwnerCharacterRef->GetMesh()->GetAnimInstance()->Montage_Play(MontageToPlay, 1.0f, EMontagePlayReturnType::Duration);
-}
-
-bool UAIBehaviorsComponent::PlayDeadAnimation(EHitDirection Direction, float& Duration)
-{
-	SetState(EAIState::Dead);
-
-	UAnimMontage* SelectMontage = nullptr;
-	if (Direction == EHitDirection::Front) SelectMontage = DeadAnimation.Front;
-	if (Direction == EHitDirection::Back) SelectMontage = DeadAnimation.Back;
-	if (Direction == EHitDirection::Right) SelectMontage = DeadAnimation.Right;
-	if (Direction == EHitDirection::Left) SelectMontage = DeadAnimation.Left;
-
-	if (IsValid(SelectMontage))
-	{
-		float DeadAnimLength = SelectMontage->GetPlayLength();
-		PlayMontage(SelectMontage);
-		UKismetSystemLibrary::K2_SetTimer(this, "ResetState", DeadAnimLength, false);
-		Duration = DeadAnimLength;
 		return true;
 	}
 
 
-	ResetState();
-	Duration = 0.0f;
+	if (ChangeState == AIGameplayTags::AIState_Idle)
+	{
+		if (ChangeState == AIGameplayTags::AIState_Combat)
+		{
+			return true;
+		}
+
+		return true;
+	}
+
+	if (ChangeState == AIGameplayTags::AIState_Seeking)
+	{
+		if (PreviousState == AIGameplayTags::AIState_Combat)
+		{
+			return true;
+		}
+		if (PreviousState == AIGameplayTags::AIState_Idle)
+		{
+			return false;
+		}
+	}
+
+	if (ChangeState == AIGameplayTags::AIState_Dead)
+	{
+	}
+
+	if (ChangeState == AIGameplayTags::AIState_Seeking)
+	{
+	}
+
+	if (ChangeState == AIGameplayTags::AIState_Disabled)
+	{
+	}
+
+
 	return false;
 }
 
-void UAIBehaviorsComponent::FoundTarget(AActor* NewTarget, bool bNewCompanion)
+bool UAIBehaviorsComponent::UpdateState(FGameplayTag UpdateState)
 {
-	Target = NewTarget;
+	AIControllerRef->UpdateBlackboard_State(UpdateState);
 
-	UpdateTarget(Target);
-
-	UpdateBehavior(bNewCompanion);
-
-	if (IsValid(Target))
+	if (UpdateState == AIGameplayTags::AIState_Combat)
 	{
-		if (OnFoundTarget.IsBound())
-			OnFoundTarget.Broadcast();
-
-		if (bInCombatMode)
-			return;
-
-		if (bUseEquipUnEquipWeaponAnim)
-			StartEquipOrUnEquipWeapon(true);
-		else
-			SetCombatMode(true);
+		//위 과정과 동일
 	}
-	else
+	else if (UpdateState == AIGameplayTags::AIState_Seeking)
 	{
-		if (OnLoseTarget.IsBound())
-			OnLoseTarget.Broadcast();
-
-		if (CurrentBehaviorConfig.BehaviorType != EAIBehavior::Companion)
-		{
-			if (!bInCombatMode)
-				return;
-
-			if (bUseEquipUnEquipWeaponAnim)
-				StartEquipOrUnEquipWeapon(false);
-			else
-				SetCombatMode(false);
-		}
-
-		if (bIsAiming)
-			SetAiming(false);
+		SetStateAsSeeking();
 	}
-}
-
-
-void UAIBehaviorsComponent::DeadRagdoll(const FVector& HitDirection, FName HitBoneName, float DamageImpulse, EHitDirection Direction)
-{
-	if (CurrentState == EAIState::Dead)
-		return;
-
-	if (!bUseDeadRagdoll)
+	if (UpdateState == AIGameplayTags::AIState_Idle)
 	{
-		float Duration;
-		PlayDeadAnimation(Direction, Duration);
-
-		float Delay = Duration * 0.8f;
-		UKismetSystemLibrary::K2_SetTimer(this, "DeadRagdoll_Internal", Delay, false);
-	}
-	else
-	{
-		DeadRagdoll_Internal(HitDirection, HitBoneName, DamageImpulse);
-	}
-}
-
-FTransform UAIBehaviorsComponent::GetTargetActorTransform()
-{
-	if (IsValid(Target))
-	{
-		return Target->GetActorTransform();
+		//위 과정과 동일
 	}
 
-	return {};
-}
-
-float UAIBehaviorsComponent::MeleeAttack(float& Duration)
-{
-	if (!CanAttack())
-	{
-		Duration = 0.0f;
-		return false;
-	}
-
-	SetState(EAIState::Attacking);
-
-	int LastIndex = MeleeAttackAnimation.Montages.Num() - 1;
-
-	int32 SelectIndex;
-	if (MeleeAttackAnimation.bPlayRandomMontage)
-	{
-		SelectIndex = FMath::RandRange(0, LastIndex);
-	}
-	else
-	{
-		SelectIndex = AttackCounter > LastIndex ? LastIndex : AttackCounter;
-	}
-
-	UAnimMontage* SelectMontage = MeleeAttackAnimation.Montages[SelectIndex];
-	if (!IsValid(SelectMontage))
-	{
-		ResetState();
-		Duration = 0.0f;
-		return false;
-	}
-
-	PlayMontage(SelectMontage);
-	float AttackMontageLength = SelectMontage->GetPlayLength();
-	UKismetSystemLibrary::K2_SetTimer(this, "ResetState", AttackMontageLength, false);
-
-	AttackCounter++;
-	if (AttackCounter > LastIndex)
-		AttackCounter = 0;
-
-	if (OnMeleeAttack.IsBound())
-		OnMeleeAttack.Broadcast();
-
-	Duration = AttackMontageLength;
 	return true;
 }
 
-float UAIBehaviorsComponent::RangeAttack(float& Duration)
+bool UAIBehaviorsComponent::IsInCombat()
 {
-	if (!CanAttack())
-	{
-		Duration = 0.0f;
-		return false;
-	}
-
-	SetState(EAIState::Attacking);
-
-	if (!IsValid(RangeAttackAnimation))
-	{
-		ResetState();
-		Duration = 0.0f;
-		return false;
-	}
-
-	PlayMontage(RangeAttackAnimation);
-	float RangeMontageLength = RangeAttackAnimation->GetPlayLength();
-	UKismetSystemLibrary::K2_SetTimer(this, "ResetState", RangeMontageLength, false);
-
-	if (OnRangeAttack.IsBound())
-		OnRangeAttack.Broadcast();
-
-	Duration = RangeMontageLength;
-	return true;
+	FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
+	return CurrentState == AIGameplayTags::AIState_Combat;
 }
 
-float UAIBehaviorsComponent::ReloadRangeAttack()
+void UAIBehaviorsComponent::HandleSensedSight()
 {
-	if (CanAttack())
-	{
-		SetState(EAIState::Disabled);
-
-		if (IsValid(RangeReloadAnimation))
-		{
-			PlayMontage(RangeReloadAnimation);
-			float ReloadMontageLength = RangeReloadAnimation->GetPlayLength();
-			UKismetSystemLibrary::K2_SetTimer(this, "ResetState", ReloadMontageLength, false);
-			return ReloadMontageLength;
-		}
-		else
-		{
-			ResetState();
-		}
-	}
-
-	return 0.0f;
-}
-
-float UAIBehaviorsComponent::Hitted(EHitDirection NewHitDirection)
-{
-	if (CanBeHit())
-	{
-		SetState(EAIState::Disabled);
-
-		UAnimMontage* SelectMontage = nullptr;
-		if (NewHitDirection == EHitDirection::Front) SelectMontage = HitAnimation.Front;
-		if (NewHitDirection == EHitDirection::Back) SelectMontage = HitAnimation.Back;
-		if (NewHitDirection == EHitDirection::Right) SelectMontage = HitAnimation.Right;
-		if (NewHitDirection == EHitDirection::Left) SelectMontage = HitAnimation.Left;
-
-		if (SelectMontage)
-		{
-			PlayMontage(SelectMontage);
-			float HitLength = SelectMontage->GetPlayLength();
-			UKismetSystemLibrary::K2_SetTimer(this, "ResetState", HitLength, false);
-			return HitLength;
-		}
-
-
-		ResetState();
-		return 0.0f;
-	}
-
-	return 0.0f;
-}
-
-bool UAIBehaviorsComponent::CanAttack()
-{
-	auto CanAttackState = CurrentState == EAIState::Idle || CurrentState == EAIState::Disabled;
-	return bInCombatMode && CanAttackState;
-}
-
-bool UAIBehaviorsComponent::CanBeHit()
-{
-	auto bIsIdleOrNotSwitchingCombat = CurrentState == EAIState::Idle || CurrentState != EAIState::SwitchCombat;
-	auto bIsNotAttacking = CurrentState != EAIState::Attacking;
-
-	return bIsIdleOrNotSwitchingCombat && bIsNotAttacking && bUseHitAnimation;
-}
-
-
-void UAIBehaviorsComponent::UpdatePatrolPath()
-{
-	if (!IsValid(PatrolPath))
+	AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	if (!NewlySensedActor)
 		return;
 
-	int32 SplinePointNums = PatrolPath->SplineComponent->GetNumberOfSplinePoints();
-
-	if (bPatrolReverseDirection)
+	// 1) 만약 ForgetTimers에 이미 등록된 타이머(“잃어버린 타깃”)가 있다면 클리어
+	if (ForgetTimers.Contains(NewlySensedActor))
 	{
-		if (PatrolPointIndex <= 0)
+		GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[NewlySensedActor]);
+		ForgetTimers.Remove(NewlySensedActor);
+	}
+
+	// 2) AttackableTargets에 추가 (기존 코드)
+	AttackableTargets.AddUnique(NewlySensedActor);
+
+	// 3) 이미 AttackTarget이 이 액터라면 별도 처리를 안 해도 되고,
+	//    AttackTarget이 없으면 새로 할당하는 등 필요 로직을 넣으시면 됩니다.
+	// ...
+
+
+	// // 이미 공격 대상이 설정되어 있다면, 추가적인 타겟 설정을 하지 않음
+	// if (AttackTarget == RecentSenseHandle.DetectedActor)
+	// 	return;
+	//
+	// ECombatTriggerFlags SightCombatTrigger = ECombatTriggerFlags::Sight;
+	// if (!IsTriggerEnabled(SightCombatTrigger))
+	// 	return;
+}
+
+void UAIBehaviorsComponent::HandleLostSight()
+{
+	AActor* LostActor = RecentSenseHandle.DetectedActor;
+	if (!LostActor)
+		return;
+
+	// 이미 AttackableTargets에 들어있는 Actor라면,
+	// 곧바로 제거가 아니라, 일정 시간 뒤에 제거하는 타이머를 건다.
+	if (AttackableTargets.Contains(LostActor))
+	{
+		// 혹시 이전에 설정된 타이머가 있으면 초기화
+		if (ForgetTimers.Contains(LostActor))
 		{
-			if (PatrolPath->SplineComponent->IsClosedLoop())
-			{
-				PatrolPointIndex = SplinePointNums - 1;
-			}
-			else
-			{
-				bPatrolReverseDirection = false;
-				PatrolPointIndex = 1;
-			}
+			GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[LostActor]);
+			ForgetTimers.Remove(LostActor);
 		}
+
+		// 일정 시간이 지난 후 RemoveActorFromAttackList를 호출하는 타이머
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle,
+		                                       FTimerDelegate::CreateUObject(this, &UAIBehaviorsComponent::RemoveActorFromAttackList, LostActor),
+		                                       ForgetSightTime, false);
+		ForgetTimers.Add(LostActor, TimerHandle);
+
+		// 또한, “AI가 눈 앞에서 사라졌지만, 아직 공격 대상으로 처리 중” 이므로
+		// AI가 “Seeking” 상태로 전환하도록 할 수도 있음.
+		//  e.g.  UpdateState(AIGameplayTags::AIState_Seeking);
+	}
+}
+
+void UAIBehaviorsComponent::HandleSensedSound()
+{
+	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	// AttackableTargets.AddUnique(NewlySensedActor);
+
+	// EAIState CurrentState = GetCurrentState();
+	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
+	// {
+	// 	SetStateAsInvestigating(Location);
+	// }
+}
+
+void UAIBehaviorsComponent::HandleSensedDamage()
+{
+	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	// AttackableTargets.Remove(NewlySensedActor);
+
+	// if (OnSameTeam(Actor))
+	// 	return;
+	//
+	// EAIState CurrentState = GetCurrentState();
+	//
+	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
+	// {
+	// 	SetStateAsAttacking(Actor, false);
+	// }
+}
+
+void UAIBehaviorsComponent::HandleLostSound()
+{
+}
+
+void UAIBehaviorsComponent::HandleLostDamage()
+{
+}
+
+void UAIBehaviorsComponent::SetStateAsSeeking()
+{
+	AIControllerRef->UpdateBlackboard_PointOfInterest(RecentSenseHandle.LastKnownLocation);
+	AIControllerRef->UpdateBlackboard_State(AIGameplayTags::AIState_Seeking);
+	// UKismetSystemLibrary::DrawDebugSphere(this, RecentSenseHandle.LastKnownLocation, 150.0f, 12, FLinearColor::Red, 15.0f, 10.0f);
+}
+
+void UAIBehaviorsComponent::SetStateAsAttacking()
+{
+	// 공격 가능한 타겟 목록을 가져옵니다.
+
+	// 타겟이 없다면, 리턴
+	if (AttackableTargets.IsEmpty())
+	{
+		AttackTarget = nullptr;
+		AIControllerRef->UpdateBlackboard_AttackTarget(AttackTarget);
+		return;
+	}
+
+	if (AttackableTargets.Num() == 1)
+	{
+		// 최적의 공격 대상을 설정
+		AttackTarget = AttackableTargets[0];
+		AIControllerRef->UpdateBlackboard_AttackTarget(AttackTarget);
+		return;
+	}
+
+	//2마리 이상일 경우
+
+	// 가장 가까운 타겟을 선택
+	AActor* BestTarget = nullptr;
+	float ShortestDistance = FLT_MAX;
+
+	// 기본적으로는 거리 기반으로 가장 가까운 타겟을 선택
+	for (AActor* PotentialTarget : AttackableTargets)
+	{
+		if (!IsValid(PotentialTarget))
+			continue;
+
+		//ToDo::나중에 죽음에 대한 것도 처리해줘야합니다.
+
+		float Distance = FVector::Dist(GetOwner()->GetActorLocation(), PotentialTarget->GetActorLocation());
+
+		// 가장 가까운 타겟을 선택
+		if (Distance < ShortestDistance)
+		{
+			ShortestDistance = Distance;
+			BestTarget = PotentialTarget;
+		}
+	}
+
+	// 최적의 공격 대상을 설정
+	AttackTarget = BestTarget;
+	AIControllerRef->UpdateBlackboard_AttackTarget(BestTarget);
+}
+
+void UAIBehaviorsComponent::HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo)
+{
+	RecentSenseHandle = PerceivedActorInfo;
+
+	if (RecentSenseHandle.DetectedSense == EAISense::Sight)
+	{
+		if (RecentSenseHandle.bCurrentlySensed)
+			HandleSensedSight();
 		else
-		{
-			PatrolPointIndex--;
-		}
+			HandleLostSight();
 	}
-	else
+
+	else if (RecentSenseHandle.DetectedSense == EAISense::Hearing)
 	{
-		if (PatrolPointIndex >= SplinePointNums - 1)
-		{
-			if (PatrolPath->SplineComponent->IsClosedLoop())
-			{
-				PatrolPointIndex = 0;
-			}
-			else
-			{
-				bPatrolReverseDirection = true;
-				PatrolPointIndex = SplinePointNums - 2;
-			}
-		}
+		if (RecentSenseHandle.bCurrentlySensed)
+			HandleSensedSound();
 		else
-		{
-			PatrolPointIndex++;
-		}
+			HandleLostSound();
 	}
-}
 
-FVector UAIBehaviorsComponent::GetSplinePointLocation(int Index)
-{
-	if (IsValid(PatrolPath))
+	else if (RecentSenseHandle.DetectedSense == EAISense::Damage)
 	{
-		return PatrolPath->SplineComponent->GetLocationAtSplinePoint(Index, ESplineCoordinateSpace::World);
+		if (RecentSenseHandle.bCurrentlySensed)
+			HandleSensedDamage();
+		else
+			HandleLostDamage();
 	}
-
-	return {};
 }
 
-void UAIBehaviorsComponent::DeadRagdoll_Internal(const FVector& HitDirection, FName HitBoneName, float DamageImpulse)
+void UAIBehaviorsComponent::HandlePerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo)
 {
-	SetState(EAIState::Dead);
-
-	OwnerCharacterRef->GetCharacterMovement()->SetMovementMode(MOVE_None);
-	OwnerCharacterRef->GetCharacterMovement()->StopMovementImmediately();
-	OwnerCharacterRef->GetMesh()->SetSimulatePhysics(true);
-	OwnerCharacterRef->GetMesh()->SetCollisionProfileName(FName("Ragdoll"));
-	OwnerCharacterRef->GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	OwnerCharacterRef->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	OwnerCharacterRef->GetMesh()->AddImpulse(HitDirection * DamageImpulse, HitBoneName, true);
-
-	if (OnDead.IsBound())
-		OnDead.Broadcast();
-
-	OwnerCharacterRef->SetLifeSpan(DeadLifespan);
+	if (AttackableTargets.Contains(PerceivedActorInfo.DetectedActor))
+		AttackableTargets.Remove(PerceivedActorInfo.DetectedActor);
 }
 
-void UAIBehaviorsComponent::UpdateBehaviorKey(EAIBehavior NewBehavior) const
+void UAIBehaviorsComponent::RemoveActorFromAttackList(AActor* LostActor)
 {
-	if (IsValid(OwnerControllerRef))
+	AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "RemoveActorFromAttackList 함수가 호출 1번이 되어야 합니다");
+	// 이미 Target이 다시 보이는 상황에서 Memory를 지울 수도 있으므로 체크
+	if (!AttackableTargets.Contains(LostActor))
 	{
-		if (AShooterAIController* ShooterAIController = Cast<AShooterAIController>(OwnerControllerRef))
-		{
-			ShooterAIController->BlackBoardUpdate_Behavior(NewBehavior);
-			if (OnChangeBehavior.IsBound())
-				OnChangeBehavior.Broadcast(NewBehavior);
-		}
+		return;
 	}
-}
 
-void UAIBehaviorsComponent::UpdateTarget(UObject* NewObject) const
-{
-	if (IsValid(OwnerControllerRef))
+	// 이 시점까지 재감지(시야 회복)하지 않았다면, 완전히 제거
+	AttackableTargets.Remove(LostActor);
+
+	// 타이머 맵에서도 제거
+	if (ForgetTimers.Contains(LostActor))
 	{
-		if (AShooterAIController* ShooterAIController = Cast<AShooterAIController>(OwnerControllerRef))
-		{
-			ShooterAIController->BlackBoardUpdate_Target(NewObject);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[LostActor]);
+		ForgetTimers.Remove(LostActor);
 	}
+
+	// 만약 AttackTarget == LostActor 이었다면, nullptr로 세팅
+	if (AttackTarget == LostActor)
+	{
+		AttackTarget = nullptr;
+	}
+
+	// 더이상 공격 대상이 없으면, Idle로 바꿀 수도 있고
+	//  UpdateState(AIGameplayTags::AIState_Idle); 
 }

@@ -1,27 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI/ShooterAITypes.h"
-#include "AI/Utility/ShooterProUtility.h"
+#include "GameplayTagContainer.h"
+#include "AI/AIDectionInfoTypes.h"
+#include "AI/EnemyAITypes.h"
 #include "Components/ActorComponent.h"
 #include "AIBehaviorsComponent.generated.h"
 
 
-class APatrolPath;
+class AEnemyAIBase;
+class AEnemyAIController;
 class AAIController;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttack);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFoundTarget);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDead);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatChange, bool, bIsInCombat);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeBehavior, EAIBehavior, NewBehavior);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStateChanged, EAIState, PreviousState, EAIState, NewState);
-
 
 UCLASS(ClassGroup=("AI"), meta=(BlueprintSpawnableComponent))
 class SHOOTERPRO_API UAIBehaviorsComponent : public UActorComponent
@@ -38,333 +27,164 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void ChangeBehavior(EAIBehavior NewBehavior);
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	bool IsTriggerEnabled(ECombatTriggerFlags Trigger) const;
 
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void UpdateBehavior(bool bNewCompanion);
+	UFUNCTION(BlueprintCallable, Category="AI Behavior")
+	bool CanChangeState(FGameplayTag ChangeState);
 
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void SetMovementState(EAIMovementState MovementState);
+	UFUNCTION(BlueprintCallable, Category="AI Behavior")
+	bool UpdateState(FGameplayTag UpdateState);
 
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void SwitchTransitionBehavior();
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	bool IsInCombat();
 
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void StartTransitionBehavior();
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	const FPerceivedActorInfo& GetLastSenseHandle() { return RecentSenseHandle; }
 
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void SetCombatMode(bool bValue);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void StartEquipOrUnEquipWeapon(bool bEquip);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void SetState(EAIState NewState);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void ResetState();
-
-	UFUNCTION(BlueprintPure, Category="AI Behaviors")
-	EAIState GetState() const { return CurrentState; }
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void PlayMontage(UAnimMontage* MontageToPlay);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	bool PlayDeadAnimation(EHitDirection Direction, float& Duration);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void SetAiming(bool bNewAim) { bIsAiming = bNewAim; }
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void FoundTarget(AActor* NewTarget, bool bNewCompanion);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors")
-	void DeadRagdoll(const FVector& HitDirection, FName HitBoneName, float DamageImpulse, EHitDirection Direction);
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TARGET ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public:
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Target")
-	AActor* GetTargetActor() { return Target; }
-
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Target")
-	FTransform GetTargetActorTransform();
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ACTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors|Action")
-	float MeleeAttack(float& Duration);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors|Action")
-	float RangeAttack(float& Duration);
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors|Action")
-	float ReloadRangeAttack();
-
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors|Action")
-	float Hitted(EHitDirection NewHitDirection);
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CONDITION~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Condition")
-	bool CanAttack();
-
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Condition")
-	bool IsInCombatMode() const { return bInCombatMode; }
-
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Condition")
-	bool CanBeHit();
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PATROL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UFUNCTION(BlueprintCallable, Category="AI Behaviors|Patrol")
-	void UpdatePatrolPath();
-
-	UFUNCTION(BlueprintPure, Category="AI Behaviors|Patrol")
-	FVector GetSplinePointLocation(int Index);
-
-protected:
 	UFUNCTION()
-	void DeadRagdoll_Internal(const FVector& HitDirection, FName HitBoneName, float DamageImpulse);
+	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
 
-protected:
-	void UpdateBehaviorKey(EAIBehavior NewBehavior) const;
-	void UpdateTarget(UObject* NewObject) const;
+	UFUNCTION()
+	void HandlePerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo);
+
+	UFUNCTION()
+	void RemoveActorFromAttackList(AActor* LostActor);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
-	EAIBehavior InitialBehavior;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
-	EAIState CurrentState;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors")
-	TArray<FName> TargetTags;
+	UFUNCTION()
+	void HandleSensedSight();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
+	UFUNCTION()
+	void HandleLostSight();
+
+	UFUNCTION()
+	void HandleSensedSound();
+
+	UFUNCTION()
+	void HandleSensedDamage();
+
+	UFUNCTION()
+	void HandleLostSound();
+
+	UFUNCTION()
+	void HandleLostDamage();
+
+public:
+	UFUNCTION()
+	void SetStateAsAttacking();
+
+	UFUNCTION()
+	void SetStateAsSeeking();
+
+public:
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	float GetAttackRadius() const { return AttackRadius; }
+
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	float GetDefendRadius() const { return DefendRadius; }
+
+	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	float GetMaxRandRadius() const { return MaxRandRadius; }
+
+protected:
+	UPROPERTY(BlueprintReadWrite, Category="AI Behavior")
+	TObjectPtr<AEnemyAIBase> CharacterRef;
+
+	UPROPERTY(BlueprintReadWrite, Category="AI Behavior")
+	TObjectPtr<AEnemyAIController> AIControllerRef;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|State")
+	float TimeToSeekAfterLosingSight = 3.0f;
+
+	// UPROPERTY(BlueprintReadWrite, Category="AI Behavior")
+	// bool bInCombat = false;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
 	float WalkSpeed = 150.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
-	float JogSpeed = 400.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float JogSpeed = 300.0f;
 
-	UPROPERTY( BlueprintReadWrite, Category="AI Behaviors")
-	int CurrentAmountRangeAttack =0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float SprintingSpeed = 600.0f;
 
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors")
-	bool bIsAiming = false;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors")
-	FDirectionMontage DeadAnimation;
-	
-
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors")
-	float AcceptanceDistance = 50.0f;
+	/** 시야에서 벗어난 후, 몇 초 뒤에 타겟을 제거할 것인지 */
+	UPROPERTY(EditAnywhere, Category="AI Behavior|Config")
+	float ForgetSightTime = 3.0f;
 
 
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase CurrentBehaviorConfig;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Combat Trigger")
+	TMap<EAISense, float> AISensePriority;
 
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase IdleBehaviorConfig;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Combat Trigger", meta=(Bitmask, BitmaskEnum="ECombatTriggerFlags"))
+	int32 CombatTriggerMask = static_cast<uint8>(ECombatTriggerFlags::Sight);
 
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase PatrolBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase ApproachBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase RoamingBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase MeleeAttackBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase RangeAttackBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase StrafeBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase HitBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorBase CompanionBehaviorConfig;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings CurrentTransition;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings ApproachTransition;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings MeleeAttackTransition;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings RangeAttackTransition;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings StrafeTransition;
-
-	UPROPERTY(BlueprintReadOnly, Category="AI Behaviors")
-	FBehaviorTransitionSettings CompanionTransition;
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REFERENCES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public:
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors|Reference")
-	TObjectPtr<AAIController> OwnerControllerRef;
+	UPROPERTY(BlueprintReadWrite, Category="AI Behavior|Combat")
+	AActor* AttackTarget;
 
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors|Reference")
-	TObjectPtr<ACharacter> OwnerCharacterRef;
+	//공격 가능한 액터들
+	UPROPERTY(BlueprintReadOnly, Category="AI Behavior|Combat")
+	TArray<AActor*> AttackableTargets;
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Patrol ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ai Behaviors|Patrol")
-	bool bPatrolReverseDirection = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ai Behaviors|Patrol")
-	int32 PatrolPointIndex = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ai Behaviors|Patrol")
-	TObjectPtr<APatrolPath> PatrolPath;
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Combat ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-private:
-	bool bInCombatMode = false;
-
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors|Combat", meta=(AllowPrivateAccess="true"))
-	int32 AttackCounter = 0;
-	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Melee ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Melee")
-	FMeleeAttackMontage MeleeAttackAnimation;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Melee")
-	float MeleeAttackDistance = 50.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Melee")
-	float MeleeNextAttackDelay = 0.5f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Melee")
-	float MeleeAttackDamage = 10.0f;
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Range ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Range")
-	UAnimMontage* RangeAttackAnimation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Range")
-	UAnimMontage* RangeReloadAnimation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Range")
-	float RangeAttackDistance = 1000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Range")
-	float RangeNextAttackDelay = 0.1f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Range")
-	float RangeAttackDamage = 25.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Range")
-	int32 RangeAttackAmmunition = 0;
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Hit ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Hit")
-	bool bUseHitAnimation = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Hit")
-	FDirectionMontage HitAnimation;
-
-	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Equipment ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Equipment")
-	bool bUseEquipUnEquipWeaponAnim = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
-	UAnimMontage* EquipWeaponAnimation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors")
-	UAnimMontage* UnEquipWeaponAnimation;
-	
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Companion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Companion")
-	float CompanionAcceptDistanceMin = 50.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Companion")
-	float CompanionAcceptDistanceMax = 200.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Companion")
-	FName TargetTagCompanion;
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Roaming ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Roaming")
-	float RoamingWaitTime = 4.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Roaming")
-	float RoamingWaitTimeDeviation = 2.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Roaming")
-	float RoamingMinimumDistance = 300.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Behaviors|Roaming")
-	float RoamingMaximumDistance = 1000.0f;
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Dead ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors|Dead")
-	bool bUseDeadRagdoll = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behaviors|Dead")
-	float DeadLifespan = 5.0f;
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DELEGATES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-public:
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnDead OnDead;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnAttack OnMeleeAttack;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnAttack OnRangeAttack;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnFoundTarget OnFoundTarget;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnFoundTarget OnLoseTarget;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnCombatChange OnCombatChange;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnChangeBehavior OnChangeBehavior;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Delegate")
-	FOnStateChanged OnStateChanged;
-
+	// // 이전 AI 상태
+	// UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
+	// FGameplayTag PreviousState;
+	//
+	// // 현재 AI 상태
+	// UPROPERTY(BlueprintReadOnly, Category="AI Behavior")
+	// FGameplayTag CurrentState;
 
 private:
-	FDoOnceStruct DoOnceStartTransitionBehavior;
+	//공격 거리
+	UPROPERTY(EditAnywhere, Category="AI Behavior")
+	float AttackRadius = 200.0f;
 
-	FTimerHandle TransitionBehaviorTimer;
+	//방어 거리
+	UPROPERTY(EditAnywhere, Category="AI Behavior")
+	float DefendRadius = 400.0f;
 
-	UPROPERTY(BlueprintReadWrite, Category="AI Behaviors", meta=(AllowPrivateAccess="true"))
-	TObjectPtr<AActor> Target;
+	//랜덤 거리
+	UPROPERTY(EditAnywhere, Category="AI Behavior")
+	float MaxRandRadius = 500.0f;
+
+private:
+	//최근 감지한 정보 구조체
+	UPROPERTY(BlueprintReadOnly, Category="AI Behavior", meta=(AllowPrivateAccess=true))
+	FPerceivedActorInfo RecentSenseHandle;
+
+private:
+	/** '시야를 벗어난 타겟'을 지우기 위한 타이머를 저장하는 맵 */
+	UPROPERTY()
+	TMap<AActor*, FTimerHandle> ForgetTimers;
+
+
+	// FTimerHandle SeekTimerHandle;
 };
+
+
+/* 옛날 코드들
+	public:
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Movement Setting")
+	float GetRealRotationRate();
+
+	float UAIBehaviorsComponent::GetRealRotationRate()
+	{
+		return CurrentState == AIGameplayTags::AIState_Combat ? CombatRotationRate : InitialRotationRate;
+	}
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	bool bUseAimOffset = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float InitialRotationRate = 90.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Behavior|Config")
+	float CombatRotationRate = 270.0f;
+ */

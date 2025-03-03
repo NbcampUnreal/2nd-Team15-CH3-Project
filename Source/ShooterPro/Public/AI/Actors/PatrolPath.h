@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,17 +12,36 @@ class SHOOTERPRO_API APatrolPath : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	APatrolPath();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 public:
-	// Called every frame
+	UFUNCTION(BlueprintCallable, Category="Patrol|Path")
+	void IncrementPatrolRoute();
+
+	UFUNCTION(BlueprintCallable, Category="Patrol|Path")
+	FVector GetSplinePointAsWorldPosition();
+
+public:
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Patrol Path")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Patrol Path")
+	USceneComponent* SceneComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Patrol Path")
 	TObjectPtr<USplineComponent> SplineComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Patrol Path")
+	TObjectPtr<UBillboardComponent> BillboardComponent;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category="Patrol|Path")
+	int32 PatrolIndex;
+
+	UPROPERTY(BlueprintReadWrite, Category="Patrol|Path")
+	bool bPatrolReverseDirection;
 };
