@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "Animation/AnimInstance.h"
 #include "ShooterProAnimInstance.generated.h"
-
 /**
  * 
  */
@@ -18,6 +18,8 @@ class SHOOTERPRO_API UShooterProAnimInstance : public UAnimInstance
 public:
 	UShooterProAnimInstance(const FObjectInitializer& ObjectInitializer);
 
+	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* ASC);
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
@@ -26,4 +28,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	float GroundDistance = -1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category="GamplayTags")
+	FGameplayTagBlueprintPropertyMap GameplayTagPropertyMap;
 };
