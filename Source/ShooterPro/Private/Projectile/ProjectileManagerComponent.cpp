@@ -20,7 +20,7 @@ AProBulletBase* UProjectileManagerComponent::RequestBullet(TSubclassOf<AProBulle
 	// 1) BulletPool 배열에서 "비활성화된" Bullet을 찾아서 반환
 	for (AProBulletBase* Bullet : BulletPool)
 	{
-		if (IsValid(Bullet) && Bullet->IsHidden()) // 혹은 Bullet->bIsActive 플래그 등
+		if (IsValid(Bullet) && Bullet->IsHidden() && BulletClass == Bullet->StaticClass()) // 혹은 Bullet->bIsActive 플래그 등
 		{
 			// 재활성화 하기 전에 원하는 초기화
 			return Bullet;
