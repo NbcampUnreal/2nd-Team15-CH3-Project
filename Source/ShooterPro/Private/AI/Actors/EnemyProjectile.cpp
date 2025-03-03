@@ -5,7 +5,10 @@
 #include "GameplayEffectTypes.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "AI/EnemyAIController.h"
 #include "AI/Actors/ProjectileAOEActor.h"
+#include "AI/Interfaces/Interface_EnemyAI.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -63,26 +66,31 @@ void AEnemyProjectile::BeginPlay()
 void AEnemyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                              FVector NormalImpulse, const FHitResult& Hit)
 {
-	// 벽/바닥 충돌 시
-	if (ImpactEffectWorld)
+	AActor* MyInstigator = GetInstigator();
+	if (OtherActor && OtherActor != this && OtherActor != MyInstigator)
 	{
-		// Niagara에서는 SpawnEmitterAtLocation 대신 SpawnSystemAtLocation 사용
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			ImpactEffectWorld,
-			Hit.ImpactPoint,
-			Hit.ImpactNormal.Rotation(), ImpactScale
-		);
+		// 벽/바닥 충돌 시
+		if (ImpactEffectWorld)
+		{
+			// Niagara에서는 SpawnEmitterAtLocation 대신 SpawnSystemAtLocation 사용
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				ImpactEffectWorld,
+				Hit.ImpactPoint,
+				Hit.ImpactNormal.Rotation(), ImpactScale
+			);
+		}
+
+		// 투사체 제거
+		Destroy();
 	}
 
-	// AoE 생성
-	if (AOEActorClass)
-	{
-		GetWorld()->SpawnActor<AProjectileAOEActor>(AOEActorClass, Hit.ImpactPoint, FRotator::ZeroRotator);
-	}
 
-	// 투사체 제거
-	Destroy();
+	// // AoE 생성
+	// if (AOEActorClass)
+	// {
+	// 	GetWorld()->SpawnActor<AProjectileAOEActor>(AOEActorClass, Hit.ImpactPoint, FRotator::ZeroRotator);
+	// }
 }
 
 void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -90,9 +98,15 @@ void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 {
 	AActor* MyInstigator = GetInstigator();
 
-	// 자기 자신, 혹은 발사자(Instigator)는 무시
+
 	if (OtherActor && OtherActor != this && OtherActor != MyInstigator)
 	{
+		AEnemyAIController* EnemyAIController = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(MyInstigator));
+		if (EnemyAIController->OnSameTeam(OtherActor))
+		{
+			return;
+		}
+
 		// 플레이어(또는 적 NPC)에 피격 시 이펙트
 		if (ImpactEffectPlayer)
 		{
@@ -106,35 +120,36 @@ void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 				EAttachLocation::SnapToTargetIncludingScale,
 				true // bAutoDestroy
 			);
-		}
 
-		// 디버프 (GAS)
-		if (IAbilitySystemInterface* ASInterface = Cast<IAbilitySystemInterface>(OtherActor))
-		{
-			UAbilitySystemComponent* TargetASC = ASInterface->GetAbilitySystemComponent();
-			UAbilitySystemComponent* SourceASC = nullptr;
-
-			if (IAbilitySystemInterface* SourceASInterface = Cast<IAbilitySystemInterface>(MyInstigator))
+			// 디버프 (GAS)
+			if (IAbilitySystemInterface* ASInterface = Cast<IAbilitySystemInterface>(OtherActor))
 			{
-				SourceASC = SourceASInterface->GetAbilitySystemComponent();
-			}
+				UAbilitySystemComponent* TargetASC = ASInterface->GetAbilitySystemComponent();
+				UAbilitySystemComponent* SourceASC = nullptr;
 
-			if (TargetASC && SourceASC && DeBuffEffectClass)
-			{
-				FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
-				ContextHandle.AddSourceObject(this);
-
-				FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
-					DeBuffEffectClass,
-					1.0f,
-					ContextHandle
-				);
-				if (SpecHandle.IsValid())
+				if (IAbilitySystemInterface* SourceASInterface = Cast<IAbilitySystemInterface>(MyInstigator))
 				{
-					SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+					SourceASC = SourceASInterface->GetAbilitySystemComponent();
+				}
+
+				if (TargetASC && SourceASC && DeBuffEffectClass)
+				{
+					FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
+					ContextHandle.AddSourceObject(this);
+
+					FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
+						DeBuffEffectClass,
+						1.0f,
+						ContextHandle
+					);
+					if (SpecHandle.IsValid())
+					{
+						SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+					}
 				}
 			}
 		}
+
 
 		// 제거
 		Destroy();

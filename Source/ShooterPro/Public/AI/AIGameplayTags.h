@@ -7,9 +7,7 @@
 namespace AIGameplayTags
 {
 	SHOOTERPRO_API FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
-
-
-	// Declare all of the custom native tags that Lyra will use
+	
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(AIState);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(AIState_Idle);
 	SHOOTERPRO_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(AIState_Combat);
