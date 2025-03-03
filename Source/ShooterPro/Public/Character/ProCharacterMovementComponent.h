@@ -13,5 +13,11 @@ UCLASS()
 class SHOOTERPRO_API UProCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-	
+
+public:
+	UProCharacterMovementComponent(const FObjectInitializer& ObjectInitializer);
+
+	float GetGroundDistance();
+
+	float GroundTraceDistance = 100000.f;
 };
