@@ -3,6 +3,8 @@
 
 #include "Animation/ShooterProAnimInstance.h"
 
+#include "Character/ProCharacterMovementComponent.h"
+#include "Character/Player/ProPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ShooterPro/ShooterProCharacter.h"
 
@@ -24,9 +26,13 @@ void UShooterProAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-	//const APlayerCharacter* Character = Cast<APlayerCharacter>(GetOwningActor());
+	const AProPlayerCharacter* Character = Cast<AProPlayerCharacter>(GetOwningActor());
 
-	//if (!ensure(Character)) return;
+	if (!Character) return;
 	
-	//UCharacterMovementComponent* MoveComp = CastChecked<UCharacterMovementComponent>(Character->GetCharacterMovement());
+	UProCharacterMovementComponent* MoveComp = CastChecked<UProCharacterMovementComponent>(Character->GetCharacterMovement());
+
+	if (!MoveComp) return;
+	
+	GroundDistance = MoveComp->GetGroundDistance();
 }

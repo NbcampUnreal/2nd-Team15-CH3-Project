@@ -51,7 +51,8 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
-
+	
+	UE_DEFINE_GAMEPLAY_TAG(Player_State_Death, TEXT("Player.State.Death"));
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)
 	{
