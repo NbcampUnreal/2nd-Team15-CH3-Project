@@ -8,6 +8,8 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AI_Spawner/AIOptimizerComponent.h"
+#include "ShooterPro/Public/AI/EnemyAIBase.h"
 //#include "NavigationSystem.h"
 
 AAISpawner::AAISpawner()
@@ -23,6 +25,7 @@ AAISpawner::AAISpawner()
 	DetectCollision->SetupAttachment(SceneComponent);
 
 	// 프로퍼티 초기화
+	SpawnDataTable = nullptr;
 	SpawnAmount = 10;
 	SpawnHeight = 100.f;
 	SpawnDelay = 0.f;
@@ -71,11 +74,11 @@ void AAISpawner::OnConstruction(const FTransform& Transform)
 bool AAISpawner::bIsPlayerInRadius()
 {
 	float ClosetPlayerDistanceSquared = FLT_MAX;
-
+	
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
 
-	float CurrentPlayerDistanceSquared = UKismetMathLibrary::Vector_DistanceSquared(GetActorLocation(), PlayerLocation);
+	float CurrentPlayerDistanceSquared = UKismetMathLibrary::Vector_DistanceSquared(DetectCollision->GetComponentLocation(), PlayerLocation);
 
 	if (CurrentPlayerDistanceSquared < ClosetPlayerDistanceSquared)
 	{
@@ -124,12 +127,43 @@ bool AAISpawner::bCanSpawnActor()
 	//}
 }
 
+FAISpawnRow* AAISpawner::GetRandomRow()
+{
+	if (!SpawnDataTable) return nullptr;
+
+	TArray<FAISpawnRow*> Rows;
+	const FString ContextString(TEXT("AISpawnerContext"));
+	SpawnDataTable->GetAllRows(ContextString, Rows);
+
+	float TotalChance = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		TotalChance += temp->SpawnChance;
+	}
+
+	float RandomChance = FMath::FRandRange(0.0f, TotalChance);
+	float ChanceTemp = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		ChanceTemp += temp->SpawnChance;
+
+		if (ChanceTemp >= RandomChance)
+		{
+			return temp;
+		}
+	}
+
+	return nullptr;
+}
+
 
 
 // SpawnMethod에 따라 스폰 방식 선택
 void AAISpawner::InitSpawner()
 {
 	GetWorld()->GetTimerManager().ClearTimer(InitSpawnTimer);
+
+	if (SpawnDataTable == nullptr) return;
 
 	switch (SpawnMethod)
 	{
@@ -239,16 +273,27 @@ void AAISpawner::SpawningActor(FTransform Trans)
 			FNavLocation NavLocation;
 			if (NavSystem->ProjectPointToNavigation(Trans.GetLocation(), NavLocation, FVector::ZeroVector, &NavData->GetConfig()))
 			{*/
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnClass, Trans, SpawnParams);
 
-				if (SpawnedActor)
+	if (FAISpawnRow* Row = GetRandomRow())
+	{
+		if (UClass* SpawningClass = Row->SpawnClass.Get())
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawningClass, Trans, SpawnParams);
+
+			if (SpawnedActor)
+			{
+				SpawnedActors.Add(SpawnedActor);
+				AEnemyAIBase* Enemy = Cast<AEnemyAIBase>(SpawnedActor);
+				if (Enemy)
 				{
-					SpawnedActors.Add(SpawnedActor);
-					SpawnedActor->OnDestroyed.AddDynamic(this, &AAISpawner::ActorWasKilled);
-					return;
+					Enemy->OnKilledActor.AddDynamic(this, &AAISpawner::ActorWasKilled);
 				}
+				return;
+			}
+		}
+	}
 			/*}
 		}
 	}*/
@@ -311,11 +356,19 @@ void AAISpawner::FinishSpawningGroup()
 	SpawnGroups.RemoveAt(0);
 }
 
-void AAISpawner::ActorWasKilled(AActor* DestroyedActor)
+void AAISpawner::ActorWasKilled(AEnemyAIBase* DestroyedActor)
 {
-	if (GEngine)
+	/*if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("ByeBye~"));
+	}*/
+
+	RespawnedActors.Add(DestroyedActor);
+
+	UAIOptimizerComponent* OptimizerComp = DestroyedActor->FindComponentByClass<UAIOptimizerComponent>();
+	if(OptimizerComp)
+	{
+		OptimizerComp->OptimizerCheckerStop();
 	}
 
 	RespawnLoop();
@@ -353,8 +406,6 @@ void AAISpawner::RespawnLoop()
 
 void AAISpawner::IndividualRespawn()
 {
-	RespawnActors.Add(1);
-
 	if (SpawnDelay == 0.f)
 	{
 		SetRespawn();
@@ -370,7 +421,6 @@ void AAISpawner::AllRespawn()
 	if(TotalAliveActors <= 0)
 	{
 		TotalAliveActors = 0;
-		RespawnActors.Add(SpawnAmount);
 
 		if (SpawnDelay == 0.f)
 		{
@@ -385,17 +435,24 @@ void AAISpawner::AllRespawn()
 
 void AAISpawner::SetRespawn()
 {
-	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AAISpawner::Respawn, 1.f, true);
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AAISpawner::Respawn, SpawningInterval, true);
 }
 
 void AAISpawner::Respawn()
 {
-	if (RespawnActors.IsValidIndex(0))
+	if (RespawnedActors.IsValidIndex(0))
 	{
-		AddGroupToSpawn(RespawnActors[0]);
-		RespawnActors.RemoveAt(0);
+		RespawnedActors[0]->SetActorTransform(GetRandomSpawnPoint());
 
-		if (!RespawnActors.IsValidIndex(0))
+		UAIOptimizerComponent* OptimizerComp = RespawnedActors[0]->FindComponentByClass<UAIOptimizerComponent>();
+		if(OptimizerComp)
+		{
+			OptimizerComp->OptimizerChecker();
+		}
+
+		RespawnedActors.RemoveAt(0);
+
+		if (!RespawnedActors.IsValidIndex(0))
 		{
 			GetWorld()->GetTimerManager().ClearTimer(RespawnTimer);
 		}

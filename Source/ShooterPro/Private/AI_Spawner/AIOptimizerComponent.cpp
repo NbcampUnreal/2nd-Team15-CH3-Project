@@ -25,7 +25,7 @@ void UAIOptimizerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(LayerCheckLoopTimer, this, &UAIOptimizerComponent::LayerCheckLoop, 0.5f, true);
+	OptimizerChecker();
 }
 
 void UAIOptimizerComponent::SetCharacterMovementEnabled(ACharacter* Character, bool bEnable)
@@ -145,6 +145,11 @@ void UAIOptimizerComponent::OptimizerSetting(int32 OptimizerEnable)
 	}
 }
 
+void UAIOptimizerComponent::OptimizerChecker()
+{
+	GetWorld()->GetTimerManager().SetTimer(LayerCheckLoopTimer, this, &UAIOptimizerComponent::LayerCheckLoop, 0.5f, true);
+}
+
 void UAIOptimizerComponent::LayerCheckLoop()
 {
 	int32 LayerNum = DistanceLayer();
@@ -214,4 +219,11 @@ int32 UAIOptimizerComponent::DistanceLayer()
 	}
 
 	return -1;
+}
+
+void UAIOptimizerComponent::OptimizerCheckerStop()
+{
+	GetWorld()->GetTimerManager().ClearTimer(LayerCheckLoopTimer);
+
+	OptimizerSetting(0);
 }

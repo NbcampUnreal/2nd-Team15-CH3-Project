@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "SpawnerTypes.generated.h"
 
 // ----------------------------- ENUM -----------------------------
@@ -59,6 +60,10 @@ enum class EAIOptimizerFlags : uint8
 
 // ----------------------------- STRUCT -----------------------------
 
+/**
+ * The group of Actors to spawn in the spawner.
+ * 스포너에서 스폰시킬 액터의 그룹입니다.
+ */
 USTRUCT(BlueprintType)
 struct FAIPendingSpawnGroup
 {
@@ -69,4 +74,19 @@ struct FAIPendingSpawnGroup
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawner)
 	int32 TotalAmountToSpawn = 0;
+};
+
+/**
+ * The data table structure to receive the spawn list.
+ * 스폰 목록을 받을 데이터 테이블 구조체입니다.
+ */
+USTRUCT(BlueprintType)
+struct FAISpawnRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> SpawnClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SpawnChance;
 };
