@@ -70,7 +70,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Enemy Projectile|Effects|Gameplay")
 	TSubclassOf<UGameplayEffect> DeBuffEffectClass;
 
-	// [벽/바닥 충돌 시] AoE 액터
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Enemy Projectile|Effects|Gameplay")
-	TSubclassOf<AProjectileAOEActor> AOEActorClass;
+	// // [벽/바닥 충돌 시] AoE 액터
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Enemy Projectile|Effects|Gameplay")
+	// TSubclassOf<AProjectileAOEActor> AOEActorClass;
 };

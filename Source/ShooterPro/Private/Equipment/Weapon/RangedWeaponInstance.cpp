@@ -137,7 +137,7 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 	
 	if (const AProPlayerCharacter* Character = Cast<AProPlayerCharacter>(Pawn))
 	{
-		if (Character->IsAiming) AimingAlpha = 1.0f; //여기 바꿔야함.
+		if (Character->IsAiming) AimingAlpha = 0.8f; //여기 바꿔야함.
 	}
 
 		//{
@@ -158,6 +158,6 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 	const float CombinedMultiplier = AimingMultiplier * StandingStillMultiplier * CrouchingMultiplier * JumpFallMultiplier;
 	CurrentSpreadAngleMultiplier = CombinedMultiplier;
 
-	// 4가지 조건 (가만히 있는가, 앉아있는가)
+	// 4가지 조건 (가만히 있는가, 앉아있는가, 공중인가, 조준중인가)
 	return bStandingStillMultiplierAtMin && bCrouchingMultiplierAtTarget && bJumpFallMultiplerIs1 && bAimingMultiplierAtTarget;
 }

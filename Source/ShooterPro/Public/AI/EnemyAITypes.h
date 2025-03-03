@@ -43,6 +43,19 @@ enum class EAIMovementSpeed : uint8
 	Sprinting,
 };
 
+/*
+ * 에너미가 죽었을 때 넘겨주는 정보 페이로드
+ */
+USTRUCT(BlueprintType)
+struct SHOOTERPRO_API FEnemyDeadPayload
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability Ended")
+	FGameplayTag EnemyIdentifier;
+};
+
 
 /**
  * @brief 어빌리티가 끝날 때 Broadcast하는 메시지에 담길 페이로드 구조체
@@ -72,10 +85,9 @@ public:
 	/** 그 외, 필요한 필드가 있다면 자유롭게 추가 */
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability Ended")
 	// int32 SomeAdditionalValue = 0;
-	
+
 	/** 기본 생성자 */
-	FEnemyAbilityEndedPayload()
-		: EndedTime(0.f)
+	FEnemyAbilityEndedPayload() : EndedTime(0.f)
 	{
 	}
 };

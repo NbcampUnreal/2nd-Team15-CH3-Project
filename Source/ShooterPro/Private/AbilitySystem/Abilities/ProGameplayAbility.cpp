@@ -1,6 +1,10 @@
 #include "AbilitySystem/Abilities/ProGameplayAbility.h"
+
+#include "ProGmaeplayTag.h"
+#include "AbilitySystem/AbilityTypes.h"
 #include "AbilitySystem/Abilities/ProAbilityCondition.h"
 #include "AbilitySystem/Abilities/ProAbilityCost.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 
 
 UProGameplayAbility::UProGameplayAbility()
@@ -56,7 +60,7 @@ bool UProGameplayAbility::CheckAdditionalConditions(const FGameplayAbilitySpecHa
 }
 
 bool UProGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	FGameplayTagContainer* OptionalRelevantTags) const
+                                    FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags)) return false;
 
@@ -76,12 +80,12 @@ bool UProGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, con
 }
 
 void UProGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo) const
+                                    const FGameplayAbilityActivationInfo ActivationInfo) const
 {
 	Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
 
 	check(ActorInfo);
-	
+
 	for (const TObjectPtr<UProAbilityCost>& AdditionalCost : ExtendedCosts)
 	{
 		if (AdditionalCost != nullptr)

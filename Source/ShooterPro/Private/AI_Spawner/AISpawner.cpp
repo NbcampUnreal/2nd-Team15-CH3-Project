@@ -8,13 +8,15 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AI_Spawner/AIOptimizerComponent.h"
+#include "ShooterPro/Public/AI/EnemyAIBase.h"
 //#include "NavigationSystem.h"
 
 AAISpawner::AAISpawner()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// ÄÄÆ÷³ÍÆ® »ý¼º
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	SetRootComponent(SceneComponent);
 	SpawnCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
@@ -22,7 +24,8 @@ AAISpawner::AAISpawner()
 	DetectCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	DetectCollision->SetupAttachment(SceneComponent);
 
-	// ÇÁ·ÎÆÛÆ¼ ÃÊ±âÈ­
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ ï¿½Ê±ï¿½È­
+	SpawnDataTable = nullptr;
 	SpawnAmount = 10;
 	SpawnHeight = 100.f;
 	SpawnDelay = 0.f;
@@ -37,11 +40,11 @@ AAISpawner::AAISpawner()
 	DetectRadius = 500.f;
 	SpawnRadius = 200.f;
 
-	// ½ºÆù ¼ö¿¡ ´ëÇÑ Á¤º¸¸¦ °ü¸®ÇÏ´Â ±¸Á¶Ã¼ ÃÊ±âÈ­
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Ê±ï¿½È­
 	PendingSpawnGroup.SpawnedAmount = 0;
 	PendingSpawnGroup.TotalAmountToSpawn = 0;
 
-	// »óÅÂ º¯¼ö ÃÊ±âÈ­
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	bIsSpawning = false;
 
 	TotalSpawnedActors = 0;
@@ -51,15 +54,15 @@ AAISpawner::AAISpawner()
 void AAISpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	
-		if (SpawnDelay == 0.f)
-		{
-			InitSpawner();
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().SetTimer(InitSpawnTimer, this, &AAISpawner::InitSpawner, SpawnDelay, false);
-		}
+
+	if (SpawnDelay == 0.f)
+	{
+		InitSpawner();
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(InitSpawnTimer, this, &AAISpawner::InitSpawner, SpawnDelay, false);
+	}
 }
 
 void AAISpawner::OnConstruction(const FTransform& Transform)
@@ -73,9 +76,14 @@ bool AAISpawner::bIsPlayerInRadius()
 	float ClosetPlayerDistanceSquared = FLT_MAX;
 
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	//ToDo::ìž„ì‹œë•œë¹µì½”ë“œ
+	if (!IsValid(PlayerCharacter))
+		return false;
+
 	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
 
-	float CurrentPlayerDistanceSquared = UKismetMathLibrary::Vector_DistanceSquared(GetActorLocation(), PlayerLocation);
+	float CurrentPlayerDistanceSquared = UKismetMathLibrary::Vector_DistanceSquared(DetectCollision->GetComponentLocation(), PlayerLocation);
 
 	if (CurrentPlayerDistanceSquared < ClosetPlayerDistanceSquared)
 	{
@@ -84,7 +92,7 @@ bool AAISpawner::bIsPlayerInRadius()
 
 	if (DetectRadius * DetectRadius >= ClosetPlayerDistanceSquared)
 	{
-		if(GEngine)
+		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Player Detected!"));
 		}
@@ -101,7 +109,7 @@ bool AAISpawner::bCanSpawnActor()
 	{
 		return true;
 	}
-	
+
 	return false;
 
 	//switch (SpawnMethod)
@@ -124,12 +132,42 @@ bool AAISpawner::bCanSpawnActor()
 	//}
 }
 
+FAISpawnRow* AAISpawner::GetRandomRow()
+{
+	if (!SpawnDataTable) return nullptr;
+
+	TArray<FAISpawnRow*> Rows;
+	const FString ContextString(TEXT("AISpawnerContext"));
+	SpawnDataTable->GetAllRows(ContextString, Rows);
+
+	float TotalChance = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		TotalChance += temp->SpawnChance;
+	}
+
+	float RandomChance = FMath::FRandRange(0.0f, TotalChance);
+	float ChanceTemp = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		ChanceTemp += temp->SpawnChance;
+
+		if (ChanceTemp >= RandomChance)
+		{
+			return temp;
+		}
+	}
+
+	return nullptr;
+}
 
 
-// SpawnMethod¿¡ µû¶ó ½ºÆù ¹æ½Ä ¼±ÅÃ
+// SpawnMethodï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 void AAISpawner::InitSpawner()
 {
 	GetWorld()->GetTimerManager().ClearTimer(InitSpawnTimer);
+
+	if (SpawnDataTable == nullptr) return;
 
 	switch (SpawnMethod)
 	{
@@ -179,12 +217,13 @@ void AAISpawner::InitSpawnByRadius()
 void AAISpawner::TryToSpawnGroup()
 {
 	if (bCanSpawnActor())
-	{/*
-		if (!bIsSpawning)
-		{*/
-			bIsSpawning = true;
+	{
+		/*
+				if (!bIsSpawning)
+				{*/
+		bIsSpawning = true;
 
-			SpawningLoop();
+		SpawningLoop();
 		//}
 	}
 }
@@ -196,7 +235,7 @@ void AAISpawner::SpawningLoop()
 	TotalSpawnedActors++;
 	TotalAliveActors++;
 	SpawnGroups[0].SpawnedAmount++;
-	
+
 	if (SpawnGroups[0].SpawnedAmount == SpawnGroups[0].TotalAmountToSpawn)
 	{
 		FinishSpawningGroup();
@@ -239,19 +278,30 @@ void AAISpawner::SpawningActor(FTransform Trans)
 			FNavLocation NavLocation;
 			if (NavSystem->ProjectPointToNavigation(Trans.GetLocation(), NavLocation, FVector::ZeroVector, &NavData->GetConfig()))
 			{*/
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnClass, Trans, SpawnParams);
 
-				if (SpawnedActor)
+	if (FAISpawnRow* Row = GetRandomRow())
+	{
+		if (UClass* SpawningClass = Row->SpawnClass.Get())
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawningClass, Trans, SpawnParams);
+
+			if (SpawnedActor)
+			{
+				SpawnedActors.Add(SpawnedActor);
+				AEnemyAIBase* Enemy = Cast<AEnemyAIBase>(SpawnedActor);
+				if (Enemy)
 				{
-					SpawnedActors.Add(SpawnedActor);
-					SpawnedActor->OnDestroyed.AddDynamic(this, &AAISpawner::ActorWasKilled);
-					return;
+					Enemy->OnKilledActor.AddDynamic(this, &AAISpawner::ActorWasKilled);
 				}
-			/*}
+				return;
+			}
 		}
-	}*/
+	}
+	/*}
+}
+}*/
 
 	SpawnAICharacter();
 }
@@ -294,10 +344,11 @@ void AAISpawner::SpawnAICharacter()
 }
 
 void AAISpawner::IntervalPart()
-{/*
-	if (bCanSpawnActor())
-	{*/
-		SpawningLoop();
+{
+	/*
+		if (bCanSpawnActor())
+		{*/
+	SpawningLoop();
 	//}
 	//else
 	//{
@@ -311,11 +362,19 @@ void AAISpawner::FinishSpawningGroup()
 	SpawnGroups.RemoveAt(0);
 }
 
-void AAISpawner::ActorWasKilled(AActor* DestroyedActor)
+void AAISpawner::ActorWasKilled(AEnemyAIBase* DestroyedActor)
 {
-	if (GEngine)
+	/*if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("ByeBye~"));
+	}*/
+
+	RespawnedActors.Add(DestroyedActor);
+
+	UAIOptimizerComponent* OptimizerComp = DestroyedActor->FindComponentByClass<UAIOptimizerComponent>();
+	if (OptimizerComp)
+	{
+		OptimizerComp->OptimizerCheckerStop();
 	}
 
 	RespawnLoop();
@@ -353,8 +412,6 @@ void AAISpawner::RespawnLoop()
 
 void AAISpawner::IndividualRespawn()
 {
-	RespawnActors.Add(1);
-
 	if (SpawnDelay == 0.f)
 	{
 		SetRespawn();
@@ -367,10 +424,9 @@ void AAISpawner::IndividualRespawn()
 
 void AAISpawner::AllRespawn()
 {
-	if(TotalAliveActors <= 0)
+	if (TotalAliveActors <= 0)
 	{
 		TotalAliveActors = 0;
-		RespawnActors.Add(SpawnAmount);
 
 		if (SpawnDelay == 0.f)
 		{
@@ -385,17 +441,24 @@ void AAISpawner::AllRespawn()
 
 void AAISpawner::SetRespawn()
 {
-	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AAISpawner::Respawn, 1.f, true);
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AAISpawner::Respawn, SpawningInterval, true);
 }
 
 void AAISpawner::Respawn()
 {
-	if (RespawnActors.IsValidIndex(0))
+	if (RespawnedActors.IsValidIndex(0))
 	{
-		AddGroupToSpawn(RespawnActors[0]);
-		RespawnActors.RemoveAt(0);
+		RespawnedActors[0]->SetActorTransform(GetRandomSpawnPoint());
 
-		if (!RespawnActors.IsValidIndex(0))
+		UAIOptimizerComponent* OptimizerComp = RespawnedActors[0]->FindComponentByClass<UAIOptimizerComponent>();
+		if (OptimizerComp)
+		{
+			OptimizerComp->OptimizerChecker();
+		}
+
+		RespawnedActors.RemoveAt(0);
+
+		if (!RespawnedActors.IsValidIndex(0))
 		{
 			GetWorld()->GetTimerManager().ClearTimer(RespawnTimer);
 		}

@@ -6,6 +6,8 @@
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "EnemyAIBase.generated.h"
 
+// AI 스포너에서 액터를 관리해주기 위한 델리게이트 선언 - 김민재 추가
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnemyDeathDelegate, AEnemyAIBase*, DeadCharacter);
 
 class UGSCCoreComponent;
 class UMotionWarpingComponent;
@@ -32,9 +34,19 @@ public:
 	/** 생성자 */
 	AEnemyAIBase();
 
+	// AI 스포너에서 액터를 관리해주기 위한 델리게이트 선언 - 김민재 추가
+	UPROPERTY()
+	FEnemyDeathDelegate OnKilledActor;
+	// 바인딩된 함수들을 액터 사망시 실행시킬 함수 - 김민재 추가
+	UFUNCTION(BlueprintCallable)
+	void EnemyOnKilled();
+
 protected:
 	/** 게임 시작 시 또는 스폰 후 최초 호출 */
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnAbilityEndedCallback(const UGameplayAbility* EndedAbility);
 
 public:
 	/** 매 프레임마다 호출되는 함수 */
@@ -52,10 +64,6 @@ public:
 	virtual APatrolPath* GetPatrolPath_Implementation() override;
 
 protected:
-	/** GSC Core Component와 연결해둔 OnAbilityEnded 델리게이트 콜백 */
-	UFUNCTION()
-	void OnAbilityEndedCallback(const UGameplayAbility* EndedAbility);
-
 	/** 실제 메시지 수신 리스너를 해제하기 위한 FGameplayMessageListenerHandle */
 	FGameplayMessageListenerHandle MessageListenerHandle;
 
@@ -82,6 +90,9 @@ public:
 	/** BehaviorTree: AI 행동 패턴을 정의하는 비헤이비어 트리 에셋 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI Base|Config")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Base|Config")
+	FGameplayTag EnemyIdentifier;
 
 	/** 팀 번호 (기본값: 2) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Base|Config")

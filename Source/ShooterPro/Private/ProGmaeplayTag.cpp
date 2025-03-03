@@ -51,7 +51,14 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
+	
+	UE_DEFINE_GAMEPLAY_TAG(Player_State_Death, TEXT("Player.State.Death"));
 
+	
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Melee, TEXT("Enemy.Zombie.Melee"));
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Range, TEXT("Enemy.Zombie.Range"));
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Special, TEXT("Enemy.Zombie.Special"));
+	
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)
 	{

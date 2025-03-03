@@ -9,6 +9,7 @@
 
 class UBoxComponent;
 class USphereComponent;
+class AEnemyAIBase;
 
 UCLASS()
 class SHOOTERPRO_API AAISpawner : public AActor
@@ -25,6 +26,8 @@ protected:
 	
 	bool bIsPlayerInRadius();
 	bool bCanSpawnActor();
+
+	FAISpawnRow* GetRandomRow();
 
 	// Spawn Logic
 	// 스폰 로직
@@ -49,7 +52,7 @@ protected:
 	// 리스폰 로직
 protected:
 	UFUNCTION()
-	void ActorWasKilled(AActor* DestroyedActor);
+	void ActorWasKilled(AEnemyAIBase* DestroyedActor);
 
 	void RespawnLoop();
 	void IndividualRespawn();
@@ -63,7 +66,7 @@ public:
 	// The class of the Actor to spawn
 	// 스폰시킬 액터 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Property")
-	TSubclassOf<AActor> SpawnClass;
+	UDataTable* SpawnDataTable;
 	// Number of Actors to spawn
 	// 스폰시킬 액터의 갯수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Property")
@@ -129,7 +132,7 @@ protected:
 	bool bIsSpawning;
 
 	TArray<AActor*> SpawnedActors;
-	TArray<int32> RespawnActors;
+	TArray<AActor*> RespawnedActors;
 
 	int32 TotalSpawnedActors;
 	int32 TotalAliveActors;

@@ -1,5 +1,6 @@
 #include "AI/Components/AIBehaviorsComponent.h"
 
+#include "ProGmaeplayTag.h"
 #include "AI/AIGameplayTags.h"
 #include "AI/EnemyAIBase.h"
 #include "AI/EnemyAIController.h"
@@ -58,8 +59,15 @@ bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 			return true;
 		}
 
-		if (CurrentState == AIGameplayTags::AIState_Dead)
+		//비활성화 모드 일 때
+		if (CurrentState == AIGameplayTags::AIState_Disabled)
 		{
+			IGameplayTagAssetInterface* TagAsset = Cast<IGameplayTagAssetInterface>(CharacterRef);
+			if (TagAsset && TagAsset->HasMatchingGameplayTag(ProGameplayTags::Ability_HitReact))
+			{
+				return true;
+			}
+
 			return false;
 		}
 
@@ -195,7 +203,7 @@ void UAIBehaviorsComponent::HandleSensedSound()
 {
 	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
 	// AttackableTargets.AddUnique(NewlySensedActor);
-	
+
 	// EAIState CurrentState = GetCurrentState();
 	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
 	// {
@@ -207,7 +215,7 @@ void UAIBehaviorsComponent::HandleSensedDamage()
 {
 	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
 	// AttackableTargets.Remove(NewlySensedActor);
-	
+
 	// if (OnSameTeam(Actor))
 	// 	return;
 	//
@@ -285,7 +293,7 @@ void UAIBehaviorsComponent::SetStateAsAttacking()
 
 void UAIBehaviorsComponent::HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo)
 {
-	RecentSenseHandle = PerceivedActorInfo;	
+	RecentSenseHandle = PerceivedActorInfo;
 
 	if (RecentSenseHandle.DetectedSense == EAISense::Sight)
 	{
