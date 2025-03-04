@@ -58,7 +58,7 @@ public:
 	FGameplayTag EnemyIdentifier;
 
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Enemy Dead Payload")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Dead Payload")
 	TSubclassOf<AEnemyAIBase> EnemyClass;
 };
 
