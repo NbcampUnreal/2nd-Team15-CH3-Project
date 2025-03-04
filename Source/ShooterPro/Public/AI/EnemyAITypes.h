@@ -7,6 +7,8 @@
 #include "EnemyAITypes.generated.h"
 
 
+class AEnemyAIBase;
+
 UENUM(BlueprintType, meta=(Bitmask, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class ECombatTriggerFlags : uint8
 {
@@ -52,8 +54,12 @@ struct SHOOTERPRO_API FEnemyDeadPayload
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability Ended")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Dead Payload")
 	FGameplayTag EnemyIdentifier;
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Enemy Dead Payload")
+	TSubclassOf<AEnemyAIBase> EnemyClass;
 };
 
 

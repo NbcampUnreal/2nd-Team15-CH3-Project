@@ -106,7 +106,7 @@ struct FGSCAbilitySetHandle
 		{
 			Results.Add(FString::Printf(TEXT("\t - Effect Handle: %s"), *EffectHandle.ToString()));
 		}
-		
+
 		Results.Add(FString::Printf(TEXT("Attribute Sets: %d"), Attributes.Num()));
 		for (const UAttributeSet* AttributeSet : Attributes)
 		{
@@ -161,7 +161,7 @@ public:
 	/** @brief ASC 초기화 시 자동으로 적용할 GameplayEffect 목록 (예: 상태 이상, 버프 등) */
 	UPROPERTY(EditDefaultsOnly, Category="Effects", meta=(TitleProperty=EffectType))
 	TArray<FGSCGameFeatureGameplayEffectMapping> GrantedEffects;
-	
+
 	/** @brief 이 AbilitySet이 적용될 때 ASC에 부여될 태그들 */
 	UPROPERTY(EditDefaultsOnly, Category="Owned Gameplay Tags")
 	FGameplayTagContainer OwnedTags;
@@ -220,9 +220,7 @@ public:
 	 */
 	bool HasInputBinding() const;
 
-
 protected:
-
 	/** 
 	 * @brief 아바타 액터가 GSCCoreComponent를 가지고 있다면, 속성 추가 등을 위한 델리게이트 등록 로직 수행
 	 *
@@ -231,7 +229,7 @@ protected:
 	 * @param InASC 작업 대상 ASC
 	 */
 	static void TryRegisterCoreComponentDelegates(UAbilitySystemComponent* InASC);
-	
+
 	/**
 	 * @brief 아바타 액터가 GSCCoreComponent를 가지고 있다면, 언레지스터(del) 로직 수행
 	 *
@@ -241,5 +239,3 @@ protected:
 	 */
 	static void TryUnregisterCoreComponentDelegates(UAbilitySystemComponent* InASC);
 };
-
-
