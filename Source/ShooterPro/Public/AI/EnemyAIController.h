@@ -116,7 +116,7 @@ public:
 	/** Blackboard의 공격 대상 업데이트 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
 	void UpdateBlackboard_AttackTarget(UObject* NewAttackTarget);
-	
+
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
 	void UpdateBlackboard_AttackTarget_ClearValue();
 
@@ -141,4 +141,3 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category="Detection")
 	UPerceptionManager* DetectionInfoManager;
 };
-
