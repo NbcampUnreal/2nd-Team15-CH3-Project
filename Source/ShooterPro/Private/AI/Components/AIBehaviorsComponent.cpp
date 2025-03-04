@@ -338,7 +338,6 @@ void UAIBehaviorsComponent::HandlePerceptionForgotten(const FPerceivedActorInfo&
 
 void UAIBehaviorsComponent::RemoveActorFromAttackList(AActor* LostActor)
 {
-	AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "RemoveActorFromAttackList 함수가 호출 1번이 되어야 합니다");
 	// 이미 Target이 다시 보이는 상황에서 Memory를 지울 수도 있으므로 체크
 	if (!AttackableTargets.Contains(LostActor))
 	{
