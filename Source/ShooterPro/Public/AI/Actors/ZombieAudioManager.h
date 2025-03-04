@@ -45,11 +45,15 @@ protected:
 	/** 주기적으로 울음소리를 내는 타이머 */
 	FTimerHandle MoanTimerHandle;
 
-	/** 타이머 콜백: 동시재생 한도 확인 후, 한 마리 좀비를 골라 사운드 재생 */
+    /**
+     * @brief 타이머 콜백
+     * - 1) 주변 좀비(쿨타임, 거리, 시야 통과 등) 후보를 모은다
+     * - 2) 현재 재생 중인 수 + 후보의 수를 고려해, 최대 MaxConcurrentMoans까지만 울림
+     */
 	void HandleZombieMoan();
 
-	/** 실제로 무작위 좀비를 골라 상태별 사운드를 재생 */
-	void PlayRandomMoanFromZombie();
+    /** 실제로 해당 좀비에게 울음소리를 재생 시도 (쿨타임, 상태 기반) */
+    bool TryPlayMoan(AActor* ZombieActor);
 
 	/** 상태별 (MinInterval, MaxInterval)에 따라 다음 타이머 설정 */
 	void SetNextMoanTimer();
@@ -102,6 +106,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="ZombieAudio|Distance")
 	bool bUseLineTrace;
 
+    /**
+     * @brief 좀비별로 울음 재생 쿨타임을 적용하기 위한 설정값(초)
+     *        한 번 울고 나면, "현재시간 + ZombieMoanCooldown" 이후에야 다시 울 수 있음
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="ZombieAudio|Cooldown")
+    float ZombieMoanCooldown = 3.f;
+
 protected:
 	//-------------------------------------
 	// Runtime Data
@@ -118,4 +129,11 @@ protected:
 	/** 현재 재생 중인 AudioComponent (Tick에서 종료된 것 정리) */
 	UPROPERTY()
 	TArray<UAudioComponent*> ActiveMoans;
+
+    /**
+     * @brief 좀비별로 "다시 울 수 있는 시간"을 기록.
+     *        Key: 좀비 Actor, Value: 이 시간이후로 다시 울 수 있음
+     */
+    UPROPERTY()
+    TMap<AActor*, float> ZombieToNextMoanTime;
 };
