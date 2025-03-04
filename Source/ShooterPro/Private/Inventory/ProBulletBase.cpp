@@ -102,14 +102,14 @@ void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	}
 	
 	// 2. 물리적 충격력 적용 (대상에 물리 힘 가하기)
-	if (OtherComp && OtherComp->IsSimulatingPhysics())
-	{
-		FVector BulletVelocity = ProjectileMovement->Velocity;
-		float Mass = OtherComp->GetMass();
-		FVector Impulse = BulletVelocity * Mass * ImpactForceMultiplier; 
-		// ImpactForceMultiplier: 임펄스 세기를 조절하는 계수 (설정 가능)
-		OtherComp->AddImpulseAtLocation(Impulse, Hit.ImpactPoint);
-	}
+	//if (OtherComp && OtherComp->IsSimulatingPhysics())
+	//{
+	//	FVector BulletVelocity = ProjectileMovement->Velocity;
+	//	float Mass = OtherComp->GetMass();
+	//	FVector Impulse = BulletVelocity * Mass * ImpactForceMultiplier; 
+	//	// ImpactForceMultiplier: 임펄스 세기를 조절하는 계수 (설정 가능)
+	//	OtherComp->AddImpulseAtLocation(Impulse, Hit.ImpactPoint);
+	//}
 
 	// 3. 튕김 또는 관통 처리
 	//ProjectileMovement->bShouldBounce = true;

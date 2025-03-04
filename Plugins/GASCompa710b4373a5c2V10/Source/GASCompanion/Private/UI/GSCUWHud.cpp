@@ -48,7 +48,7 @@ void UGSCUWHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		// We now have proper ASC and initialized widget, prevent further tick run
 		bLazyAbilitySystemInitialization = false;
-		
+
 		GSC_LOG(Warning, TEXT("UGSCUWHud::NativeTick reconciliated with ASC. We now have a reference to it: %s (%s)"), *GetNameSafe(AbilitySystemComponent), *GetNameSafe(OwnerActor))
 	}
 }

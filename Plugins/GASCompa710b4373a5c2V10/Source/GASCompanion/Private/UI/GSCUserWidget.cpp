@@ -160,7 +160,7 @@ float UGSCUserWidget::GetAttributeValue(const FGameplayAttribute Attribute) cons
 			*GetNameSafe(AttributeSet),
 			*GetNameSafe(AbilitySystemComponent)
 		);
-		
+
 		return 0.f;
 	}
 

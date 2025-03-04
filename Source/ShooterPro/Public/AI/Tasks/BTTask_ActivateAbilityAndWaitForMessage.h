@@ -28,6 +28,17 @@ protected:
 	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 	//~ End BTTaskNode interface
 
+private:
+	/** 메시지 도착 시 실행될 함수 (OnMessageReceived) */
+	UFUNCTION()
+	void OnMessageReceived(UAsyncAction_ListenForGameplayMessage* ProxyObject, FGameplayTag ActualChannel);
+
+	/** 
+	 * @brief 주어진 어빌리티에서 첫 번째 태그를 가져온다. 
+	 * 비어있으면 FGameplayTag::RequestGameplayTag("MyGame.DefaultTag") 반환
+	 */
+	FGameplayTag ExtractFirstTagOrDefault(const FGameplayTagContainer& AbilityTags) const;
+
 public:
 	/** 
 	 * true 이면 AbilityTag를 사용하여 어빌리티 실행(ASC->TryActivateAbilitiesByTag)
@@ -43,7 +54,6 @@ public:
 	/** 어빌리티 클래스로 실행할 경우: 이 클래스를 활성화 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability", meta=(EditCondition="!bUseAbilityTag", EditConditionHides))
 	TSubclassOf<UGameplayAbility> AbilityToActivate;
-	
 
 private:
 	/** 메시지 수신 대기용 Async Node 인스턴스 */
@@ -59,14 +69,4 @@ private:
 	/** BehaviorTree에서 LatentFinish를 위해 저장해 둠 */
 	UPROPERTY()
 	UBehaviorTreeComponent* MyOwnerComp = nullptr;
-
-	/** 메시지 도착 시 실행될 함수 (OnMessageReceived) */
-	UFUNCTION()
-	void OnMessageReceived(UAsyncAction_ListenForGameplayMessage* ProxyObject, FGameplayTag ActualChannel);
-
-	/** 
-	 * @brief 주어진 어빌리티에서 첫 번째 태그를 가져온다. 
-	 * 비어있으면 FGameplayTag::RequestGameplayTag("MyGame.DefaultTag") 반환
-	 */
-	FGameplayTag ExtractFirstTagOrDefault(const FGameplayTagContainer& AbilityTags) const;
 };
