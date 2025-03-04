@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="AI Behavior")
 	const FPerceivedActorInfo& GetLastSenseHandle() { return RecentSenseHandle; }
 
+	UFUNCTION(BlueprintCallable,Category="AI Behavior")
+	void ForceAttackTarget(AActor* NewActor);
+
 public:
 	UFUNCTION()
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
@@ -166,6 +169,7 @@ private:
 
 	// FTimerHandle SeekTimerHandle;
 };
+
 
 
 /* 옛날 코드들

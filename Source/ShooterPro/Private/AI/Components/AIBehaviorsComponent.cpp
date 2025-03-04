@@ -50,11 +50,19 @@ bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 	FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
 	FGameplayTag PreviousState = AIControllerRef->GetPreviousStateTag();
 
+	if (ChangeState == AIGameplayTags::AIState_Dead)
+	{
+		return IInterface_EnemyAI::Execute_IsDead(GetOwner());
+	}
+
+	if (IInterface_EnemyAI::Execute_IsDead(GetOwner()) || CurrentState == AIGameplayTags::AIState_Dead)
+		return false;
+
 	//원하는 상태가 컴뱃이라면
 	if (ChangeState == AIGameplayTags::AIState_Combat)
 	{
 		//내 현재상태가 죽음이 아니고 && 공격가능한 대상들이 하나라도 있다면
-		if (CurrentState != AIGameplayTags::AIState_Dead && !AttackableTargets.IsEmpty())
+		if (!AttackableTargets.IsEmpty())
 		{
 			return true;
 		}
@@ -97,9 +105,6 @@ bool UAIBehaviorsComponent::CanChangeState(FGameplayTag ChangeState)
 		}
 	}
 
-	if (ChangeState == AIGameplayTags::AIState_Dead)
-	{
-	}
 
 	if (ChangeState == AIGameplayTags::AIState_Seeking)
 	{
@@ -137,6 +142,11 @@ bool UAIBehaviorsComponent::IsInCombat()
 {
 	FGameplayTag CurrentState = AIControllerRef->GetCurrentStateTag();
 	return CurrentState == AIGameplayTags::AIState_Combat;
+}
+
+void UAIBehaviorsComponent::ForceAttackTarget(AActor* NewActor)
+{
+	AttackableTargets.AddUnique(NewActor);
 }
 
 void UAIBehaviorsComponent::HandleSensedSight()

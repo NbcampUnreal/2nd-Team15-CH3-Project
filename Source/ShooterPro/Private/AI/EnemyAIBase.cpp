@@ -34,8 +34,74 @@ AEnemyAIBase::AEnemyAIBase()
 // 바인딩된 함수들을 액터 사망시 실행시킬 함수 - 김민재 추가
 void AEnemyAIBase::EnemyOnKilled()
 {
+	// 1) 사망 관련 로직 (예: 델리게이트 브로드캐스트)
 	OnKilledActor.Broadcast(this);
+
+	// 2) 실제 파괴 대신 풀링용 비활성화 처리
+	DeactivateForPooling();
 }
+
+void AEnemyAIBase::DeactivateForPooling()
+{
+	// 1) 움직임 정지 및 충돌 비활성화
+	GetCharacterMovement()->StopMovementImmediately();
+	SetActorEnableCollision(false);
+
+	// 2) 눈에 안 보이게 숨기기 (메시나 위젯도 포함해서)
+	SetActorHiddenInGame(true);
+
+	bIsAlive = false;
+
+	// 3) AIController 논리 중지 (원한다면)
+	if (EnemyAIController)
+	{
+		EnemyAIController->StopMovement();
+		// BehaviorTree나 Blackboard 초기화도 가능
+	}
+
+	// 여기서는 Destroy()하지 않고, 풀에서 "죽은 상태"로 대기
+}
+
+
+void AEnemyAIBase::OnPooledRespawn()
+{
+	// 1) 숨김 해제 & 충돌 다시 활성화
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
+	bIsAlive = true;
+
+	// 2) 체력/스태미나 등의 스탯을 최대치로 복원
+	if (GscCoreComponent)
+	{
+		// 예시: GscCoreComponent가 Health Attribute를 가지고 있다면
+		GscCoreComponent->RestoreToMaxValues();
+		// 또는 직접 ASC에 접근해서 Health를 세팅할 수도 있습니다.
+	}
+
+	// 3) AI 로직 다시 시작
+	if (EnemyAIController)
+	{
+		// Behavior Tree 재시작, 블랙보드 초기화 등
+		if (BehaviorTree)
+		{
+			EnemyAIController->RunBehaviorTree(BehaviorTree);
+		}
+		// 필요 시 AI 상태값도 초기화(Idle 상태 등)
+	}
+
+
+	// 5) 기타 필요한 변수들 초기화 (AIBehaviorsComponent 등)
+	if (AIBehaviorsComponent)
+	{
+		EnemyAIController->UpdateBlackboard_State(AIGameplayTags::AIState_Idle);
+		EnemyAIController->UpdateBlackboard_AttackRadius(AIBehaviorsComponent->GetAttackRadius());
+		EnemyAIController->UpdateBlackboard_DefendRadius(AIBehaviorsComponent->GetDefendRadius());
+		EnemyAIController->UpdateBlackboard_StartLocation(GetActorLocation());
+		EnemyAIController->UpdateBlackboard_MaxRandRadius(AIBehaviorsComponent->GetMaxRandRadius());
+	}
+}
+
 
 void AEnemyAIBase::BeginPlay()
 {
@@ -85,6 +151,11 @@ void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
 void AEnemyAIBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+bool AEnemyAIBase::IsDead_Implementation()
+{
+	return !bIsAlive;
 }
 
 
