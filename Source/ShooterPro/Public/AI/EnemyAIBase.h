@@ -86,7 +86,7 @@ protected:
 
 public:
 	UPROPERTY( BlueprintReadWrite, Category="AI Base")
-	bool bIsAlive = false;
+	bool bIsAlive = true;
 	
 	/** AIBehaviorsComponent: AI의 행동 로직을 제어하는 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
