@@ -223,6 +223,7 @@ void UAIBehaviorsComponent::HandleSensedSound()
 
 void UAIBehaviorsComponent::HandleSensedDamage()
 {
+	AI_ENEMY_SCREEN_LOG_LOG(10.0f,"%s",*RecentSenseHandle.DetectedActor->GetName());
 	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
 	// AttackableTargets.Remove(NewlySensedActor);
 

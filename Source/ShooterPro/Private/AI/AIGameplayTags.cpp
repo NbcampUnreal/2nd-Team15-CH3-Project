@@ -19,9 +19,8 @@ namespace AIGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(AIState_Seeking, TEXT("AI.State.Seeking"));
 	UE_DEFINE_GAMEPLAY_TAG(AIState_Dead, TEXT("AI.State.Dead"));
 
-	
-	UE_DEFINE_GAMEPLAY_TAG(AI_Ability_Roar, TEXT("AI.Ability.Roar"));
 
+	UE_DEFINE_GAMEPLAY_TAG(AI_Ability_Roar, TEXT("AI.Ability.Roar"));
 
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

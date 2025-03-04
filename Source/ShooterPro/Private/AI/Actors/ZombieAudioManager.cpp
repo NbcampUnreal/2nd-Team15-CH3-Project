@@ -13,21 +13,21 @@ AZombieAudioManager::AZombieAudioManager()
 	MaxConcurrentMoans = 3;
 	MaxMoanDistance = 2000.f;
 	bUseLineTrace = false;
-    ZombieMoanCooldown = 3.f;
+	ZombieMoanCooldown = 3.f;
 }
 
 void AZombieAudioManager::BeginPlay()
 {
 	Super::BeginPlay();
-    SetNextMoanTimer();
+	SetNextMoanTimer();
 }
 
 void AZombieAudioManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    // 타이머 해제
+	// 타이머 해제
 	GetWorldTimerManager().ClearTimer(MoanTimerHandle);
 
-    // 재생 중인 AudioComponent 정리
+	// 재생 중인 AudioComponent 정리
 	for (UAudioComponent* AC : ActiveMoans)
 	{
 		if (AC)
@@ -44,7 +44,7 @@ void AZombieAudioManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-    // 끝난 AudioComponent 제거
+	// 끝난 AudioComponent 제거
 	for (int32 i = ActiveMoans.Num() - 1; i >= 0; i--)
 	{
 		if (!ActiveMoans[i] || !ActiveMoans[i]->IsPlaying())
@@ -60,7 +60,7 @@ void AZombieAudioManager::RegisterZombie(AActor* ZombieActor)
 	if (!ZombieActor) return;
 	RegisteredZombies.AddUnique(ZombieActor);
 
-    // 등록 시점에 쿨타임 맵에도 기본값(0) 세팅
+	// 등록 시점에 쿨타임 맵에도 기본값(0) 세팅
 	ZombieToNextMoanTime.FindOrAdd(ZombieActor) = 0.f;
 }
 
@@ -76,38 +76,38 @@ void AZombieAudioManager::UnregisterZombie(AActor* ZombieActor)
 void AZombieAudioManager::HandleZombieMoan()
 {
 	UWorld* World = GetWorld();
-    if (!World) return;
+	if (!World) return;
 
-    // (1) 현재 재생 중인 소리와 MaxConcurrentMoans 비교
-    int32 CurrentMoans = ActiveMoans.Num();
-    if (CurrentMoans >= MaxConcurrentMoans)
+	// (1) 현재 재생 중인 소리와 MaxConcurrentMoans 비교
+	int32 CurrentMoans = ActiveMoans.Num();
+	if (CurrentMoans >= MaxConcurrentMoans)
 	{
-        // 이미 한도에 도달
-        SetNextMoanTimer();
+		// 이미 한도에 도달
+		SetNextMoanTimer();
 		return;
 	}
 
-    // (2) 플레이어 주변 + 쿨타임 끝난 좀비만 후보로 모으기
+	// (2) 플레이어 주변 + 쿨타임 끝난 좀비만 후보로 모으기
 	TArray<AActor*> ZombiesInRange;
 	for (AActor* Zombie : RegisteredZombies)
 	{
 		if (!Zombie)
 			continue;
 
-        float NowTime = World->GetTimeSeconds();
-        float* NextMoanTimePtr = ZombieToNextMoanTime.Find(Zombie);
-        if (NextMoanTimePtr && *NextMoanTimePtr > NowTime)
-        {
-            // 아직 쿨타임 중이면 제외
+		float NowTime = World->GetTimeSeconds();
+		float* NextMoanTimePtr = ZombieToNextMoanTime.Find(Zombie);
+		if (NextMoanTimePtr && *NextMoanTimePtr > NowTime)
+		{
+			// 아직 쿨타임 중이면 제외
 			continue;
-        }
+		}
 
-        // 거리/LineTrace 체크
-        APawn* ClosestPlayer = GetClosestPlayerPawn(Zombie->GetActorLocation());
+		// 거리/LineTrace 체크
+		APawn* ClosestPlayer = GetClosestPlayerPawn(Zombie->GetActorLocation());
 		if (!ClosestPlayer)
 			continue;
 
-        float Dist = FVector::Dist(Zombie->GetActorLocation(), ClosestPlayer->GetActorLocation());
+		float Dist = FVector::Dist(Zombie->GetActorLocation(), ClosestPlayer->GetActorLocation());
 		if (Dist > MaxMoanDistance)
 		{
 			continue;
@@ -116,11 +116,11 @@ void AZombieAudioManager::HandleZombieMoan()
 		if (bUseLineTrace)
 		{
 			FHitResult Hit;
-            FCollisionQueryParams Params(SCENE_QUERY_STAT(ZombieAudioLineTrace), false, Zombie);
+			FCollisionQueryParams Params(SCENE_QUERY_STAT(ZombieAudioLineTrace), false, Zombie);
 
 			bool bHit = World->LineTraceSingleByChannel(
 				Hit,
-                Zombie->GetActorLocation(),
+				Zombie->GetActorLocation(),
 				ClosestPlayer->GetActorLocation(),
 				ECC_Visibility,
 				Params
@@ -128,27 +128,27 @@ void AZombieAudioManager::HandleZombieMoan()
 
 			if (bHit && Hit.GetActor() != ClosestPlayer)
 			{
-                // 장애물이 막으면 제외
+				// 장애물이 막으면 제외
 				continue;
 			}
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
-            DrawDebugLine(
-                World, 
-                Zombie->GetActorLocation(),
-			              ClosestPlayer->GetActorLocation(),
-                FColor::Green, 
-                false, 1.f, 0, 2.f
-            );
+			DrawDebugLine(
+				World,
+				Zombie->GetActorLocation(),
+				ClosestPlayer->GetActorLocation(),
+				FColor::Green,
+				false, 1.f, 0, 2.f
+			);
 #endif
 		}
 
-        // 조건 통과 → 후보 배열에 추가
+		// 조건 통과 → 후보 배열에 추가
 		ZombiesInRange.Add(Zombie);
 	}
 
-    // (3) 이제 “추가로 재생 가능한 소리 수”를 구함
-    int32 AllowedMoans = MaxConcurrentMoans - CurrentMoans;
+	// (3) 이제 “추가로 재생 가능한 소리 수”를 구함
+	int32 AllowedMoans = MaxConcurrentMoans - CurrentMoans;
 	AllowedMoans = FMath::Min(AllowedMoans, ZombiesInRange.Num());
 	if (AllowedMoans <= 0)
 	{
@@ -156,20 +156,20 @@ void AZombieAudioManager::HandleZombieMoan()
 		return;
 	}
 
-    // (4) 부분 셔플(Partial Shuffle)로 무작위 좀비 AllowedMoans마리 선택
-    int32 CountPlayed = 0;
-    // i=0부터 AllowedMoans 직전까지 '한 칸씩' 무작위 교환
-    for (int32 i = 0; i < AllowedMoans; i++)
-		{
-        // i ~ ZombiesInRange.Num()-1 사이에서 랜덤 인덱스 뽑기
-        int32 RandomIndex = FMath::RandRange(i, ZombiesInRange.Num() - 1);
-        // Swap
-        ZombiesInRange.Swap(i, RandomIndex);
+	// (4) 부분 셔플(Partial Shuffle)로 무작위 좀비 AllowedMoans마리 선택
+	int32 CountPlayed = 0;
+	// i=0부터 AllowedMoans 직전까지 '한 칸씩' 무작위 교환
+	for (int32 i = 0; i < AllowedMoans; i++)
+	{
+		// i ~ ZombiesInRange.Num()-1 사이에서 랜덤 인덱스 뽑기
+		int32 RandomIndex = FMath::RandRange(i, ZombiesInRange.Num() - 1);
+		// Swap
+		ZombiesInRange.Swap(i, RandomIndex);
 
-        // 그리고 i번째 원소에 대해 사운드 재생 시도
-        if (TryPlayMoan(ZombiesInRange[i]))
-			{
-            CountPlayed++;
+		// 그리고 i번째 원소에 대해 사운드 재생 시도
+		if (TryPlayMoan(ZombiesInRange[i]))
+		{
+			CountPlayed++;
 		}
 	}
 
@@ -191,21 +191,21 @@ bool AZombieAudioManager::TryPlayMoan(AActor* ZombieActor)
 		return false;
 
 	// 현재 AI 상태
-    FGameplayTag CurrentState = ZController->GetCurrentStateTag();
+	FGameplayTag CurrentState = ZController->GetCurrentStateTag();
 
-    // 상태 -> 사운드 목록 찾기
+	// 상태 -> 사운드 목록 찾기
 	const FZombieSoundSet* SoundSetPtr = StateToSoundsMap.Find(CurrentState);
 	if (!SoundSetPtr || SoundSetPtr->Sounds.Num() == 0)
 	{
 		return false;
 	}
 
-    // 사운드 무작위 선택
+	// 사운드 무작위 선택
 	USoundBase* RandomSound = SoundSetPtr->Sounds[FMath::RandRange(0, SoundSetPtr->Sounds.Num() - 1)];
 	if (!RandomSound)
 		return false;
 
-    // 사운드 재생
+	// 사운드 재생
 	UAudioComponent* AC = UGameplayStatics::SpawnSoundAtLocation(
 		this,
 		RandomSound,
@@ -222,7 +222,7 @@ bool AZombieAudioManager::TryPlayMoan(AActor* ZombieActor)
 	if (!AC)
 		return false;
 
-    // 동시재생 Concurrency
+	// 동시재생 Concurrency
 	for (USoundConcurrency* CObj : ConcurrencyList)
 	{
 		if (CObj)
@@ -232,9 +232,9 @@ bool AZombieAudioManager::TryPlayMoan(AActor* ZombieActor)
 	}
 	ActiveMoans.Add(AC);
 
-    // 쿨타임 갱신 : (지금 시간 + ZombieMoanCooldown)
+	// 쿨타임 갱신 : (지금 시간 + ZombieMoanCooldown)
 	float NowTime = GetWorld()->GetTimeSeconds();
-    ZombieToNextMoanTime.FindOrAdd(ZombieActor) = NowTime + ZombieMoanCooldown;
+	ZombieToNextMoanTime.FindOrAdd(ZombieActor) = NowTime + ZombieMoanCooldown;
 
 	return true;
 }
@@ -245,11 +245,11 @@ void AZombieAudioManager::SetNextMoanTimer()
 	if (!GetWorld())
 		return;
 
-    // 일단 Idle 기준 예시
+	// 일단 Idle 기준 예시
 	float MinTime = 5.f;
 	float MaxTime = 10.f;
 
-    // AIState_Idle 태그에 대한 설정이 있으면 덮어씀
+	// AIState_Idle 태그에 대한 설정이 있으면 덮어씀
 	if (const FVector2D* IntervalRange = StateToIntervalMap.Find(AIGameplayTags::AIState_Idle))
 	{
 		MinTime = IntervalRange->X;
@@ -277,7 +277,7 @@ APawn* AZombieAudioManager::GetClosestPlayerPawn(const FVector& FromLocation) co
 		APawn* Pawn = PC->GetPawn();
 		if (!Pawn) continue;
 
-        float DistSq = FVector::DistSquared(FromLocation, Pawn->GetActorLocation());
+		float DistSq = FVector::DistSquared(FromLocation, Pawn->GetActorLocation());
 		if (DistSq < ClosestDistSq)
 		{
 			ClosestDistSq = DistSq;
