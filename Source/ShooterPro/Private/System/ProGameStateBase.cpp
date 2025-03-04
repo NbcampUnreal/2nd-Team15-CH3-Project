@@ -3,10 +3,14 @@
 
 #include "System/ProGameStateBase.h"
 #include "Character/Player/ProPlayerCharacter.h"
+#include "Controller/ShooterProPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 void AProGameStateBase::BeginPlay()
 {
+	PlayerCharacter = nullptr;
+	//CurrentRespawnPoint = 0;
+
 	if (GetWorld())
 	{
 		PlayerCharacter = Cast<AProPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -34,14 +38,24 @@ void AProGameStateBase::StartLevel()
 
 void AProGameStateBase::EndLevel(bool IsDead)
 {
-	//PlayerController->SetPause(true);
+	ensure(PlayerCharacter);
+
+	if (AShooterProPlayerController* PlayerController = Cast<AShooterProPlayerController>(PlayerCharacter->GetController()))
+	{
+		PlayerController->SetPause(true);
+	}
 
 	if (!IsDead)
 	{
-		//ShowGameClearWidget();
+		ShowGameClearWidget();
 	}
 	else
 	{
-		//ShowGameOverWidget();
+		ShowGameOverWidget();
 	}
 }
+
+//void AProGameStateBase::SetSpawnPoint(int32 RespawnPointIndex)
+//{
+//	UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass());
+//}
