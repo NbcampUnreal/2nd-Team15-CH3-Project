@@ -29,13 +29,11 @@ AProBulletBase::AProBulletBase()
 	ProjectileMovement->bRotationFollowsVelocity = true; // 이동 방향으로 회전
 	ProjectileMovement->bInitialVelocityInLocalSpace = false; // 초기 속도를 월드 방향으로 적용
 	ProjectileMovement->ProjectileGravityScale = 0.0f; // 중력 영향 (1.0 = 기본 중력, 0.0 = 중력 무시)
-
-
+	
 	ProjectileMovement->InitialSpeed = 2000.f; // 초기 속도
 	ProjectileMovement->MaxSpeed = 2000.f; // 최대 속도 (감속이 없는 경우 InitialSpeed와 동일하게 설정)
 
 	InitialLifeSpan = 0.0f; //오브젝트 풀링 방식을 사용할 것이기 때문에 0.0f
-	
 }
 
 // Called when the game starts or when spawned
