@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "AIController.h"
 #include "SpawnerTypes.generated.h"
 
 // ----------------------------- ENUM -----------------------------
