@@ -15,6 +15,8 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Death, TEXT("Ability.Death"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Jump, TEXT("Ability.Jump"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS, TEXT("Ability.ADS"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Health, TEXT("Ability.Regen.Health"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Mana, TEXT("Ability.Regen.Mana"));
 
 
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));
@@ -26,6 +28,8 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_PoisonEffect, TEXT("GameplayCue.PoisonEffect"));
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Pistol, TEXT("GameplayCue.HitImpact.Pistol"));
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Projectile_HitEffect, TEXT("GameplayCue.Projectile.HitImpact"));
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Weapon_Fire, TEXT("GameplayCue.Weapon.Fire"));
 
 	/// 어빌리티
 

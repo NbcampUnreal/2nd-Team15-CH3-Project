@@ -77,10 +77,9 @@ void AProBulletBase::DeactivateBullet()
 
 void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor == AvatarActor)
-	{
-		return;
-	}
+	if (!OtherActor) return;
+
+	if (OtherActor == AvatarActor) return;
 	
 	// 1. 데미지 적용 (GameplayEffect 적용)
 	if (DamageEffect && OtherActor)
