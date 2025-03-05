@@ -11,7 +11,7 @@ USpawnAround::USpawnAround()
 
 	CollisionExtent = 100.f;
 
-	SpawnClass = nullptr;
+	SpawnDataTable = nullptr;
 	SpawnAmountMin = 3;
 	SpawnAmountMax = 5;
 	SpawnHeight = 100.f;
@@ -73,17 +73,23 @@ FTransform USpawnAround::GetRandomSpawnPoint()
 void USpawnAround::SpawnActor(FTransform Trans)
 {
 	if (!GetWorld()) return;
-	if (!SpawnClass) return;
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnClass, Trans, SpawnParams);
-
-	if (SpawnedActor)
+	if (FAISpawnRow* Row = GetRandomRow())
 	{
-		AliveActors++;
-		SpawnedActor->OnDestroyed.AddDynamic(this, &USpawnAround::ActorWasKilled);
-		return;
+		if (UClass* SpawnClass = Row->SpawnClass.Get())
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnClass, Trans, SpawnParams);
+
+			if (SpawnedActor)
+			{
+				AliveActors++;
+				SpawnedActor->OnDestroyed.AddDynamic(this, &USpawnAround::ActorWasKilled);
+			}
+
+			return;
+		}
 	}
 
 	StartSpawn();
@@ -97,5 +103,34 @@ void USpawnAround::ActorWasKilled(AActor* DestroyedActor)
 	{
 		AliveActors = 0;
 	}
+}
+
+FAISpawnRow* USpawnAround::GetRandomRow()
+{
+	if (!SpawnDataTable) return nullptr;
+
+	TArray<FAISpawnRow*> Rows;
+	const FString ContextString(TEXT("AISpawnerContext"));
+	SpawnDataTable->GetAllRows(ContextString, Rows);
+
+	float TotalChance = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		TotalChance += temp->SpawnChance;
+	}
+
+	float RandomChance = FMath::FRandRange(0.0f, TotalChance);
+	float ChanceTemp = 0.0f;
+	for (FAISpawnRow* temp : Rows)
+	{
+		ChanceTemp += temp->SpawnChance;
+
+		if (ChanceTemp >= RandomChance)
+		{
+			return temp;
+		}
+	}
+
+	return nullptr;
 }
 

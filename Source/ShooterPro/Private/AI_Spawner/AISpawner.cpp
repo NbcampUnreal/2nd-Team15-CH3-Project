@@ -293,7 +293,7 @@ void AAISpawner::SpawningActor(FTransform Trans)
 				AEnemyAIBase* Enemy = Cast<AEnemyAIBase>(SpawnedActor);
 				if (Enemy)
 				{
-					Enemy->OnKilledActor.AddDynamic(this, &AAISpawner::ActorWasKilled);
+					Enemy->OnDestroyed.AddDynamic(this, &AAISpawner::ActorWasKilled);
 				}
 				return;
 			}
@@ -362,7 +362,7 @@ void AAISpawner::FinishSpawningGroup()
 	SpawnGroups.RemoveAt(0);
 }
 
-void AAISpawner::ActorWasKilled(AEnemyAIBase* DestroyedActor)
+void AAISpawner::ActorWasKilled(AActor* DestroyedActor)
 {
 	/*if (GEngine)
 	{
@@ -371,11 +371,11 @@ void AAISpawner::ActorWasKilled(AEnemyAIBase* DestroyedActor)
 
 	RespawnedActors.Add(DestroyedActor);
 
-	UAIOptimizerComponent* OptimizerComp = DestroyedActor->FindComponentByClass<UAIOptimizerComponent>();
+	/*UAIOptimizerComponent* OptimizerComp = DestroyedActor->FindComponentByClass<UAIOptimizerComponent>();
 	if (OptimizerComp)
 	{
 		OptimizerComp->OptimizerCheckerStop();
-	}
+	}*/
 
 	RespawnLoop();
 }
@@ -448,13 +448,16 @@ void AAISpawner::Respawn()
 {
 	if (RespawnedActors.IsValidIndex(0))
 	{
-		RespawnedActors[0]->SetActorTransform(GetRandomSpawnPoint());
+		/*RespawnedActors[0]->SetActorTransform(GetRandomSpawnPoint());
+		RespawnedActors[0]->OnPooledRespawn();
 
 		UAIOptimizerComponent* OptimizerComp = RespawnedActors[0]->FindComponentByClass<UAIOptimizerComponent>();
 		if (OptimizerComp)
 		{
 			OptimizerComp->OptimizerChecker();
-		}
+		}*/
+
+			AddGroupToSpawn(1);
 
 		RespawnedActors.RemoveAt(0);
 
