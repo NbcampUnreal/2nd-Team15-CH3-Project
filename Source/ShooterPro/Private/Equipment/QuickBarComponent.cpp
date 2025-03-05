@@ -97,11 +97,6 @@ void UQuickBarComponent::SetActiveSlotIndex(int32 NewIndex)
 
 		EquipItemInSlot();
 
-		if (OnSlotChanged.IsBound())
-		{
-			OnSlotChanged.Broadcast(OldIndex, NewIndex);
-		}
-
 		// 메시지 보낼 때, FQuickBarSlotData를 채운다.
 		FQuickBarSlotData Payload = MakeSlotData(NewIndex);
 		UGameplayMessageSubsystem& Subsystem = UGameplayMessageSubsystem::Get(this);

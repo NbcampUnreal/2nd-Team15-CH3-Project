@@ -11,8 +11,6 @@ class UEquipmentManagerComponent;
 class UEquipmentInstance;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnQuickBarSlotChanged, int32, OldSlotIndex, int32, NewSlotIndex);
-
 USTRUCT(BlueprintType)
 struct FQuickBarSlotData
 {
@@ -72,16 +70,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CheckSlots();
 
-	UFUNCTION(BlueprintCallable, Category="Lyra")
+	UFUNCTION(BlueprintCallable, Category="QuickBar")
 	void CycleActiveSlotForward();
 
-	UFUNCTION(BlueprintCallable, Category="Lyra")
+	UFUNCTION(BlueprintCallable, Category="QuickBar")
 	void CycleActiveSlotBackward();
 
-	UFUNCTION(BlueprintCallable, Category="Lyra")
+	UFUNCTION(BlueprintCallable, Category="QuickBar")
 	void SetActiveSlotIndex(int32 NewIndex);
 
-	UFUNCTION(BlueprintCallable, Category="Lyra")
+	UFUNCTION(BlueprintCallable, Category="QuickBar")
 	void ChangeQuickBarSlot(int32 NewIndex);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false)
@@ -102,10 +100,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	UInventoryItemInstance* RemoveItemFromSlot(int32 SlotIndex);
 
-	/**
-	 * 단일 슬롯에 대한 상세 정보(예: UI가 필요로 할 때) 
-	 * 내부적으로 EquipItem() 같은 부작용은 일으키지 말고, 단순히 현재 상태를 조회해서 반환
-	 */
 	UFUNCTION(BlueprintCallable)
 	FQuickBarSlotData MakeSlotData(int32 SlotIndex) const;
 
@@ -127,8 +121,4 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UEquipmentInstance> EquippedItem;
-
-public:
-	UPROPERTY(BlueprintAssignable, Category="QuickBar")
-	FOnQuickBarSlotChanged OnSlotChanged;
 };
