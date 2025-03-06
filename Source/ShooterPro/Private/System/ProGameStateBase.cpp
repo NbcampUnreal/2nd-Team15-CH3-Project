@@ -68,3 +68,23 @@ void AProGameStateBase::RestartLevel()
 	StartLevel();
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("L_ScaleDown"));
 }
+
+int32 AProGameStateBase::GetKilledEnemyAmount(FGameplayTagContainer EnemyTags) const
+{
+	int32 TotalAmount = 0;
+
+	if (EnemyTags.IsEmpty())
+	{
+		return 0;
+	}
+
+	for (FGameplayTag EnemyTag : EnemyTags)
+	{
+		if (KilledEnemyMap.Contains(EnemyTag))
+		{
+			TotalAmount += KilledEnemyMap[EnemyTag];
+		}
+	}
+
+	return TotalAmount;
+}

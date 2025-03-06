@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GameLoop")
 	TMap<FGameplayTag, int32> GetKilledEnemyMap() const { return KilledEnemyMap; }
 
+	UFUNCTION(Blueprintcallable, Category = "GameLoop")
+	int32 GetKilledEnemyAmount(FGameplayTagContainer EnemyTags) const;
+
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Widget")
 	void ShowGameClearWidget();
