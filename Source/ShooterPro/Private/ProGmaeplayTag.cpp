@@ -30,10 +30,12 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Pistol, TEXT("GameplayCue.HitImpact.Pistol"));
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Projectile_HitEffect, TEXT("GameplayCue.Projectile.HitImpact"));
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Weapon_Fire, TEXT("GameplayCue.Weapon.Fire"));
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_BurnEffect, TEXT("GameplayCue.BurnEffect"));
 
 	/// 어빌리티
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_Poison, TEXT("GameplayEffect.Poison"));
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_Burn, TEXT("GameplayEffect.Burn"));
 
 	UE_DEFINE_GAMEPLAY_TAG(State_Poison, TEXT("State.Poison"));
 
@@ -47,6 +49,9 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnBullet, TEXT("Event.Montage.SpawnBullet"));
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Reload, TEXT("Event.Montage.Reload"));
 
+
+	UE_DEFINE_GAMEPLAY_TAG(Event_System_ShowWidget, TEXT("Event.System.ShowWidget"));
+
 	/// 무기
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_SpareAmmo, TEXT("Weapon.SpareAmmo"));
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_MagazineSize, TEXT("Weapon.MagazineSize"));
@@ -55,14 +60,17 @@ namespace ProGameplayTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, TEXT("SetByCaller.Damage"));
-	
+
 	UE_DEFINE_GAMEPLAY_TAG(Player_State_Death, TEXT("Player.State.Death"));
 
-	
+
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Melee, TEXT("Enemy.Zombie.Melee"));
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Range, TEXT("Enemy.Zombie.Range"));
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Zombie_Special, TEXT("Enemy.Zombie.Special"));
-	
+
+
+	UE_DEFINE_GAMEPLAY_TAG(State_Burning, TEXT("State.Burning"));
+
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)
 	{

@@ -63,7 +63,6 @@ void AEnemyAIBase::DeactivateForPooling()
 	// 여기서는 Destroy()하지 않고, 풀에서 "죽은 상태"로 대기
 }
 
-
 void AEnemyAIBase::OnPooledRespawn()
 {
 	// 1) 숨김 해제 & 충돌 다시 활성화
@@ -91,7 +90,6 @@ void AEnemyAIBase::OnPooledRespawn()
 		// 필요 시 AI 상태값도 초기화(Idle 상태 등)
 	}
 
-
 	// 5) 기타 필요한 변수들 초기화 (AIBehaviorsComponent 등)
 	if (AIBehaviorsComponent)
 	{
@@ -102,7 +100,6 @@ void AEnemyAIBase::OnPooledRespawn()
 		EnemyAIController->UpdateBlackboard_MaxRandRadius(AIBehaviorsComponent->GetMaxRandRadius());
 	}
 }
-
 
 void AEnemyAIBase::BeginPlay()
 {

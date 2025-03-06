@@ -211,8 +211,8 @@ void UAIBehaviorsComponent::HandleLostSight()
 
 void UAIBehaviorsComponent::HandleSensedSound()
 {
-	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
-	// AttackableTargets.AddUnique(NewlySensedActor);
+	AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	AttackableTargets.AddUnique(NewlySensedActor);
 
 	// EAIState CurrentState = GetCurrentState();
 	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
@@ -223,8 +223,8 @@ void UAIBehaviorsComponent::HandleSensedSound()
 
 void UAIBehaviorsComponent::HandleSensedDamage()
 {
-	// AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
-	// AttackableTargets.Remove(NewlySensedActor);
+	AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
+	AttackableTargets.Remove(NewlySensedActor);
 
 	// if (OnSameTeam(Actor))
 	// 	return;
