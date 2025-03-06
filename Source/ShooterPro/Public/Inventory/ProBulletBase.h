@@ -35,10 +35,10 @@ protected:
 	void K2_ActivateBullet(AActor* Avatar, const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed = 2000.0f);
 	
 	// 충돌 처리 함수
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent)
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent)
 	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 protected:
