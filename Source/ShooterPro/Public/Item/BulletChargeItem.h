@@ -8,16 +8,19 @@
 
 class USphereComponent;
 class UInventoryItemDefinition;
+struct FItemSpawnRow;
 
 UCLASS()
 class SHOOTERPRO_API ABulletChargeItem : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ABulletChargeItem();
 
 protected:
+	virtual void Tick(float DeltaTime) override;
+
 	UFUNCTION()
 	void OnItemOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -30,6 +33,8 @@ protected:
 	void ActivateItem(AActor* Activator);
 
 	void DestroyItem();
+
+	FItemSpawnRow* GetRandomItem() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item|Component")
@@ -47,10 +52,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effects")
 	TObjectPtr<USoundBase> PickUpSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
-	TSubclassOf<UInventoryItemDefinition> ItemToCharge;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Spawn")
+	TObjectPtr<UDataTable> SpawnDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 StackToCharge;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Animation")
+	float RotationAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Animation")
+	float BounceAmount;
+
+	float TimeAdding;
 
 };

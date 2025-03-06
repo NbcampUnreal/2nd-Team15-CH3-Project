@@ -13,7 +13,7 @@ UCLASS()
 class SHOOTERPRO_API AProGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void BeginPlay() override;
 
@@ -23,16 +23,13 @@ public:
 	void StartLevel();
 
 	UFUNCTION(BlueprintCallable, Category = "GameLoop")
-	void EndLevel(bool IsDead);
+	void EndLevel(bool bIsDead);
 
-	/*UFUNCTION(BlueprintCallable, Category = "GameLoop")
-	void SetSpawnPoint(int32 RespawnPointIndex);*/
+	UFUNCTION(BlueprintCallable, Category = "GameLoop")
+	void RestartLevel();
 
 	UFUNCTION(BlueprintPure, Category = "GameLoop")
 	TMap<FGameplayTag, int32> GetKilledEnemyMap() const { return KilledEnemyMap; }
-
-	/*UFUNCTION(BlueprintPure, Category = "GameLoop")
-	TArray<FVector> GetRespawnPoints() const { return RespawnPoints; }*/
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Widget")
@@ -43,10 +40,6 @@ public:
 
 protected:
 	TMap<FGameplayTag, int32> KilledEnemyMap;
-
-	/*TArray<FVector> RespawnPoints;
-
-	int32 CurrentRespawnPoint;*/
 
 	TObjectPtr<AProPlayerCharacter> PlayerCharacter;
 };

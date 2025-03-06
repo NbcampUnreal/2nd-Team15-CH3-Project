@@ -60,6 +60,9 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Dead Payload")
 	TSubclassOf<AEnemyAIBase> EnemyClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Dead Payload")
+	FVector DeadLocation;
 };
 
 
