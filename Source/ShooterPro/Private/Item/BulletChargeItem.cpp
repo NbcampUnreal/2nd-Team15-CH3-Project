@@ -9,7 +9,6 @@
 #include "Components/SphereComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ABulletChargeItem::ABulletChargeItem()
@@ -75,35 +74,6 @@ void ABulletChargeItem::ActivateItem(AActor* Activator)
 			GetActorRotation()
 		);
 	}
-
-	/*UParticleSystemComponent* Particle = nullptr;
-
-	if (PickUpParticle)
-	{
-		Particle = UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			PickUpParticle,
-			GetActorLocation(),
-			GetActorRotation(),
-			true
-		);
-	}
-
-	if (Particle)
-	{
-		FTimerHandle DestroyParticleTimerHandle;
-		TWeakObjectPtr<UParticleSystemComponent> WeakParticle = Particle;
-
-		GetWorld()->GetTimerManager().SetTimer(DestroyParticleTimerHandle,
-			[WeakParticle]()
-			{
-				if (WeakParticle.IsValid())
-				{
-					WeakParticle->DestroyComponent();
-				}
-			},
-			1.0f, false);
-	}*/
 
 	if (PickUpSound)
 	{
