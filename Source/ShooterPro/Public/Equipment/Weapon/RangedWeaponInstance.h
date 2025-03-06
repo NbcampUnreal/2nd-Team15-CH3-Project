@@ -62,6 +62,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ClampMin=0.1), Category="Spread|Fire Params")
 	float SpreadExponent = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ClampMin=0.1), Category="Spread|Fire Params")
+	float AimingAccuracyMultiplier = 1.f;
+	
 	// X축은 무기 과열, Y축은 탄 퍼짐 각도
 	UPROPERTY(EditAnywhere, Category = "Spread|Fire Params")
 	FRuntimeFloatCurve HeatToSpreadCurve;
@@ -104,10 +107,6 @@ protected:
 	// 앉아있을 때 탄 퍼짐 계수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits=x))
 	float SpreadAngleMultiplier_Crouching = 1.0f;
-
-	// 숙이거나 일어날 때 계수
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params")
-	float TransitionRate_Crouching = 5.0f;
 	
 	// 공중에서의 계수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spread|Player Params", meta=(ForceUnits=x))
@@ -128,6 +127,7 @@ protected:
 	// 총 쏘기 전 라인트레이싱에 사용할 end 거리
 	UPROPERTY(EditAnywhere, Category = "Weapon Config")
 	float LineTraceRange;
+	
 private:
 	void ComputeSpreadRange(float& MinSpread, float& MaxSpread);
 	void ComputeHeatRange(float& MinHeat, float& MaxHeat);
@@ -158,5 +158,6 @@ private:
 
 	float JumpFallMultiplier = 1.0f;
 
-	float CrouchingMultiplier = 1.0f;	
+	float CrouchingMultiplier = 1.0f;
+
 };
