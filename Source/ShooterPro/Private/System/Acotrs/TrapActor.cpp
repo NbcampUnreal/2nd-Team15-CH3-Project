@@ -10,6 +10,7 @@
 // Niagara 스폰 함수 라이브러리
 #include "AbilitySystemInterface.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Character/Player/ProPlayerCharacter.h"
 
 ATrapActor::ATrapActor()
 {
@@ -51,29 +52,49 @@ void ATrapActor::OnTrapOverlap(
 		return;
 	}
 
-	// 블루프린트 확장을 위해 K2_OnTrapOverlap 호출
-	K2_OnTrapOverlap(OverlappedComp,OtherActor,OtherComp,OtherBodyIndex,bFromSweep,SweepResult);
+	// 필터 클래스가 설정되어 있다면, OverlapFilterClass를 상속하는 액터인지 확인
+	if (OverlapFilterClass)
+	{
+		// OtherActor가 OverlapFilterClass(또는 자식 클래스)인지 체크
+		if (!OtherActor->IsA(OverlapFilterClass))
+		{
+			// 필터 조건을 만족하지 않으면 트리거 중단
+			return;
+		}
+	}
 
-	// 예: ACharacter만 해당 함정 효과를 받도록 할 경우
+	// 만약 특정 상황에서 "플레이어만" 체크하고 싶다면 추가로 bOnlyPlayer 같은 조건 사용
+	// if (bOnlyPlayer)
+	// {
+	//     AProPlayerCharacter* PlayerCharacter = Cast<AProPlayerCharacter>(OtherActor);
+	//     if (!PlayerCharacter)
+	//     {
+	//         return;
+	//     }
+	// }
+
+	// 블루프린트 확장을 위해 K2_OnTrapOverlap 호출
+	K2_OnTrapOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
+	// 여기서는 ACharacter만 함정 효과를 받는다고 예시로 두었지만,
+	// 필요 없다면 제거하거나 OverlapFilterClass만 사용해도 됩니다.
 	ACharacter* OverlappedCharacter = Cast<ACharacter>(OtherActor);
 	if (!OverlappedCharacter)
 	{
 		return;
 	}
 
-	// 여기서는 세 함수를 한 번에 호출하되, 필요한 인자를 넘겨줍니다.
+	// 사운드, 이펙트, GameplayEffect 적용
 	PlayTrapSound();
 	SpawnNiagaraFX();
 	ApplyTrapEffect(OverlappedCharacter);
 
-	// 오버랩 시 트랩이 사라지는 로직
+	// 오버랩 시 트랩을 파괴하는 로직 (기존 코드)
 	if (bDestroyOnOverlap)
 	{
-		// DestroyDelay가 0보다 크면 해당 시간 후 삭제
 		if (DestroyDelay > 0.f)
 		{
-			SetLifeSpan(DestroyDelay); 
-			// 또는 타이머를 쓰고 싶다면 GetWorldTimerManager().SetTimer() 방식도 가능
+			SetLifeSpan(DestroyDelay);
 		}
 		else
 		{

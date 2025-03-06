@@ -56,10 +56,6 @@ public:
 
 	virtual APatrolPath* GetPatrolPath_Implementation() override;
 
-protected:
-	/** 실제 메시지 수신 리스너를 해제하기 위한 FGameplayMessageListenerHandle */
-	FGameplayMessageListenerHandle MessageListenerHandle;
-
 public:
 	UPROPERTY( BlueprintReadWrite, Category="AI Base")
 	bool bIsAlive = true;

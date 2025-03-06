@@ -31,10 +31,17 @@ protected:
 	/** 트랩의 기준이 되는 SceneComponent (루트) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
 	USceneComponent* SceneComponent;
-	
+
 	/** 플레이어가 함정 위를 밟았을 때 트리거되는 콜리전 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
 	UBoxComponent* TriggerBox;
+
+	/** 
+	 * 오버랩된 액터가 여기서 지정한 클래스(또는 자식 클래스)일 때만 트리거 발동
+	 * 예: AMyCharacter 클래스 지정 시 해당 클래스 또는 파생 클래스만 함정 발동 
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trap|Config")
+	TSubclassOf<AActor> OverlapFilterClass;
 
 	/** 함정이 발동될 때 적용할 GameplayEffect (데미지나 디버프 등) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trap|GAS")
