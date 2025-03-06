@@ -8,8 +8,9 @@
 
 void AProGameStateBase::BeginPlay()
 {
+	Super::BeginPlay();
+
 	PlayerCharacter = nullptr;
-	//CurrentRespawnPoint = 0;
 
 	if (GetWorld())
 	{
@@ -33,19 +34,25 @@ void AProGameStateBase::AddKillScore(FGameplayTag EnemyTag, int32 Amount)
 
 void AProGameStateBase::StartLevel()
 {
-	KilledEnemyMap.Empty();
+	ensure(PlayerCharacter);
+	if (AShooterProPlayerController* PlayerController = Cast<AShooterProPlayerController>(PlayerCharacter->GetController()))
+	{
+		PlayerController->SetPause(false);
+		PlayerController->SetShowMouseCursor(false);
+	}
 }
 
-void AProGameStateBase::EndLevel(bool IsDead)
+void AProGameStateBase::EndLevel(bool bIsDead)
 {
 	ensure(PlayerCharacter);
 
 	if (AShooterProPlayerController* PlayerController = Cast<AShooterProPlayerController>(PlayerCharacter->GetController()))
 	{
 		PlayerController->SetPause(true);
+		PlayerController->SetShowMouseCursor(true);
 	}
 
-	if (!IsDead)
+	if (!bIsDead)
 	{
 		ShowGameClearWidget();
 	}
@@ -55,7 +62,29 @@ void AProGameStateBase::EndLevel(bool IsDead)
 	}
 }
 
-//void AProGameStateBase::SetSpawnPoint(int32 RespawnPointIndex)
-//{
-//	UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass());
-//}
+void AProGameStateBase::RestartLevel()
+{
+	KilledEnemyMap.Empty();
+	StartLevel();
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("L_ScaleDown"));
+}
+
+int32 AProGameStateBase::GetKilledEnemyAmount(FGameplayTagContainer EnemyTags) const
+{
+	int32 TotalAmount = 0;
+
+	if (EnemyTags.IsEmpty())
+	{
+		return 0;
+	}
+
+	for (FGameplayTag EnemyTag : EnemyTags)
+	{
+		if (KilledEnemyMap.Contains(EnemyTag))
+		{
+			TotalAmount += KilledEnemyMap[EnemyTag];
+		}
+	}
+
+	return TotalAmount;
+}

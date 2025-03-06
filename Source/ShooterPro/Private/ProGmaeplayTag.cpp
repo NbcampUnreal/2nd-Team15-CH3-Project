@@ -18,6 +18,7 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Health, TEXT("Ability.Regen.Health"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Mana, TEXT("Ability.Regen.Mana"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Grenade, TEXT("Ability.Skill.Grenade"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Dash, TEXT("Ability.Skill.Dash"));
 
 
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));
