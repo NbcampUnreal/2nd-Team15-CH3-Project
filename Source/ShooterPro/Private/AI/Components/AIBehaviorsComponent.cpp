@@ -4,10 +4,7 @@
 #include "AI/AIGameplayTags.h"
 #include "AI/EnemyAIBase.h"
 #include "AI/EnemyAIController.h"
-#include "AI/EnemyAILog.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "GameFramework/Character.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 
 UAIBehaviorsComponent::UAIBehaviorsComponent(): AttackTarget(nullptr)
@@ -25,12 +22,20 @@ UAIBehaviorsComponent::UAIBehaviorsComponent(): AttackTarget(nullptr)
 void UAIBehaviorsComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 	CharacterRef = Cast<AEnemyAIBase>(GetOwner());
 	if (CharacterRef)
 	{
 		AIControllerRef = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(CharacterRef));
+		AIControllerRef->GetDetectionInfoManager()->OnAddPerceptionUpdated.AddDynamic(this, &UAIBehaviorsComponent::HandlePerceptionUpdated);
+		AIControllerRef->GetDetectionInfoManager()->OnRemoveExpiredDetection.AddDynamic(this, &UAIBehaviorsComponent::HandlePerceptionForgotten);
 	}
+}
+
+void UAIBehaviorsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	AIControllerRef->GetDetectionInfoManager()->OnAddPerceptionUpdated.RemoveAll(this);
+	AIControllerRef->GetDetectionInfoManager()->OnRemoveExpiredDetection.RemoveAll(this);
+	Super::EndPlay(EndPlayReason);
 }
 
 void UAIBehaviorsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -162,79 +167,23 @@ void UAIBehaviorsComponent::HandleSensedSight()
 		ForgetTimers.Remove(NewlySensedActor);
 	}
 
-	// 2) AttackableTargets에 추가 (기존 코드)
 	AttackableTargets.AddUnique(NewlySensedActor);
-
-	// 3) 이미 AttackTarget이 이 액터라면 별도 처리를 안 해도 되고,
-	//    AttackTarget이 없으면 새로 할당하는 등 필요 로직을 넣으시면 됩니다.
-	// ...
-
-
-	// // 이미 공격 대상이 설정되어 있다면, 추가적인 타겟 설정을 하지 않음
-	// if (AttackTarget == RecentSenseHandle.DetectedActor)
-	// 	return;
-	//
-	// ECombatTriggerFlags SightCombatTrigger = ECombatTriggerFlags::Sight;
-	// if (!IsTriggerEnabled(SightCombatTrigger))
-	// 	return;
 }
 
 void UAIBehaviorsComponent::HandleLostSight()
 {
-	//AActor* LostActor = RecentSenseHandle.DetectedActor;
-	//if (!LostActor)
-	//	return;
-
-	//// 이미 AttackableTargets에 들어있는 Actor라면,
-	//// 곧바로 제거가 아니라, 일정 시간 뒤에 제거하는 타이머를 건다.
-	//if (AttackableTargets.Contains(LostActor))
-	//{
-	//	// 혹시 이전에 설정된 타이머가 있으면 초기화
-	//	if (ForgetTimers.Contains(LostActor))
-	//	{
-	//		GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[LostActor]);
-	//		ForgetTimers.Remove(LostActor);
-	//	}
-
-	//	// 일정 시간이 지난 후 RemoveActorFromAttackList를 호출하는 타이머
-	//	FTimerHandle TimerHandle;
-	//	GetWorld()->GetTimerManager().SetTimer(TimerHandle,
-	//	                                       FTimerDelegate::CreateUObject(this, &UAIBehaviorsComponent::RemoveActorFromAttackList, LostActor),
-	//	                                       ForgetSightTime, false);
-	//	ForgetTimers.Add(LostActor, TimerHandle);
-
-	//	// 또한, “AI가 눈 앞에서 사라졌지만, 아직 공격 대상으로 처리 중” 이므로
-	//	// AI가 “Seeking” 상태로 전환하도록 할 수도 있음.
-	//	//  e.g.  UpdateState(AIGameplayTags::AIState_Seeking);
-	//}
 }
 
 void UAIBehaviorsComponent::HandleSensedSound()
 {
 	AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
 	AttackableTargets.AddUnique(NewlySensedActor);
-
-	// EAIState CurrentState = GetCurrentState();
-	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
-	// {
-	// 	SetStateAsInvestigating(Location);
-	// }
 }
 
 void UAIBehaviorsComponent::HandleSensedDamage()
 {
 	AActor* NewlySensedActor = RecentSenseHandle.DetectedActor;
 	AttackableTargets.Remove(NewlySensedActor);
-
-	// if (OnSameTeam(Actor))
-	// 	return;
-	//
-	// EAIState CurrentState = GetCurrentState();
-	//
-	// if (CurrentState == EAIState::Idle || CurrentState == EAIState::Investigating || CurrentState == EAIState::Seeking)
-	// {
-	// 	SetStateAsAttacking(Actor, false);
-	// }
 }
 
 void UAIBehaviorsComponent::HandleLostSound()
@@ -249,13 +198,10 @@ void UAIBehaviorsComponent::SetStateAsSeeking()
 {
 	AIControllerRef->UpdateBlackboard_PointOfInterest(RecentSenseHandle.LastKnownLocation);
 	AIControllerRef->UpdateBlackboard_State(AIGameplayTags::AIState_Seeking);
-	// UKismetSystemLibrary::DrawDebugSphere(this, RecentSenseHandle.LastKnownLocation, 150.0f, 12, FLinearColor::Red, 15.0f, 10.0f);
 }
 
 void UAIBehaviorsComponent::SetStateAsAttacking()
 {
-	// 공격 가능한 타겟 목록을 가져옵니다.
-
 	// 타겟이 없다면, 리턴
 	if (AttackableTargets.IsEmpty())
 	{

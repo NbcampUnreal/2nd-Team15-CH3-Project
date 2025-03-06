@@ -21,25 +21,22 @@ class SHOOTERPRO_API UBTService_HandlePerception : public UBTService
 	GENERATED_BODY()
 
 public:
-	/** 기본 생성자 */
 	UBTService_HandlePerception();
 
 protected:
 	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
+
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	
+
 	virtual void OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
+
 	UFUNCTION()
 	void OnPerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
-	
+
 	UFUNCTION()
 	void OnTargetPerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo);
 
 private:
-	/** 한 번만 찾고 캐싱해두기 위한 포인터들 */
 	TWeakObjectPtr<AEnemyAIController> CachedController; // 캐시된 AIController
 	TWeakObjectPtr<UAIBehaviorsComponent> CachedBehaviorsComp; // 캐시된 AIBehaviorsComponent
 };
-

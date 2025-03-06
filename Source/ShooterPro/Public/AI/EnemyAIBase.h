@@ -6,8 +6,6 @@
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "EnemyAIBase.generated.h"
 
-// AI 스포너에서 액터를 관리해주기 위한 델리게이트 선언 - 김민재 추가
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnemyDeathDelegate, AEnemyAIBase*, DeadCharacter);
 
 class UGSCCoreComponent;
 class UMotionWarpingComponent;
@@ -33,28 +31,6 @@ class SHOOTERPRO_API AEnemyAIBase : public AGSCModularCharacter, public IInterfa
 public:
 	/** 생성자 */
 	AEnemyAIBase();
-
-	// AI 스포너에서 액터를 관리해주기 위한 델리게이트 선언 - 김민재 추가
-	UPROPERTY()
-	FEnemyDeathDelegate OnKilledActor;
-
-	// 바인딩된 함수들을 액터 사망시 실행시킬 함수 - 김민재 추가
-	UFUNCTION(BlueprintCallable)
-	void EnemyOnKilled();
-
-	/** 
-	 * @brief 오브젝트 풀링: 캐릭터를 "죽은 상태"로 만들고 숨김 처리 
-	 * 실제 Destroy 대신에 풀로 반환하기 위한 함수
-	 */
-	UFUNCTION(BlueprintCallable, Category="AI Base|Pooling")
-	void DeactivateForPooling();
-
-	/** 
-	 * @brief 오브젝트 풀링: 풀에서 다시 불려나왔을 때 
-	 * 체력, Collision, Visibility 등 필요한 값 재설정 (실제 재스폰 시점에 호출)
-	 */
-	UFUNCTION(BlueprintCallable, Category="AI Base|Pooling")
-	void OnPooledRespawn();
 
 protected:
 	/** 게임 시작 시 또는 스폰 후 최초 호출 */
