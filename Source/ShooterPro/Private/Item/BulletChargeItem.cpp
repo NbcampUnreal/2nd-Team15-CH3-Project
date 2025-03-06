@@ -7,6 +7,8 @@
 #include "Inventory/InventoryManagerComponent.h"
 #include "Inventory/InventoryItemDefinition.h"
 #include "Components/SphereComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -26,7 +28,7 @@ ABulletChargeItem::ABulletChargeItem()
 	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	StaticMesh->SetupAttachment(Scene);
 
-	PickUpParticle = nullptr;
+	PickUpNiagaraSystem = nullptr;
 	PickUpSound = nullptr;
 	SpawnDataTable = nullptr;
 	TimeAdding = 0.0f;
@@ -64,7 +66,17 @@ void ABulletChargeItem::ActivateItem(AActor* Activator)
 		}
 	}
 
-	UParticleSystemComponent* Particle = nullptr;
+	if (PickUpNiagaraSystem)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			PickUpNiagaraSystem,
+			GetActorLocation(),
+			GetActorRotation()
+		);
+	}
+
+	/*UParticleSystemComponent* Particle = nullptr;
 
 	if (PickUpParticle)
 	{
@@ -91,7 +103,7 @@ void ABulletChargeItem::ActivateItem(AActor* Activator)
 				}
 			},
 			1.0f, false);
-	}
+	}*/
 
 	if (PickUpSound)
 	{

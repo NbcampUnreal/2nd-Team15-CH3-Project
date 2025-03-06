@@ -7,6 +7,7 @@
 #include "BulletChargeItem.generated.h"
 
 class USphereComponent;
+class UNiagaraSystem;
 class UInventoryItemDefinition;
 struct FItemSpawnRow;
 
@@ -47,7 +48,7 @@ protected:
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effects")
-	TObjectPtr<UParticleSystem> PickUpParticle;
+	TObjectPtr<UNiagaraSystem> PickUpNiagaraSystem;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effects")
 	TObjectPtr<USoundBase> PickUpSound;
