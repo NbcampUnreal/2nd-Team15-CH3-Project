@@ -59,8 +59,7 @@ public:
 	UFUNCTION()
 	void HandleSensedSight();
 	
-	UFUNCTION()
-	void HandleLostSight();
+
 
 	UFUNCTION()
 	void HandleSensedSound();
@@ -68,6 +67,9 @@ public:
 	UFUNCTION()
 	void HandleSensedDamage();
 
+		UFUNCTION()
+    	void HandleLostSight();
+    	
 	UFUNCTION()
 	void HandleLostSound();
 

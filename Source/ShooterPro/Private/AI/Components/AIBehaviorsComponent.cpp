@@ -181,32 +181,32 @@ void UAIBehaviorsComponent::HandleSensedSight()
 
 void UAIBehaviorsComponent::HandleLostSight()
 {
-	AActor* LostActor = RecentSenseHandle.DetectedActor;
-	if (!LostActor)
-		return;
-
-	// 이미 AttackableTargets에 들어있는 Actor라면,
-	// 곧바로 제거가 아니라, 일정 시간 뒤에 제거하는 타이머를 건다.
-	if (AttackableTargets.Contains(LostActor))
-	{
-		// 혹시 이전에 설정된 타이머가 있으면 초기화
-		if (ForgetTimers.Contains(LostActor))
-		{
-			GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[LostActor]);
-			ForgetTimers.Remove(LostActor);
-		}
-
-		// 일정 시간이 지난 후 RemoveActorFromAttackList를 호출하는 타이머
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle,
-		                                       FTimerDelegate::CreateUObject(this, &UAIBehaviorsComponent::RemoveActorFromAttackList, LostActor),
-		                                       ForgetSightTime, false);
-		ForgetTimers.Add(LostActor, TimerHandle);
-
-		// 또한, “AI가 눈 앞에서 사라졌지만, 아직 공격 대상으로 처리 중” 이므로
-		// AI가 “Seeking” 상태로 전환하도록 할 수도 있음.
-		//  e.g.  UpdateState(AIGameplayTags::AIState_Seeking);
-	}
+	// AActor* LostActor = RecentSenseHandle.DetectedActor;
+	// if (!LostActor)
+	// 	return;
+	//
+	// // 이미 AttackableTargets에 들어있는 Actor라면,
+	// // 곧바로 제거가 아니라, 일정 시간 뒤에 제거하는 타이머를 건다.
+	// if (AttackableTargets.Contains(LostActor))
+	// {
+	// 	// 혹시 이전에 설정된 타이머가 있으면 초기화
+	// 	if (ForgetTimers.Contains(LostActor))
+	// 	{
+	// 		GetWorld()->GetTimerManager().ClearTimer(ForgetTimers[LostActor]);
+	// 		ForgetTimers.Remove(LostActor);
+	// 	}
+	//
+	// 	// 일정 시간이 지난 후 RemoveActorFromAttackList를 호출하는 타이머
+	// 	FTimerHandle TimerHandle;
+	// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle,
+	// 	                                       FTimerDelegate::CreateUObject(this, &UAIBehaviorsComponent::RemoveActorFromAttackList, LostActor),
+	// 	                                       ForgetSightTime, false);
+	// 	ForgetTimers.Add(LostActor, TimerHandle);
+	//
+	// 	// 또한, “AI가 눈 앞에서 사라졌지만, 아직 공격 대상으로 처리 중” 이므로
+	// 	// AI가 “Seeking” 상태로 전환하도록 할 수도 있음.
+	// 	//  e.g.  UpdateState(AIGameplayTags::AIState_Seeking);
+	// }
 }
 
 void UAIBehaviorsComponent::HandleSensedSound()
