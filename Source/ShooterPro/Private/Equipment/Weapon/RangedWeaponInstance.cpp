@@ -123,8 +123,6 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 	const float CrouchingTargetValue = bIsCrouching ? SpreadAngleMultiplier_Crouching : 1.0f;
 
 	// 현재 값을 CrouchingTargetValue 값과 가깝게 만드는 것이 목표
-	CrouchingMultiplier = FMath::FInterpTo(CrouchingMultiplier, CrouchingTargetValue, DeltaSeconds, TransitionRate_Crouching);
-	const bool bCrouchingMultiplierAtTarget = FMath::IsNearlyEqual(CrouchingMultiplier, CrouchingTargetValue, MultiplierNearlyEqualThreshold);
 
 	// 공중 보정값
 	const bool bIsJumpingOrFalling = (CharMovementComp != nullptr) && CharMovementComp->IsFalling();
@@ -137,10 +135,10 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 	
 	if (const AProPlayerCharacter* Character = Cast<AProPlayerCharacter>(Pawn))
 	{
-		if (Character->IsAiming) AimingAlpha = 0.8f; //여기 바꿔야함.
+		if (Character->IsAiming) AimingAlpha = AimingAccuracyMultiplier; //여기 바꿔야함.
 	}
 
-		//{
+	//{
 	//	float TopCameraWeight;
 	//	FGameplayTag TopCameraTag;
 	//	CameraComponent->GetBlendInfo(/*out*/ TopCameraWeight, /*out*/ TopCameraTag);
@@ -159,5 +157,5 @@ bool URangedWeaponInstance::UpdateMultipliers(float DeltaSeconds)
 	CurrentSpreadAngleMultiplier = CombinedMultiplier;
 
 	// 4가지 조건 (가만히 있는가, 앉아있는가, 공중인가, 조준중인가)
-	return bStandingStillMultiplierAtMin && bCrouchingMultiplierAtTarget && bJumpFallMultiplerIs1 && bAimingMultiplierAtTarget;
+	return bStandingStillMultiplierAtMin && bJumpFallMultiplerIs1 && bAimingMultiplierAtTarget;
 }

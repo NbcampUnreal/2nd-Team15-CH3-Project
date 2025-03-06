@@ -17,12 +17,15 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_ADS, TEXT("Ability.ADS"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Health, TEXT("Ability.Regen.Health"));
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Regen_Mana, TEXT("Ability.Regen.Mana"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Grenade, TEXT("Ability.Skill.Grenade"));
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Dash, TEXT("Ability.Skill.Dash"));
 
 
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee, TEXT("CoolDown.Ability.Melee"));
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee2, TEXT("CoolDown.Ability.Melee2"));
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Melee3, TEXT("CoolDown.Ability.Melee3"));
 	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Range, TEXT("CoolDown.Ability.Range"));
+	UE_DEFINE_GAMEPLAY_TAG(CoolDown_Ability_Grenade, TEXT("CoolDown.Ability.Grenade"));
 
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact_Zombie, TEXT("GameplayCue.HitImpact.Zombie"));
@@ -50,7 +53,7 @@ namespace ProGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Reload, TEXT("Event.Montage.Reload"));
 
 
-	UE_DEFINE_GAMEPLAY_TAG(Event_System_ShowWidget, TEXT("Event.System.ShowWidget"));
+	UE_DEFINE_GAMEPLAY_TAG(Event_System_CreateWidget, TEXT("Event.System.CreateWidget"));
 
 	/// 무기
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_SpareAmmo, TEXT("Weapon.SpareAmmo"));

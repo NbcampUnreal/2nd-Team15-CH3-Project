@@ -44,6 +44,7 @@ void AProBulletBase::BeginPlay()
 
 void AProBulletBase::ActivateBullet(AActor* Avatar, const FVector& SpawnLocation, const FRotator& SpawnRotation, const FVector& Direction, const float Speed)
 {
+	//Activate(Avatar, SpawnLocation, SpawnRotation, Direction, Speed);
 	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
@@ -56,9 +57,8 @@ void AProBulletBase::ActivateBullet(AActor* Avatar, const FVector& SpawnLocation
 	ProjectileMovement->SetUpdatedComponent(CollisionComp);
 	
 	CollisionComp->IgnoreActorWhenMoving(AvatarActor, true);
-    
-	// LifeSpan 대신, 풀링 구조에서는 보통 LifeSpan을 0으로 맞춰두고,
-	// 일정 시간이 지나면 DeactivateBullet()을 호출하는 식으로 운용 가능
+
+	K2_ActivateBullet(Avatar, SpawnLocation, SpawnRotation, Direction, Speed);
 }
 
 void AProBulletBase::DeactivateBullet()
@@ -120,12 +120,9 @@ void AProBulletBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	// 4. 충돌 정보 무기 전달 및 탄환 제거(오브젝트 풀링)
 	// 튕기거나 관통을 다 처리한 뒤, “이 탄환을 계속 쓸 것인지” 아니면 “이번 충돌로 끝낼 것인지” 결정
 	// 여기서 간단히 1회만 충돌하면 끝낸다고 가정:
-	bool bShouldDeactivate = true;
 
-	if (bShouldDeactivate)
-	{
-		DeactivateBullet();
-	}
+	DeactivateBullet();
+	
 
 	//ToDd: 웨폰에서 Fire시 설정
 	// 1) 탄약 아이템에서 탄환 클래스를 가져옴

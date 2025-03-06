@@ -248,5 +248,5 @@ void ABGMManager::OnSequenceStopped()
 	FBGMPayload Payload;
 	
 	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(GetWorld());
-	MsgSubsystem.BroadcastMessage<FBGMPayload>(ProGameplayTags::Event_System_ShowWidget, Payload);
+	MsgSubsystem.BroadcastMessage<FBGMPayload>(ProGameplayTags::Event_System_CreateWidget, Payload);
 }
