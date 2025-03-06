@@ -28,10 +28,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	/** 플레이어가 함정 위를 밟았을 때 트리거되는 콜리전 컴포넌트 */
+	/** 트랩의 기준이 되는 SceneComponent (루트) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
 	USceneComponent* SceneComponent;
 	
+	/** 플레이어가 함정 위를 밟았을 때 트리거되는 콜리전 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
 	UBoxComponent* TriggerBox;
 
@@ -46,6 +47,21 @@ protected:
 	/** 함정 발동 시 생성할 나이아가라 시스템(불바다 등) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trap|FX")
 	UNiagaraSystem* FireNiagaraSystem;
+
+	/** 
+	 * 함정이 오버랩되었을 때 파괴할지 여부 
+	 * - true면 트랩이 오버랩 즉시 혹은 일정 시간 후 파괴됨 
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap|Destroy")
+	bool bDestroyOnOverlap;
+
+	/**
+	 * 함정 파괴 지연 시간(초)
+	 * - bDestroyOnOverlap가 true이고 0보다 큰 값이면 
+	 *   해당 시간 후에 트랩이 사라짐 
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap|Destroy", meta = (EditCondition = "bDestroyOnOverlap", ClampMin = "0.0"))
+	float DestroyDelay;
 
 public:
 	/** 함정 사운드 재생 함수 (블루프린트에서 호출 가능) */
@@ -75,6 +91,10 @@ protected:
 		const FHitResult& SweepResult
 	);
 
+	/**
+	 * 블루프린트에서 오버라이드할 수 있는 이벤트(추가 처리가 필요한 경우)
+	 * C++에서 구현 없이 선언만 해두면 블루프린트에서 구현 가능 
+	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void K2_OnTrapOverlap(
 		UPrimitiveComponent* OverlappedComp,

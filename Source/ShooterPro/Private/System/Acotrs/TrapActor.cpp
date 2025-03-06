@@ -26,6 +26,10 @@ ATrapActor::ATrapActor()
 	TriggerBox->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &ATrapActor::OnTrapOverlap);
+
+	// 초기값 설정
+	bDestroyOnOverlap = false;
+	DestroyDelay = 0.f;
 }
 
 void ATrapActor::BeginPlay()
@@ -47,6 +51,7 @@ void ATrapActor::OnTrapOverlap(
 		return;
 	}
 
+	// 블루프린트 확장을 위해 K2_OnTrapOverlap 호출
 	K2_OnTrapOverlap(OverlappedComp,OtherActor,OtherComp,OtherBodyIndex,bFromSweep,SweepResult);
 
 	// 예: ACharacter만 해당 함정 효과를 받도록 할 경우
@@ -61,8 +66,20 @@ void ATrapActor::OnTrapOverlap(
 	SpawnNiagaraFX();
 	ApplyTrapEffect(OverlappedCharacter);
 
-	// 일회용 함정인 경우 파괴하거나, 쿨다운 로직 추가 등 원하는 처리를 수행
-	// Destroy();
+	// 오버랩 시 트랩이 사라지는 로직
+	if (bDestroyOnOverlap)
+	{
+		// DestroyDelay가 0보다 크면 해당 시간 후 삭제
+		if (DestroyDelay > 0.f)
+		{
+			SetLifeSpan(DestroyDelay); 
+			// 또는 타이머를 쓰고 싶다면 GetWorldTimerManager().SetTimer() 방식도 가능
+		}
+		else
+		{
+			Destroy();
+		}
+	}
 }
 
 /** 함정 사운드 재생 */
