@@ -15,10 +15,12 @@ ATrapActor::ATrapActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
+	SetRootComponent(SceneComponent);
+	
 	// 콜리전 컴포넌트 생성
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
-	RootComponent = TriggerBox;
-
+	TriggerBox->SetupAttachment(RootComponent);
 	TriggerBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	TriggerBox->SetCollisionObjectType(ECC_WorldStatic);
 	TriggerBox->SetCollisionResponseToAllChannels(ECR_Overlap);
@@ -44,6 +46,8 @@ void ATrapActor::OnTrapOverlap(
 	{
 		return;
 	}
+
+	K2_OnTrapOverlap(OverlappedComp,OtherActor,OtherComp,OtherBodyIndex,bFromSweep,SweepResult);
 
 	// 예: ACharacter만 해당 함정 효과를 받도록 할 경우
 	ACharacter* OverlappedCharacter = Cast<ACharacter>(OtherActor);

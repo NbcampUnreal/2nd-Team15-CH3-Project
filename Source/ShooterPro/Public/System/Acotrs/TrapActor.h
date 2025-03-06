@@ -30,6 +30,9 @@ protected:
 
 	/** 플레이어가 함정 위를 밟았을 때 트리거되는 콜리전 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
+	USceneComponent* SceneComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap|Components")
 	UBoxComponent* TriggerBox;
 
 	/** 함정이 발동될 때 적용할 GameplayEffect (데미지나 디버프 등) */
@@ -64,6 +67,16 @@ protected:
 	/** 콜리전 처리 함수 */
 	UFUNCTION()
 	void OnTrapOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void K2_OnTrapOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
