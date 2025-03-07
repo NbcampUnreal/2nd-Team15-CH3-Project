@@ -582,7 +582,7 @@ void UGSCAbilitySystemComponent::GrantDefaultAbilitiesAndAttributes(AActor* InOw
 		if (AttributeSetDefinition.AttributeSet)
 		{
 			const bool bHasAttributeSet = GetAttributeSubobject(AttributeSetDefinition.AttributeSet) != nullptr;
-			
+
 			GSC_LOG(Verbose, TEXT("AttributeSet(%s) 이미 존재 여부: %s"),
 			        *GetNameSafe(AttributeSetDefinition.AttributeSet), bHasAttributeSet ? TEXT("True") : TEXT("False"));
 
@@ -590,7 +590,7 @@ void UGSCAbilitySystemComponent::GrantDefaultAbilitiesAndAttributes(AActor* InOw
 			if (!bHasAttributeSet && InOwnerActor)
 			{
 				UAttributeSet* AttributeSet = NewObject<UAttributeSet>(InOwnerActor, AttributeSetDefinition.AttributeSet);
-				
+
 				// 필요한 경우 DataTable 초기화
 				if (AttributeSetDefinition.InitializationData)
 				{
@@ -711,7 +711,7 @@ void UGSCAbilitySystemComponent::GetActivatableGameplayAbilitySpecsByAnyMatching
 			{
 				// bOnlyAbilitiesThatSatisfyTagRequirements == true 이면,
 				// Ability가 태그 블로킹, 요구사항 등 통과해야만 인정
-				if (!bOnlyAbilitiesThatSatisfyTagRequirements 
+				if (!bOnlyAbilitiesThatSatisfyTagRequirements
 					|| Spec.Ability->DoesAbilitySatisfyTagRequirements(*this))
 				{
 					// const_cast로 FGameplayAbilitySpec* 주소를 획득해 결과 배열에 추가

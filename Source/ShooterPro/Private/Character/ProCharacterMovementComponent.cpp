@@ -13,6 +13,7 @@ UProCharacterMovementComponent::UProCharacterMovementComponent(const FObjectInit
 
 float UProCharacterMovementComponent::GetGroundDistance()
 {
+	if (!CharacterOwner) return 0;
 	float GroundDistance = 0;
 	
 	if (MovementMode == MOVE_Walking)

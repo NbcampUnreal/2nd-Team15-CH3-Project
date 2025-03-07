@@ -35,9 +35,8 @@ protected:
 	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	//~ End UUserWidget interface
-	
-public:
 
+public:
 	/** Init widget with attributes from owner character **/
 	UFUNCTION(BlueprintCallable, Category="GAS Companion|UI")
 	virtual void InitFromCharacter();
@@ -78,7 +77,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GAS Companion|UI")
 	virtual void SetManaPercentage(float ManaPercentage);
 
-
 protected:
 	/** Set in native construct if called too early to check for ASC in tick, and kick off initialization logic when it is ready */
 	bool bLazyAbilitySystemInitialization = false;
@@ -103,7 +101,6 @@ protected:
 
 	/** Updates bound widget whenever one of the attribute we care about is changed */
 	virtual void HandleAttributeChange(FGameplayAttribute Attribute, float NewValue, float OldValue) override;
-
 
 private:
 	/** Array of active GE handle bound to delegates that will be fired when the count for the key tag changes to or away from zero */

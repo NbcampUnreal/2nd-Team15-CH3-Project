@@ -5,7 +5,7 @@
 #include "ProGmaeplayTag.h"
 #include "AI/AIGameplayTags.h"
 #include "AI/EnemyAIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 #include "AI/EnemyAILog.h"
 
@@ -26,32 +26,66 @@ AEnemyAIBase::AEnemyAIBase()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidgetComponent"));
 	HealthWidgetComponent->SetupAttachment(GetRootComponent());
 
-	AIBehaviorsComponent = CreateDefaultSubobject<UAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
+	AIBehaviorsComponent = CreateDefaultSubobject<UProAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	GscCoreComponent = CreateDefaultSubobject<UGSCCoreComponent>(TEXT("GscCoreComponent"));
+	bIsAlive = true;
 }
 
-// 바인딩된 함수들을 액터 사망시 실행시킬 함수 - 김민재 추가
-void AEnemyAIBase::EnemyOnKilled()
-{
-	OnKilledActor.Broadcast(this);
-}
 
 void AEnemyAIBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	EnemyAIController = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(this));
-
+	
 	if (GscCoreComponent)
 		GscCoreComponent->OnAbilityEnded.AddDynamic(this, &AEnemyAIBase::OnAbilityEndedCallback);
 
+	EnemyAIController = Cast<AEnemyAIController>(UAIBlueprintHelperLibrary::GetAIController(this));
+
 	// 블루프린트에서 Health Widget 설정 여부 확인 (필요 시 추가 처리)
+}
+
+void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
+{
+	if (!EndedAbility)
+		return;
+
+	// 만약 Subsystem이 이미 죽었거나 생성 안 되었으면 그냥 반환
+	if (!UGameplayMessageSubsystem::HasInstance(EndedAbility))
+	{
+		return;
+	}
+
+	// 1) 어빌리티의 태그들
+	FGameplayTagContainer AbilityTags = EndedAbility->GetAssetTags();
+	FGameplayTag BroadcastTag = ProGameplayTags::Ability;
+	if (!AbilityTags.IsEmpty())
+	{
+		BroadcastTag = *AbilityTags.CreateConstIterator();
+	}
+
+	// 2) 보낼 Payload 구성 (새로운 구조체 사용)
+	FEnemyAbilityEndedPayload Payload;
+	Payload.EndedAbilityName = EndedAbility->GetName();
+	Payload.EndedTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	Payload.AbilityOwner = this; // AIBase 자신 (어빌리티 소유자)
+
+	// 대표 태그
+	Payload.EndedAbilityTag = BroadcastTag;
+
+	// 3) 메시지 전송
+	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
+	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);
 }
 
 void AEnemyAIBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+bool AEnemyAIBase::IsDead_Implementation()
+{
+	return !bIsAlive;
 }
 
 
@@ -94,37 +128,4 @@ float AEnemyAIBase::SetMoveSpeed_Implementation(EAIMovementSpeed NewMovementSpee
 APatrolPath* AEnemyAIBase::GetPatrolPath_Implementation()
 {
 	return PatrolRoute;
-}
-
-void AEnemyAIBase::OnAbilityEndedCallback(const UGameplayAbility* EndedAbility)
-{
-	if (!EndedAbility)
-		return;
-
-	// 만약 Subsystem이 이미 죽었거나 생성 안 되었으면 그냥 반환
-	if (!UGameplayMessageSubsystem::HasInstance(EndedAbility))
-	{
-		return;
-	}
-
-	// 1) 어빌리티의 태그들
-	FGameplayTagContainer AbilityTags = EndedAbility->GetAssetTags();
-	FGameplayTag BroadcastTag = ProGameplayTags::Ability;
-	if (!AbilityTags.IsEmpty())
-	{
-		BroadcastTag = *AbilityTags.CreateConstIterator();
-	}
-
-	// 2) 보낼 Payload 구성 (새로운 구조체 사용)
-	FEnemyAbilityEndedPayload Payload;
-	Payload.EndedAbilityName = EndedAbility->GetName();
-	Payload.EndedTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
-	Payload.AbilityOwner = this; // AIBase 자신 (어빌리티 소유자)
-
-	// 대표 태그
-	Payload.EndedAbilityTag = BroadcastTag;
-
-	// 3) 메시지 전송
-	UGameplayMessageSubsystem& MsgSubsystem = UGameplayMessageSubsystem::Get(EndedAbility);
-	MsgSubsystem.BroadcastMessage<FEnemyAbilityEndedPayload>(BroadcastTag, Payload);
 }

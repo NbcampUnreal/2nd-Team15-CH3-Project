@@ -34,6 +34,14 @@ public:
 	void ToggleCrouch(const FInputActionValue& Value);
 
 	void StartJump(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ADS();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Zoom();
+
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	TObjectPtr<UCameraComponent> CameraComponent;

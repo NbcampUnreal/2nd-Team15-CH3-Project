@@ -7,6 +7,19 @@
 #include "EnemyAITypes.generated.h"
 
 
+class AEnemyAIBase;
+
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	Idle,
+	Combat,
+	Disabled,
+	Investigating,
+	Seeking,
+	Dead
+};
+
 UENUM(BlueprintType, meta=(Bitmask, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class ECombatTriggerFlags : uint8
 {
@@ -17,13 +30,7 @@ enum class ECombatTriggerFlags : uint8
 	OnSpawn = 1 << 3,
 };
 
-/** 
- * 여러 감각 종류를 열거하는 Enum 
- * EAISense는 AI가 감지할 수 있는 감각을 나타냅니다.
- * - Sight: 시각
- * - Hearing: 청각
- * - Damage: 피해 감지
- */
+
 UENUM(BlueprintType)
 enum class EAISense : uint8
 {
@@ -41,6 +48,26 @@ enum class EAIMovementSpeed : uint8
 	Walking,
 	Jogging,
 	Sprinting,
+};
+
+/*
+ * 에너미가 죽었을 때 넘겨주는 정보 페이로드
+ */
+USTRUCT(BlueprintType)
+struct SHOOTERPRO_API FEnemyDeadPayload
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Dead Payload")
+	FGameplayTag EnemyIdentifier;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Dead Payload")
+	TSubclassOf<AEnemyAIBase> EnemyClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Dead Payload")
+	FVector DeadLocation;
 };
 
 
@@ -72,10 +99,9 @@ public:
 	/** 그 외, 필요한 필드가 있다면 자유롭게 추가 */
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability Ended")
 	// int32 SomeAdditionalValue = 0;
-	
+
 	/** 기본 생성자 */
-	FEnemyAbilityEndedPayload()
-		: EndedTime(0.f)
+	FEnemyAbilityEndedPayload() : EndedTime(0.f)
 	{
 	}
 };

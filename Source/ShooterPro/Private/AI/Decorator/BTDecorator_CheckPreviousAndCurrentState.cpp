@@ -5,7 +5,7 @@
 
 #include "AIController.h"
 #include "AI/EnemyAIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 UBTDecorator_CheckPreviousAndCurrentState::UBTDecorator_CheckPreviousAndCurrentState()
 {
@@ -42,7 +42,7 @@ bool UBTDecorator_CheckPreviousAndCurrentState::CalculateRawConditionValue(UBeha
 	// 3. 이전 상태 검사
 	if (bCheckPreviousState)
 	{
-		if (AIController->GetPreviousStateTag() != CheckPreviousState)
+		if (AIController->GetPreviousState() != CheckPreviousState)
 		{
 			// 이전 상태가 다르면 false
 			bConditionResult = false;
@@ -52,7 +52,7 @@ bool UBTDecorator_CheckPreviousAndCurrentState::CalculateRawConditionValue(UBeha
 	// 4. 현재 상태 검사
 	if (bCheckCurrentState)
 	{
-		if (AIController->GetCurrentStateTag() != CheckCurrentState)
+		if (AIController->GetCurrentState() != CheckCurrentState)
 		{
 			// 현재 상태가 다르면 false
 			bConditionResult = false;

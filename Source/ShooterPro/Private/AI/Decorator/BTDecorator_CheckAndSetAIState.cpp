@@ -5,7 +5,7 @@
 
 #include "AI/EnemyAIController.h"
 #include "AI/EnemyAILog.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 #include "AI/Utility/EnemyAIBluePrintFunctionLibrary.h"
 
 
@@ -30,8 +30,8 @@ bool UBTDecorator_CheckAndSetAIState::CalculateRawConditionValue(UBehaviorTreeCo
 	}
 
 	// 2) 블랙보드에서 현재 AI State(FGameplayTag)를 가져옴
-	FGameplayTag CurrentState = AIController->GetCurrentStateTag();
-	if (CurrentState == DesiredStateTag)
+	EAIState CurrentState = AIController->GetCurrentState();
+	if (CurrentState == DesiredState)
 	{
 		// 이미 원하는 태그를 가지고 있다면 TRUE
 		return true;
@@ -45,15 +45,15 @@ bool UBTDecorator_CheckAndSetAIState::CalculateRawConditionValue(UBehaviorTreeCo
 	}
 
 	// ---- bDoStateUpdate == true -> CanChangeState 후 UpdateState ----
-	UAIBehaviorsComponent* AIBehaviors = AIController->AIBehaviorComponent;
+	UProAIBehaviorsComponent* AIBehaviors = AIController->AIBehaviorComponent;
 	if (!AIBehaviors)
 	{
 		return false;
 	}
 
-	if (AIBehaviors->CanChangeState(DesiredStateTag))
+	if (AIBehaviors->CanChangeState(DesiredState))
 	{
-		return AIBehaviors->UpdateState(DesiredStateTag);
+		return AIBehaviors->UpdateState(DesiredState);
 	}
 
 	// 변경 불가하면 false

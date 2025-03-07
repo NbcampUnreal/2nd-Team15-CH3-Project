@@ -606,6 +606,27 @@ bool UGSCCoreComponent::ActivateAbilityByTags(const FGameplayTagContainer Abilit
 	return bSuccess;
 }
 
+void UGSCCoreComponent::RestoreToMaxValues()
+{
+	if (!OwnerAbilitySystemComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RestoreToMaxValues() - ASC가 유효하지 않습니다."));
+		return;
+	}
+
+	// 체력(Health)을 최대치로 세팅
+	const float MaxHealth = GetMaxHealth();
+	SetAttributeValue(UGSCAttributeSet::GetHealthAttribute(), MaxHealth);
+
+	// 만약 마나(Mana) 시스템도 있다면
+	const float MaxMana = GetMaxMana();
+	SetAttributeValue(UGSCAttributeSet::GetManaAttribute(), MaxMana);
+
+	// 스태미나(Stamina)도 동일하게
+	const float MaxStamina = GetMaxStamina();
+	SetAttributeValue(UGSCAttributeSet::GetStaminaAttribute(), MaxStamina);
+}
+
 void UGSCCoreComponent::SetAttributeValue(const FGameplayAttribute Attribute, const float NewValue)
 {
 	if (!OwnerAbilitySystemComponent)
@@ -815,7 +836,7 @@ void UGSCCoreComponent::OnCooldownGameplayTagChanged(const FGameplayTag Gameplay
 
 	if (!OwnerAbilitySystemComponent)
 		return;
-	
+
 	// 해당 AbilitySpec을 ASC에서 찾음
 	FGameplayAbilitySpec* AbilitySpec = OwnerAbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpecHandle);
 	if (!AbilitySpec)

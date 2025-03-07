@@ -10,15 +10,17 @@ namespace AIGameplayTags
 {
 	// UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_ActivateFail_IsDead, "Ability.ActivateFail.IsDead", "Ability failed to activate because its owner is dead.");
 
-	// 예: "AI.State" = EAIState
-	UE_DEFINE_GAMEPLAY_TAG(AIState, TEXT("AI.State"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Idle, TEXT("AI.State.Idle"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Combat, TEXT("AI.State.Combat"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Disabled, TEXT("AI.State.Disabled"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Investigating, TEXT("AI.State.Investigating"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Seeking, TEXT("AI.State.Seeking"));
-	UE_DEFINE_GAMEPLAY_TAG(AIState_Dead, TEXT("AI.State.Dead"));
+	
+	// UE_DEFINE_GAMEPLAY_TAG(AIState, TEXT("AI.State"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Idle, TEXT("AI.State.Idle"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Combat, TEXT("AI.State.Combat"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Disabled, TEXT("AI.State.Disabled"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Investigating, TEXT("AI.State.Investigating"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Seeking, TEXT("AI.State.Seeking"));
+	// UE_DEFINE_GAMEPLAY_TAG(AIState_Dead, TEXT("AI.State.Dead"));
 
+
+	UE_DEFINE_GAMEPLAY_TAG(AI_Ability_Roar, TEXT("AI.Ability.Roar"));
 
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

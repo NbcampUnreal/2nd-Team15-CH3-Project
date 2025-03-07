@@ -55,7 +55,8 @@ FVector UProGameplayAbility_RangedWeapon::RandConeNormalDistribution(const FVect
 		FQuat DirQuat(Rot);
 
 		// 원뿔 중심에서 벗어나는 방향을 쿼터니언 회전으로 적용
-		FQuat FromCenterQuat(FRotator(0.0f, AngleFromCenter, 0.0f));
+		//FQuat FromCenterQuat(FRotator(0.0f, AngleFromCenter, 0.0f));
+		FQuat FromCenterQuat(FRotator(AngleFromCenter, 0.0f, 0.0f)); 
 
 		//원뿔 중심으로 랜덤 회전 적용
 		FQuat AroundQuat(FRotator(0.0f, 0.0, AngleAround));

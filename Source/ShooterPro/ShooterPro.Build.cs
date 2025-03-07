@@ -25,7 +25,8 @@ public class ShooterPro : ModuleRules
 			"AIModule","GameplayBehaviorsModule",
 			"MotionWarping",
 			"GASCompanion", "GameplayMessageRuntime",
-			"Niagara"
+			"Niagara", 
+			"MovieScene","LevelSequence"
 		});
 	}
 }

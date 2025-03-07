@@ -1,6 +1,6 @@
 #include "AI/Abilities/ProAbilityCondition_CheckAttackDistance.h"
 
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 
 UProAbilityCondition_CheckAttackDistance::UProAbilityCondition_CheckAttackDistance()
@@ -18,7 +18,7 @@ bool UProAbilityCondition_CheckAttackDistance::CheckCondition(const UProGameplay
 
 	// AvatarActor에서 UAIBehaviorsComponent를 찾아서 AttackTarget 확인
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (UAIBehaviorsComponent* BehaviorsComp = AvatarActor->FindComponentByClass<UAIBehaviorsComponent>())
+	if (UProAIBehaviorsComponent* BehaviorsComp = AvatarActor->FindComponentByClass<UProAIBehaviorsComponent>())
 	{
 		AActor* TargetActor = BehaviorsComp->AttackTarget;
 		if (!IsValid(TargetActor))

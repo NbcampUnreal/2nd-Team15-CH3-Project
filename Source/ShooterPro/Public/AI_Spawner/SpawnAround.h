@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "AI_Spawner/SpawnerTypes.h"
 #include "SpawnAround.generated.h"
 
 class UBoxComponent;
@@ -38,7 +39,7 @@ public:
 	// The class of the Actor to spawn
 	// 스폰시킬 액터 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	TSubclassOf<AActor> SpawnClass;
+	UDataTable* SpawnDataTable;
 	// Minimum number of Actors to spawn
 	// 스폰시킬 액터의 최소값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
@@ -59,4 +60,6 @@ public:
 protected:
 	int32 AliveActors;
 	int32 SpawnAmount;
+
+	FAISpawnRow* GetRandomRow();
 };

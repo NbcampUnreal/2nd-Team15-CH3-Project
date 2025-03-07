@@ -52,7 +52,7 @@ protected:
 	// 리스폰 로직
 protected:
 	UFUNCTION()
-	void ActorWasKilled(AEnemyAIBase* DestroyedActor);
+	void ActorWasKilled(AActor* DestroyedActor);
 
 	void RespawnLoop();
 	void IndividualRespawn();
