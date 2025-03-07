@@ -2,7 +2,7 @@
 #include "AIController.h"
 #include "AI/EnemyAIController.h"
 #include "AI/EnemyAILog.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 
 UBTService_SelectAttackTarget::UBTService_SelectAttackTarget()
@@ -24,7 +24,7 @@ void UBTService_SelectAttackTarget::OnBecomeRelevant(UBehaviorTreeComponent& Own
 	if (AAIController* AICon = OwnerComp.GetAIOwner())
 	{
 		CachedAIControllers = Cast<AEnemyAIController>(AICon);;
-		CachedAIBehaviorsComps = CachedAIControllers->GetPawn()->FindComponentByClass<UAIBehaviorsComponent>();
+		CachedAIBehaviorsComps = CachedAIControllers->GetPawn()->FindComponentByClass<UProAIBehaviorsComponent>();
 	}
 }
 

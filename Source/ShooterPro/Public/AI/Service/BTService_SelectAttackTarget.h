@@ -5,7 +5,7 @@
 #include "BTService_SelectAttackTarget.generated.h"
 
 class AEnemyAIController;
-class UAIBehaviorsComponent;
+class UProAIBehaviorsComponent;
 
 /**
  * @brief 공격 가능한 타겟을 선택하는 서비스.
@@ -31,5 +31,5 @@ private:
 	TWeakObjectPtr<AEnemyAIController> CachedAIControllers;
 
 	UPROPERTY()
-	TWeakObjectPtr<UAIBehaviorsComponent> CachedAIBehaviorsComps;
+	TWeakObjectPtr<UProAIBehaviorsComponent> CachedAIBehaviorsComps;
 };

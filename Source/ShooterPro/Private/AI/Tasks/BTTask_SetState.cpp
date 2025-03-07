@@ -4,7 +4,7 @@
 #include "AI/Tasks/BTTask_SetState.h"
 
 #include "AI/EnemyAIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 
 UBTTask_SetState::UBTTask_SetState()
@@ -22,14 +22,14 @@ EBTNodeResult::Type UBTTask_SetState::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
-	UAIBehaviorsComponent* BehaviorsComp = AIController->AIBehaviorComponent;
+	UProAIBehaviorsComponent* BehaviorsComp = AIController->AIBehaviorComponent;
 	if (!BehaviorsComp)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	// 2. 상태 업데이트
-	BehaviorsComp->UpdateState(DesiredStateTag);
+	BehaviorsComp->UpdateState(DesiredState);
 
 	// 3. 성공적으로 상태를 설정했으므로 Task가 끝났다고 반환
 	return EBTNodeResult::Succeeded;

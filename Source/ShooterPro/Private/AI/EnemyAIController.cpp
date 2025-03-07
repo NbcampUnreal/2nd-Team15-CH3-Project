@@ -13,7 +13,7 @@
 #include "ShooterPro/Public/AI/EnemyAIBase.h"
 #include "ShooterPro/Public/AI/EnemyAILog.h"
 
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 #include "AI/Utility/EnemyAIBluePrintFunctionLibrary.h"
 
 
@@ -72,6 +72,9 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	if (!DetectionInfoManager)
+		DetectionInfoManager = NewObject<UPerceptionManager>(this, UPerceptionManager::StaticClass());
+
 	PossessedAI = Cast<AEnemyAIBase>(InPawn);
 	if (!PossessedAI)
 	{
@@ -88,37 +91,25 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	// AIBehaviorsComponent가 유효하면 공격 및 방어 반경 업데이트
 	if (IsValid(PossessedAI->AIBehaviorsComponent))
 	{
+		RunBehaviorTree(PossessedAI->BehaviorTree);
+		
 		AIBehaviorComponent = PossessedAI->AIBehaviorsComponent;
 		if (AIBehaviorComponent)
-		{
-			DetectionInfoManager = NewObject<UPerceptionManager>(this, UPerceptionManager::StaticClass());
-
-			RunBehaviorTree(PossessedAI->BehaviorTree);
-			UpdateBlackboard_State(AIGameplayTags::AIState_Idle);
-			UpdateBlackboard_AttackRadius(AIBehaviorComponent->GetAttackRadius());
-			UpdateBlackboard_DefendRadius(AIBehaviorComponent->GetDefendRadius());
-			UpdateBlackboard_StartLocation(PossessedAI->GetActorLocation());
-			UpdateBlackboard_MaxRandRadius(AIBehaviorComponent->GetMaxRandRadius());
-
-			AIPerception->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
-			AIPerception->OnTargetPerceptionForgotten.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
-		}
-		else
-		{
-			AI_ENEMY_SCREEN_LOG_ERROR(5.0f, "PossessedAI가 AIBehaviorComponent를 소유하고 있지 않습니다.");
-		}
+			AIBehaviorComponent->InitializeBehavior(this);
 	}
+
+	AIPerception->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
+	AIPerception->OnTargetPerceptionForgotten.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
+
+
 }
 
 void AEnemyAIController::OnUnPossess()
 {
-	Super::OnUnPossess();
-
-	DetectionInfoManager->OnAddPerceptionUpdated.RemoveDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionUpdated);
-	DetectionInfoManager->OnRemoveExpiredDetection.RemoveDynamic(PossessedAI->AIBehaviorsComponent, &UAIBehaviorsComponent::HandlePerceptionForgotten);
-
 	AIPerception->OnPerceptionUpdated.RemoveDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
 	AIPerception->OnTargetPerceptionForgotten.RemoveDynamic(this, &AEnemyAIController::OnTargetPerceptionForgotten);
+
+	Super::OnUnPossess();
 }
 
 void AEnemyAIController::Tick(float DeltaTime)
@@ -295,24 +286,20 @@ void AEnemyAIController::OnTargetPerceptionForgotten(AActor* ForgottenActor)
 	DetectionInfoManager->ForgetActor(ForgottenActor);
 }
 
-void AEnemyAIController::UpdateBlackboard_State(FGameplayTag NewStateTag)
+void AEnemyAIController::UpdateBlackboard_State(EAIState NewState)
 {
-	GetBlackboardComponent()->SetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState(), FGameplayTagContainer(GetCurrentStateTag()));
-	GetBlackboardComponent()->SetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState(), FGameplayTagContainer(NewStateTag));
+	GetBlackboardComponent()->SetValueAsEnum(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState(), static_cast<uint8>(GetCurrentState()));
+	GetBlackboardComponent()->SetValueAsEnum(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState(), static_cast<uint8>(NewState));
 }
 
-FGameplayTag AEnemyAIController::GetCurrentStateTag() const
+EAIState AEnemyAIController::GetCurrentState() const
 {
-	// 블랙보드에서 GameplayTag를 Get
-	FGameplayTagContainer StateTagContainer = GetBlackboardComponent()->GetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState());
-	return StateTagContainer.First();
+	return static_cast<EAIState>(GetBlackboardComponent()->GetValueAsEnum(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState()));
 }
 
-FGameplayTag AEnemyAIController::GetPreviousStateTag() const
+EAIState AEnemyAIController::GetPreviousState() const
 {
-	// 블랙보드에서 GameplayTag를 Get
-	FGameplayTagContainer StateTagContainer = GetBlackboardComponent()->GetValue<UBlackboardKeyType_GameplayTag>(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_PreviousState());
-	return StateTagContainer.First();
+	return static_cast<EAIState>(GetBlackboardComponent()->GetValueAsEnum(UEnemyAIBluePrintFunctionLibrary::GetBBKeyName_CurrentState()));
 }
 
 void AEnemyAIController::UpdateBlackboard_AttackRadius(float NewAttackRadius)

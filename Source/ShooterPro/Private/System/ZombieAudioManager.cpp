@@ -209,7 +209,7 @@ bool AZombieAudioManager::TryPlayMoan(AActor* ZombieActor)
 	AEnemyAIController* ZController = Cast<AEnemyAIController>(ZombieCharacter->GetController());
 	if (!ZController) return false;
 
-	FGameplayTag CurrentState = ZController->GetCurrentStateTag();
+	EAIState CurrentState = ZController->GetCurrentState();
 
 	// 사운드 목록 찾기
 	const FZombieSoundSet* SoundSetPtr = StateToSoundsMap.Find(CurrentState);
@@ -267,7 +267,7 @@ void AZombieAudioManager::SetNextMoanTimer()
 	float MinTime = 5.f;
 	float MaxTime = 10.f;
 
-	if (const FVector2D* IntervalRange = StateToIntervalMap.Find(AIGameplayTags::AIState_Idle))
+	if (const FVector2D* IntervalRange = StateToIntervalMap.Find(EAIState::Idle))
 	{
 		MinTime = IntervalRange->X;
 		MaxTime = IntervalRange->Y;

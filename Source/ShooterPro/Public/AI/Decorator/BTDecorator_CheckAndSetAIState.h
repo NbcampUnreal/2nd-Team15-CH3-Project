@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/EnemyAITypes.h"
 #include "BehaviorTree/BTDecorator.h"
 #include "BTDecorator_CheckAndSetAIState.generated.h"
 
@@ -25,7 +26,7 @@ protected:
 	 * 이 데코레이터에서 원하는 AI State 태그
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Check AI State")
-	FGameplayTag DesiredStateTag;
+	EAIState DesiredState;
 
 	/**
 	 * false라면 체크만 하고, 다르면 false 반환

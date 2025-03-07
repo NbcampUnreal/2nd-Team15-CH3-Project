@@ -2,7 +2,7 @@
 
 #include "AI/EnemyAIController.h"
 #include "AI/EnemyAILog.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 
 UBTService_HandlePerception::UBTService_HandlePerception()
@@ -27,9 +27,6 @@ void UBTService_HandlePerception::OnBecomeRelevant(UBehaviorTreeComponent& Owner
 		CachedController = Cast<AEnemyAIController>(AICon);
 		if (CachedController.IsValid())
 		{
-			CachedController->GetDetectionInfoManager()->OnAddPerceptionUpdated.AddDynamic(this, &UBTService_HandlePerception::OnPerceptionUpdated);
-			CachedController->GetDetectionInfoManager()->OnRemoveExpiredDetection.AddDynamic(this, &UBTService_HandlePerception::OnTargetPerceptionForgotten);
-
 			CachedBehaviorsComp = CachedController->AIBehaviorComponent;
 		}
 	}
@@ -49,23 +46,5 @@ void UBTService_HandlePerception::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 void UBTService_HandlePerception::OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnCeaseRelevant(OwnerComp, NodeMemory);
-
-	CachedController->GetDetectionInfoManager()->OnAddPerceptionUpdated.RemoveDynamic(this, &UBTService_HandlePerception::OnPerceptionUpdated);
-	CachedController->GetDetectionInfoManager()->OnRemoveExpiredDetection.RemoveDynamic(this, &UBTService_HandlePerception::OnTargetPerceptionForgotten);
 }
 
-void UBTService_HandlePerception::OnPerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo)
-{
-	if (UAIBehaviorsComponent* AIBehaviorsComponent = CachedBehaviorsComp.Get())
-	{
-		AIBehaviorsComponent->HandlePerceptionUpdated(PerceivedActorInfo);
-	}
-}
-
-void UBTService_HandlePerception::OnTargetPerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo)
-{
-	if (UAIBehaviorsComponent* AIBehaviorsComponent = CachedBehaviorsComp.Get())
-	{
-		AIBehaviorsComponent->HandlePerceptionForgotten(PerceivedActorInfo);
-	}
-}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/EnemyAITypes.h"
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_SetState.generated.h"
 
@@ -24,5 +25,5 @@ protected:
 public:
 	/** 설정할 AI 상태 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|State")
-	FGameplayTag DesiredStateTag;
+	EAIState DesiredState;
 };

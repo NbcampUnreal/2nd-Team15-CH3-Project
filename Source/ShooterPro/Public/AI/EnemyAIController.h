@@ -9,7 +9,7 @@
 
 
 // Forward Declarations
-class UAIBehaviorsComponent;
+class UProAIBehaviorsComponent;
 class AEnemyAIBase;
 class UPerceptionManager;
 
@@ -86,14 +86,14 @@ protected:
 public:
 	/** 블랙보드에 AI 상태(GameplayTag)를 설정한다 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
-	void UpdateBlackboard_State(FGameplayTag NewStateTag);
+	void UpdateBlackboard_State(EAIState NewState);
 
 	/** 블랙보드에서 현재 AI 상태(GameplayTag)를 가져온다 */
 	UFUNCTION(BlueprintPure, Category="Enemy AI Controller|Blackboard")
-	FGameplayTag GetCurrentStateTag() const;
+	EAIState GetCurrentState() const;
 
 	UFUNCTION(BlueprintPure, Category="Enemy AI Controller|Blackboard")
-	FGameplayTag GetPreviousStateTag() const;
+	EAIState GetPreviousState() const;
 
 	/** Blackboard의 공격 반경(Attack Radius) 업데이트 */
 	UFUNCTION(BlueprintCallable, Category="Enemy AI Controller|Blackboard")
@@ -134,7 +134,7 @@ public:
 
 	/** AI 행동 제어 컴포넌트 (AIBehaviorsComponent) */
 	UPROPERTY(BlueprintReadWrite, Category="Enemy AI Controller|Reference")
-	TObjectPtr<UAIBehaviorsComponent> AIBehaviorComponent;
+	TObjectPtr<UProAIBehaviorsComponent> AIBehaviorComponent;
 
 protected:
 	/** 감지 정보 관리 객체 */

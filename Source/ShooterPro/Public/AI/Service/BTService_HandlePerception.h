@@ -5,7 +5,7 @@
 #include "BTService_HandlePerception.generated.h"
 
 // 전방 선언
-class UAIBehaviorsComponent;
+class UProAIBehaviorsComponent;
 class AEnemyAIController;
 
 struct FPerceivedActorInfo;
@@ -30,13 +30,7 @@ protected:
 
 	virtual void OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UFUNCTION()
-	void OnPerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
-
-	UFUNCTION()
-	void OnTargetPerceptionForgotten(const FPerceivedActorInfo& PerceivedActorInfo);
-
 private:
 	TWeakObjectPtr<AEnemyAIController> CachedController; // 캐시된 AIController
-	TWeakObjectPtr<UAIBehaviorsComponent> CachedBehaviorsComp; // 캐시된 AIBehaviorsComponent
+	TWeakObjectPtr<UProAIBehaviorsComponent> CachedBehaviorsComp; // 캐시된 AIBehaviorsComponent
 };

@@ -4,7 +4,7 @@
 #include "AI/Decorator/BTDecorator_CheckLastSensedType.h"
 
 #include "AIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 UBTDecorator_CheckLastSensedType::UBTDecorator_CheckLastSensedType()
 {
@@ -33,7 +33,7 @@ bool UBTDecorator_CheckLastSensedType::CalculateRawConditionValue(UBehaviorTreeC
 	}
 
 	// 2) AIBehaviorsComponent 찾기
-	UAIBehaviorsComponent* BehaviorsComp = Pawn->FindComponentByClass<UAIBehaviorsComponent>();
+	UProAIBehaviorsComponent* BehaviorsComp = Pawn->FindComponentByClass<UProAIBehaviorsComponent>();
 	if (!BehaviorsComp)
 	{
 		return false;

@@ -7,7 +7,7 @@
 #include "ProGmaeplayTag.h"
 #include "Abilities/Tasks/GSCTask_PlayMontageWaitForEvent.h"
 #include "AI/EnemyAIBase.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 #include "GameFramework/Character.h"
 
 
