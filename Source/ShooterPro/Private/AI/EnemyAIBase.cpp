@@ -5,7 +5,7 @@
 #include "ProGmaeplayTag.h"
 #include "AI/AIGameplayTags.h"
 #include "AI/EnemyAIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 
 #include "AI/EnemyAILog.h"
 
@@ -26,7 +26,7 @@ AEnemyAIBase::AEnemyAIBase()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidgetComponent"));
 	HealthWidgetComponent->SetupAttachment(GetRootComponent());
 
-	AIBehaviorsComponent = CreateDefaultSubobject<UAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
+	AIBehaviorsComponent = CreateDefaultSubobject<UProAIBehaviorsComponent>(TEXT("AIBehaviorsComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	GscCoreComponent = CreateDefaultSubobject<UGSCCoreComponent>(TEXT("GscCoreComponent"));
 	bIsAlive = true;

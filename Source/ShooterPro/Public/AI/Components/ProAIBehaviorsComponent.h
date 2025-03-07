@@ -1,53 +1,71 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "AI/AIDectionInfoTypes.h"
 #include "AI/EnemyAITypes.h"
 #include "Components/ActorComponent.h"
-#include "AIBehaviorsComponent.generated.h"
-
+#include "ProAIBehaviorsComponent.generated.h"
 
 class AEnemyAIBase;
 class AEnemyAIController;
 class AAIController;
 
+/**
+ * AI 행동/상태 로직 관리용 컴포넌트
+ */
 UCLASS(ClassGroup=("AI"), meta=(BlueprintSpawnableComponent))
-class SHOOTERPRO_API UAIBehaviorsComponent : public UActorComponent
+class SHOOTERPRO_API UProAIBehaviorsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	UAIBehaviorsComponent();
+	UProAIBehaviorsComponent();
 
 protected:
 	virtual void BeginPlay() override;
-
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
-	bool IsTriggerEnabled(ECombatTriggerFlags Trigger) const;
+	void InitializeBehavior(class AEnemyAIController* PossedController);
 
+
+public:
+	// 상태 전이 가능 여부 체크 함수
 	UFUNCTION(BlueprintCallable, Category="AI Behavior")
-	bool CanChangeState(FGameplayTag ChangeState);
+	bool CanChangeState(EAIState ChangeState);
 
+	// 상태 전이(실제 업데이트) 함수
 	UFUNCTION(BlueprintCallable, Category="AI Behavior")
-	bool UpdateState(FGameplayTag UpdateState);
+	bool UpdateState(EAIState UpdateState);
+	
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
-	bool IsInCombat();
+	/*=======================================
+	  * 전용 함수 (CanChangeStateToXXX, HandleEnterXXXState 등)
+	  *======================================*/
+private:
+	// 상태 전이 가능 여부 판단용
+	bool CanChangeStateToDead() const;
+	bool CanChangeStateToCombat() const;
+	bool CanChangeStateToIdle() const;
+	bool CanChangeStateToSeeking() const;
+	bool CanChangeStateToDisabled() const;
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
-	const FPerceivedActorInfo& GetLastSenseHandle() { return RecentSenseHandle; }
+	// 상태 전이 후(진입 시) 해야 할 작업들
+	void HandleEnterDeadState();
+	void HandleEnterCombatState();
+	void HandleEnterIdleState();
+	void HandleEnterSeekingState();
+	void HandleEnterDisabledState();
 
+public:
 	UFUNCTION(BlueprintCallable, Category="AI Behavior")
 	void ForceAttackTarget(AActor* NewActor);
 
-public:
+protected:
+	// 지각 관련 처리
 	UFUNCTION()
 	void HandlePerceptionUpdated(const FPerceivedActorInfo& PerceivedActorInfo);
 
@@ -57,7 +75,6 @@ public:
 	UFUNCTION()
 	void RemoveActorFromAttackList(AActor* LostActor);
 
-public:
 	UFUNCTION()
 	void HandleSensedSight();
 
@@ -77,21 +94,33 @@ public:
 	void HandleLostDamage();
 
 public:
+	// 외부에서 호출 가능한 “스테이트 설정” 함수(상태 세팅 내부 처리)
 	UFUNCTION()
 	void SetStateAsAttacking();
 
 	UFUNCTION()
 	void SetStateAsSeeking();
 
+	// Getters
 public:
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
 	float GetAttackRadius() const { return AttackRadius; }
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
 	float GetDefendRadius() const { return DefendRadius; }
 
-	UFUNCTION(BlueprintPure, Category="AI Behavior")
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
 	float GetMaxRandRadius() const { return MaxRandRadius; }
+
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
+	bool IsInCombat();
+
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
+	const FPerceivedActorInfo& GetLastSenseHandle() { return RecentSenseHandle; }
+
+	// 트리거 활성화 여부 체크
+	UFUNCTION(BlueprintPure, Category="AI Behavior|Getter")
+	bool IsTriggerEnabled(ECombatTriggerFlags Trigger) const;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, Category="AI Behavior")

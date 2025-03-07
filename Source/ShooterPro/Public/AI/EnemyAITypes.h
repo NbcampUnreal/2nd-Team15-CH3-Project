@@ -9,6 +9,17 @@
 
 class AEnemyAIBase;
 
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	Idle,
+	Combat,
+	Disabled,
+	Investigating,
+	Seeking,
+	Dead
+};
+
 UENUM(BlueprintType, meta=(Bitmask, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class ECombatTriggerFlags : uint8
 {
@@ -19,13 +30,7 @@ enum class ECombatTriggerFlags : uint8
 	OnSpawn = 1 << 3,
 };
 
-/** 
- * 여러 감각 종류를 열거하는 Enum 
- * EAISense는 AI가 감지할 수 있는 감각을 나타냅니다.
- * - Sight: 시각
- * - Hearing: 청각
- * - Damage: 피해 감지
- */
+
 UENUM(BlueprintType)
 enum class EAISense : uint8
 {

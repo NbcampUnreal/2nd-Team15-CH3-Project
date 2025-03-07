@@ -12,7 +12,7 @@ class UMotionWarpingComponent;
 class UWidgetComponent;
 class AEnemyAIController;
 class UAICollisionComponent;
-class UAIBehaviorsComponent;
+class UProAIBehaviorsComponent;
 class UBehaviorTree;
 class APatrolPath;
 
@@ -62,7 +62,7 @@ public:
 	
 	/** AIBehaviorsComponent: AI의 행동 로직을 제어하는 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")
-	TObjectPtr<UAIBehaviorsComponent> AIBehaviorsComponent;
+	TObjectPtr<UProAIBehaviorsComponent> AIBehaviorsComponent;
 
 	/** HealthWidgetComponent: 체력 UI 표시용 위젯 (블루프린트에서 설정 가능) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI Base|Component")

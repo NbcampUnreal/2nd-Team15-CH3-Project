@@ -111,8 +111,8 @@ private:
 	UEquipmentManagerComponent* FindEquipmentManager() const;
 
 protected:
-	UPROPERTY()
-	int32 NumSlots = 3;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Qick Bar|Config")
+	int32 NumSlots = 4;
 
 private:
 	TArray<TObjectPtr<UInventoryItemInstance>> Slots;

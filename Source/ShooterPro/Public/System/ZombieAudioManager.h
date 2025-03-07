@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "AI/EnemyAITypes.h"
 #include "GameFramework/Actor.h"
 #include "ZombieAudioManager.generated.h"
 
@@ -94,14 +95,14 @@ protected:
 	 *     AIState_Combat -> [CombatGrowls...]
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="ZombieAudio|Sounds")
-	TMap<FGameplayTag, FZombieSoundSet> StateToSoundsMap;
+	TMap<EAIState, FZombieSoundSet> StateToSoundsMap;
 
 	/**
 	 * 상태별 (MinInterval, MaxInterval)
 	 * Idle -> (5,10), Combat -> (2,5) 등
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="ZombieAudio|Interval")
-	TMap<FGameplayTag, FVector2D> StateToIntervalMap;
+	TMap<EAIState, FVector2D> StateToIntervalMap;
 
 	/** 소리를 재생할 최대 거리(플레이어 기준) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="ZombieAudio|Distance")

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/EnemyAITypes.h"
 #include "BehaviorTree/BTDecorator.h"
 #include "BTDecorator_CheckPreviousAndCurrentState.generated.h"
 
@@ -32,7 +33,7 @@ public:
 
 	/** 이전 상태로 체크할 GameplayTag */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|State", meta=(EditCondition="bCheckPreviousState"))
-	FGameplayTag CheckPreviousState;
+	EAIState CheckPreviousState;
 
 	/** 현재 상태를 검사할지 여부 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|State")
@@ -40,5 +41,5 @@ public:
 
 	/** 현재 상태로 체크할 GameplayTag */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|State", meta=(EditCondition="bCheckCurrentState"))
-	FGameplayTag CheckCurrentState;
+	EAIState CheckCurrentState;
 };

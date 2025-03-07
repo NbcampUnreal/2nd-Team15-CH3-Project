@@ -1,7 +1,7 @@
 #include "AI/Service/BTService_SetAIStateOnActiveDeactive.h"
 
 #include "AI/EnemyAIController.h"
-#include "AI/Components/AIBehaviorsComponent.h"
+#include "AI/Components/ProAIBehaviorsComponent.h"
 #include "AI/Utility/EnemyAIBluePrintFunctionLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
