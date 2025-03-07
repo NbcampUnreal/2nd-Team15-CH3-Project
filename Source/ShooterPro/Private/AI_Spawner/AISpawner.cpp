@@ -385,10 +385,10 @@ void AAISpawner::RespawnLoop()
 	switch (RespawnMethod)
 	{
 	case EAIReSpawnMethod::None:
-		if (GEngine)
+		/*if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Do not respawn."));
-		}
+		}*/
 		break;
 
 	case EAIReSpawnMethod::RespawnOnIndividual:
