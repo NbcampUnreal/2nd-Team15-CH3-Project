@@ -68,10 +68,6 @@ void AProBulletBase::DeactivateBullet()
 	SetActorEnableCollision(false);
 	ProjectileMovement->StopMovementImmediately();
 	ProjectileMovement->Deactivate();
-	
-	// 여기서 "풀 매니저에게 반환"을 해도 되지만,
-	// 보통은 탄환이 자신만 알기보다 "매니저 호출" 함수를 통해
-	// BulletPoolManager가 ReleaseBullet(this)를 호출하도록 하는 편이 낫습니다.
 }
 
 void AProBulletBase::OnBounce_Implementation(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
